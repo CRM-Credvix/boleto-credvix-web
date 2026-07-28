@@ -194,7 +194,7 @@
   function setLoading(isLoading) {
     submitButton.disabled = isLoading;
     submitButton.classList.toggle("loading", isLoading);
-    submitButton.querySelector(".button-label").textContent = isLoading ? "Enviando..." : "Solicitar boleto";
+    submitButton.querySelector(".button-label").textContent = isLoading ? "Enviando..." : "Gerar boleto e receber no WhatsApp";
   }
 
   function showSuccess(payload, response) {
