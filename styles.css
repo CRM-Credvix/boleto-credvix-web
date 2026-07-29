@@ -611,3 +611,180 @@ legend{padding:0 0 14px;color:#aab6e8;font-size:.8rem;font-weight:850;letter-spa
     margin:14px auto 4px;
   }
 }
+
+/* Pixel Neon v3.4 — composição desktop restaurada sem sobreposição */
+@media (min-width:1200px){
+  .page-shell{
+    width:min(1280px,100%);
+    padding-left:32px;
+    padding-right:32px;
+  }
+
+  .main-layout{
+    display:grid;
+    grid-template-columns:minmax(0,620px) minmax(470px,1fr);
+    gap:42px;
+    padding-top:48px;
+    align-items:start;
+  }
+
+  .hero{
+    display:grid;
+    grid-template-columns:minmax(270px,.88fr) minmax(280px,1.12fr);
+    grid-template-areas:
+      "kicker kicker"
+      "title title"
+      "copy visual"
+      "benefits visual";
+    column-gap:18px;
+    align-items:start;
+    min-height:760px;
+    padding:0;
+    overflow:visible;
+  }
+
+  .hero-kicker{
+    grid-area:kicker;
+    justify-self:start;
+    margin:0;
+  }
+
+  .hero h1{
+    grid-area:title;
+    width:100%;
+    max-width:620px;
+    margin:25px 0 0;
+    font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Segoe UI Condensed",sans-serif;
+    font-size:clamp(3.9rem,4.65vw,4.55rem);
+    font-weight:400;
+    line-height:.91;
+    letter-spacing:.01em;
+    gap:.02em;
+    overflow:visible;
+  }
+
+  .hero-line{
+    display:block;
+    width:auto;
+    max-width:100%;
+    white-space:nowrap;
+  }
+
+  .hero-copy{
+    grid-area:copy;
+    max-width:275px;
+    margin:26px 0 0;
+    font-size:.94rem;
+    line-height:1.65;
+    position:relative;
+    z-index:2;
+  }
+
+  .hero-visual{
+    grid-area:visual;
+    align-self:start;
+    justify-self:stretch;
+    width:100%;
+    height:455px;
+    margin:4px 0 0;
+    overflow:visible;
+    position:relative;
+    z-index:1;
+  }
+
+  .hero-visual img{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    object-position:center top;
+    filter:saturate(1.08) contrast(1.06) drop-shadow(0 18px 26px rgba(0,0,0,.28));
+    mix-blend-mode:screen;
+    -webkit-mask-image:none;
+    mask-image:none;
+  }
+
+  .benefit-list{
+    grid-area:benefits;
+    align-self:start;
+    max-width:285px;
+    margin:26px 0 0;
+    gap:8px;
+    position:relative;
+    z-index:2;
+  }
+
+  .benefit-list li{
+    min-height:76px;
+    padding:10px 12px;
+    grid-template-columns:49px 1fr;
+    gap:10px;
+  }
+
+  .benefit-symbol{
+    width:43px;
+    height:43px;
+    font-size:1.18rem;
+  }
+
+  .request-panel{
+    width:100%;
+    min-width:0;
+    margin:0;
+    min-height:790px;
+  }
+}
+
+/* Em notebooks, empilha os blocos antes de qualquer colisão visual. */
+@media (min-width:981px) and (max-width:1199px){
+  .main-layout{
+    grid-template-columns:1fr;
+    gap:34px;
+  }
+  .hero,
+  .request-panel,
+  .how-strip{
+    width:100%;
+    max-width:780px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .hero{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(270px,.82fr);
+    grid-template-areas:
+      "kicker kicker"
+      "title title"
+      "copy visual"
+      "benefits visual";
+    column-gap:20px;
+  }
+  .hero-kicker{grid-area:kicker}
+  .hero h1{
+    grid-area:title;
+    max-width:720px;
+    font-size:4.6rem;
+  }
+  .hero-copy{grid-area:copy;max-width:330px}
+  .hero-visual{grid-area:visual;height:430px;margin:0}
+  .hero-visual img{
+    object-fit:contain;
+    mix-blend-mode:screen;
+    -webkit-mask-image:none;
+    mask-image:none;
+  }
+  .benefit-list{grid-area:benefits;max-width:340px}
+}
+
+@media (max-width:680px){
+  .hero h1{
+    font-size:clamp(2.85rem,15vw,4.2rem);
+    line-height:.92;
+  }
+  .hero-line{white-space:normal}
+  .hero-visual img{
+    mix-blend-mode:screen;
+    -webkit-mask-image:none;
+    mask-image:none;
+  }
+}
