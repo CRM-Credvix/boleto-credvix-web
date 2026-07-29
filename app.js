@@ -75,6 +75,7 @@
     form.querySelectorAll("[aria-invalid]").forEach((field) => field.setAttribute("aria-invalid", "false"));
     form.querySelectorAll(".field-error").forEach((error) => { error.textContent = ""; });
     document.querySelector("#consent-error").textContent = "";
+    document.querySelector("#consentimento").setAttribute("aria-invalid", "false");
     formAlert.hidden = true;
     formAlert.textContent = "";
   }
@@ -126,7 +127,11 @@
       if (!end.value || Number(end.value) < 1) { setFieldError(end, "Informe a parcela final."); valid = false; }
       if (start.value && end.value && Number(start.value) > Number(end.value)) { setFieldError(end, "A parcela final deve ser igual ou maior."); valid = false; }
     }
-    if (!consent.checked) { document.querySelector("#consent-error").textContent = "Confirme a autorização antes de enviar."; valid = false; }
+    if (!consent.checked) {
+      consent.setAttribute("aria-invalid", "true");
+      document.querySelector("#consent-error").textContent = "Confirme a autorização antes de enviar.";
+      valid = false;
+    }
     return valid;
   }
 

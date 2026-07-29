@@ -308,3 +308,205 @@ button, input, select { font: inherit; }
 .protocol-box strong { display: block; margin-top: 7px; color: #24dcff; }
 .success-panel button { border: 0; border-radius: 8px; padding: 14px 22px; color: white; background: linear-gradient(90deg,#13cfff,#a33fff,#ff2eae); cursor: pointer; }
 
+
+/* ==========================================================
+   PATCH VISUAL v4.2
+   - mantém o mock intacto
+   - corrige alinhamento das validações
+   - corrige o checkbox de consentimento
+   - prolonga o fundo para além dos 1448 px do mock
+   ========================================================== */
+
+html {
+  min-height: 100%;
+  background: #02040f;
+}
+
+body {
+  position: relative;
+  isolation: isolate;
+  background: #02040f;
+}
+
+/* Expande a mesma atmosfera do mock para as laterais e para baixo,
+   sem repetir o boleto nem o formulário. */
+body::before {
+  content: "";
+  position: fixed;
+  z-index: -3;
+  inset: -80px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 22% 42%, rgba(20, 68, 177, .28), transparent 31%),
+    radial-gradient(circle at 78% 32%, rgba(113, 25, 163, .32), transparent 32%),
+    radial-gradient(circle at 50% 100%, rgba(24, 70, 196, .28), transparent 42%),
+    linear-gradient(110deg, #02040f 0%, #020718 47%, #10031c 100%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -2;
+  inset: 0;
+  pointer-events: none;
+  opacity: .26;
+  background-image:
+    radial-gradient(circle, rgba(22, 218, 255, .95) 0 1px, transparent 1.8px),
+    radial-gradient(circle, rgba(255, 40, 184, .92) 0 1.2px, transparent 2px),
+    linear-gradient(rgba(25, 83, 171, .09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25, 83, 171, .09) 1px, transparent 1px);
+  background-size: 83px 97px, 131px 113px, 46px 46px, 46px 46px;
+  background-position: 7px 13px, 31px 48px, center bottom, center bottom;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 100%);
+}
+
+.stage-shell,
+.pixel-stage {
+  background: transparent;
+}
+
+/* Mantém o erro dentro do mesmo eixo do campo e impede que as mensagens
+   "escapem" para o painel ou se misturem com o próximo controle. */
+.overlay-field {
+  z-index: 8;
+}
+
+.overlay-field input:focus,
+.overlay-field select:focus,
+.overlay-field input.has-value,
+.overlay-field select.has-value,
+.overlay-field input[aria-invalid="true"],
+.overlay-field select[aria-invalid="true"] {
+  opacity: 1;
+  color: #f5f7ff;
+  background: #071127;
+}
+
+.overlay-field input[aria-invalid="true"],
+.overlay-field select[aria-invalid="true"] {
+  border-color: #ff4e9f;
+  box-shadow:
+    0 0 0 1px rgba(255, 78, 159, .22),
+    0 0 13px rgba(255, 46, 184, .18),
+    inset 0 0 18px rgba(8, 20, 50, .45);
+}
+
+.field-error {
+  left: 2px;
+  right: 2px;
+  top: calc(100% + 3px);
+  min-width: 0;
+  width: auto;
+  max-width: calc(100% - 4px);
+  min-height: 12px;
+  padding: 0;
+  color: #ff79bd;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  text-shadow: 0 1px 5px #000, 0 0 8px rgba(255, 46, 184, .34);
+  pointer-events: none;
+  z-index: 12;
+}
+
+/* Ajustes individuais para aproveitar exatamente os vãos desenhados no mock. */
+.name-field .field-error { top: calc(100% + 2px); }
+.unit-field .field-error,
+.phone-field .field-error { top: calc(100% + 3px); }
+.cpf-field .field-error,
+.contract-field .field-error { top: calc(100% + 3px); }
+
+/* Checkbox: a área clicável continua grande, mas a marca visual fica
+   exatamente sobre o quadrado já desenhado no mock. */
+.overlay-consent {
+  left: 951px;
+  top: 746px;
+  width: 405px;
+  height: 50px;
+  z-index: 9;
+}
+
+.overlay-consent input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.consent-box {
+  left: 2px;
+  top: 6px;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.overlay-consent:hover .consent-box,
+.overlay-consent:focus-within .consent-box {
+  box-shadow: 0 0 0 1px rgba(19, 216, 255, .34), 0 0 10px rgba(19, 216, 255, .25);
+}
+
+.overlay-consent input:checked + .consent-box::after {
+  content: "✓";
+  position: absolute;
+  left: 1px;
+  top: -3px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  color: #17e9ff;
+  font-size: 16px;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(23, 233, 255, .95);
+}
+
+.overlay-consent input[aria-invalid="true"] + .consent-box {
+  box-shadow: 0 0 0 1px rgba(255, 78, 159, .72), 0 0 10px rgba(255, 46, 184, .35);
+}
+
+.standalone-error {
+  left: 974px;
+  top: 790px;
+  width: 378px;
+  height: 13px;
+  color: #ff79bd;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  text-shadow: 0 1px 5px #000, 0 0 8px rgba(255, 46, 184, .34);
+  z-index: 12;
+}
+
+/* O botão continua usando o desenho do mock; a camada funcional não cria
+   caixa, borda ou deslocamento próprios. */
+.overlay-submit,
+.overlay-submit:hover,
+.overlay-submit:focus,
+.overlay-submit:focus-visible {
+  outline: 0;
+  outline-offset: 0;
+  box-shadow: none;
+}
+
+/* Garante que nenhum elemento nativo do navegador gere um quadrado extra. */
+.overlay-option input,
+.overlay-consent input {
+  appearance: none;
+  -webkit-appearance: none;
+}
