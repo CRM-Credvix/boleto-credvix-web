@@ -507,3 +507,325 @@ input:-webkit-autofill:focus { -webkit-text-fill-color: #f7f8ff; -webkit-box-sha
   .brand { min-width: 0; }
   .brand-name { white-space: nowrap; }
 }
+
+/* ==========================================================
+   PIXEL NEON FULL-BLEED v4.4
+   Ajuste visual para ocupar o viewport como o mock aprovado,
+   sem voltar ao posicionamento absoluto do formulario.
+   ========================================================== */
+
+:root {
+  --page-pad: clamp(22px, 2.35vw, 46px);
+}
+
+html {
+  min-height: 100%;
+  background: #02040e;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 47% 48%, rgba(18, 80, 255, .13) 0%, transparent 43%),
+    radial-gradient(ellipse at 88% 38%, rgba(139, 30, 255, .14) 0%, transparent 38%),
+    radial-gradient(ellipse at 56% 102%, rgba(255, 25, 190, .10) 0%, transparent 42%),
+    linear-gradient(115deg, #01030c 0%, #020613 42%, #07031b 74%, #080218 100%);
+}
+
+.page-effects {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, .04), rgba(0, 0, 0, .2)),
+    radial-gradient(ellipse at 50% 42%, rgba(24, 74, 255, .08), transparent 56%);
+}
+
+.page-effects::before,
+.page-effects::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.page-effects::before {
+  opacity: .94;
+  background-image:
+    radial-gradient(circle, rgba(10, 221, 255, .98) 0 1.7px, transparent 2.7px),
+    radial-gradient(circle, rgba(255, 34, 191, .96) 0 1.7px, transparent 2.8px),
+    radial-gradient(circle, rgba(108, 77, 255, .92) 0 1.25px, transparent 2.3px),
+    radial-gradient(circle, rgba(255, 255, 255, .78) 0 .8px, transparent 1.7px);
+  background-size:
+    147px 139px,
+    191px 173px,
+    113px 127px,
+    83px 97px;
+  background-position:
+    7px 18px,
+    64px 89px,
+    31px 52px,
+    17px 33px;
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 9%, #000 92%, transparent 100%);
+}
+
+.page-effects::after {
+  opacity: .40;
+  background-image:
+    linear-gradient(180deg, rgba(22, 167, 255, .7), transparent 78%),
+    linear-gradient(180deg, rgba(247, 41, 217, .66), transparent 72%),
+    linear-gradient(180deg, rgba(111, 71, 255, .58), transparent 75%);
+  background-repeat: no-repeat;
+  background-size: 1px 26%, 1px 21%, 1px 18%;
+  background-position: 31% 12%, 64% 17%, 79% 9%;
+}
+
+.pixel-field-one {
+  opacity: .72;
+  background-size: 162px 146px, 221px 187px, 121px 139px;
+}
+
+.pixel-field-two {
+  opacity: .22;
+  background-size: 78px 78px;
+}
+
+.tech-floor {
+  top: 53%;
+  opacity: .43;
+  transform: perspective(560px) rotateX(61deg) scale(1.48);
+  background-size: 48px 48px;
+}
+
+.site-shell {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding-inline: var(--page-pad);
+}
+
+.topbar {
+  min-height: clamp(86px, 7vw, 104px);
+  grid-template-columns: minmax(260px, 1fr) auto minmax(260px, 1fr);
+  gap: clamp(24px, 3vw, 62px);
+}
+
+.brand-logo {
+  width: clamp(50px, 4.3vw, 66px);
+  height: clamp(50px, 4.3vw, 66px);
+}
+
+.brand-name {
+  font-size: clamp(1.05rem, 1.62vw, 1.62rem);
+}
+
+.main-nav {
+  gap: clamp(40px, 5vw, 78px);
+}
+
+.main-nav a {
+  font-size: clamp(.88rem, 1.08vw, 1.08rem);
+}
+
+.whatsapp-pill {
+  min-width: clamp(210px, 17vw, 260px);
+  padding: 9px 15px;
+}
+
+.main-layout {
+  width: 100%;
+  min-height: calc(100vh - clamp(86px, 7vw, 104px));
+  display: grid;
+  grid-template-columns:
+    minmax(0, .86fr)
+    minmax(0, 1.28fr)
+    minmax(0, .98fr);
+  gap: clamp(8px, 1.15vw, 22px);
+  align-items: start;
+  padding: clamp(30px, 3vw, 50px) 0 clamp(28px, 4vw, 72px);
+}
+
+.hero-copy {
+  min-width: 0;
+  padding-top: clamp(12px, 1.4vw, 24px);
+  z-index: 2;
+}
+
+.kicker {
+  margin-bottom: clamp(22px, 2vw, 32px);
+  padding: 10px 17px;
+  font-size: clamp(.64rem, .73vw, .78rem);
+}
+
+.hero-copy h1 {
+  font-size: clamp(3rem, 4.28vw, 4.8rem);
+  line-height: .925;
+  letter-spacing: -.012em;
+}
+
+.hero-lead {
+  max-width: 92%;
+  margin: clamp(27px, 2.4vw, 38px) 0 clamp(22px, 2vw, 31px);
+  font-size: clamp(.92rem, 1.12vw, 1.16rem);
+  line-height: 1.62;
+}
+
+.benefits {
+  width: 94%;
+  max-width: none;
+  gap: clamp(11px, .95vw, 15px);
+}
+
+.benefit {
+  min-height: clamp(82px, 6.7vw, 102px);
+  grid-template-columns: clamp(48px, 4vw, 62px) minmax(0, 1fr);
+  gap: clamp(12px, 1vw, 16px);
+  padding: clamp(11px, 1vw, 15px) clamp(13px, 1.1vw, 18px);
+}
+
+.benefit-icon {
+  width: clamp(43px, 3.7vw, 56px);
+  height: clamp(43px, 3.7vw, 56px);
+}
+
+.benefit h2 {
+  font-size: clamp(.76rem, .9vw, .96rem);
+}
+
+.benefit p {
+  font-size: clamp(.68rem, .78vw, .82rem);
+}
+
+.hero-art {
+  min-width: 0;
+  min-height: clamp(760px, 67vw, 990px);
+  height: auto;
+  margin: clamp(-16px, -1vw, -8px) clamp(-28px, -1.8vw, -10px) clamp(-30px, -2vw, -12px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: visible;
+}
+
+.hero-art::before {
+  inset: 0 -12% -2%;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(32, 104, 255, .26), transparent 48%),
+    radial-gradient(circle at 61% 67%, rgba(255, 33, 201, .24), transparent 43%);
+  filter: blur(36px);
+}
+
+.hero-art::after {
+  inset: 0 -14% -3%;
+  opacity: .82;
+  background-size: 112px 104px, 149px 127px, 79px 93px;
+}
+
+.hero-art img {
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  height: auto;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  filter:
+    saturate(1.13)
+    contrast(1.06)
+    brightness(1.02)
+    drop-shadow(0 0 28px rgba(43, 91, 255, .32))
+    drop-shadow(0 0 34px rgba(245, 35, 224, .16));
+  -webkit-mask-image: radial-gradient(ellipse 76% 82% at 50% 49%, #000 67%, rgba(0,0,0,.94) 81%, transparent 100%);
+  mask-image: radial-gradient(ellipse 76% 82% at 50% 49%, #000 67%, rgba(0,0,0,.94) 81%, transparent 100%);
+}
+
+.request-column {
+  min-width: 0;
+  padding-top: 0;
+  z-index: 3;
+}
+
+.request-panel {
+  width: 100%;
+  padding: clamp(21px, 1.65vw, 29px);
+  border-radius: clamp(16px, 1.25vw, 21px);
+  box-shadow:
+    0 0 32px rgba(54, 84, 255, .20),
+    0 0 29px rgba(255, 45, 181, .14),
+    inset 0 0 54px rgba(32, 50, 107, .17);
+}
+
+.panel-header h2 {
+  font-size: clamp(1.72rem, 2.45vw, 2.65rem);
+}
+
+.panel-header p {
+  font-size: clamp(.76rem, .9vw, .95rem);
+}
+
+.form-section legend {
+  font-size: clamp(.72rem, .8vw, .86rem);
+}
+
+.field > span {
+  font-size: clamp(.63rem, .72vw, .77rem);
+}
+
+.field input,
+.field select,
+.input-with-icon {
+  height: clamp(43px, 3.55vw, 54px);
+}
+
+.option-row {
+  min-height: clamp(57px, 4.75vw, 70px);
+  padding: clamp(8px, .75vw, 12px) clamp(11px, .9vw, 15px);
+}
+
+.option-copy strong {
+  font-size: clamp(.72rem, .82vw, .88rem);
+}
+
+.option-copy small {
+  font-size: clamp(.59rem, .68vw, .73rem);
+}
+
+.primary-button {
+  min-height: clamp(50px, 4.1vw, 61px);
+  font-size: clamp(.69rem, .8vw, .86rem);
+}
+
+.privacy-card {
+  padding: clamp(12px, 1vw, 16px) clamp(15px, 1.2vw, 20px);
+}
+
+.privacy-card p {
+  font-size: clamp(.67rem, .77vw, .82rem);
+}
+
+/* Mantem tres colunas em notebooks e monitores comuns. */
+@media (max-width: 1180px) {
+  .site-shell { padding-inline: 22px; }
+  .main-layout {
+    grid-template-columns: minmax(285px, .88fr) minmax(410px, 1.18fr);
+    gap: 20px;
+  }
+  .request-column {
+    grid-column: 1 / -1;
+    width: min(720px, 100%);
+    margin-inline: auto;
+  }
+  .hero-art { min-height: 690px; }
+}
+
+@media (max-width: 760px) {
+  .site-shell { padding-inline: 12px; }
+  .topbar { grid-template-columns: 1fr auto; }
+  .main-layout { grid-template-columns: 1fr; }
+  .hero-copy h1 { font-size: clamp(2.75rem, 13vw, 4rem); }
+  .hero-art {
+    min-height: auto;
+    margin: -12px 0 8px;
+  }
+  .hero-art img { width: min(100%, 650px); }
+  .request-column { grid-column: auto; width: 100%; }
+  .benefits { width: 100%; }
+  .hero-lead { max-width: none; }
+}
