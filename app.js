@@ -1,350 +1,289 @@
 (() => {
   "use strict";
 
-  const config = window.BOLETO_CREDVIX_CONFIG || {};
-  const form = document.querySelector("#request-form");
-  const successPanel = document.querySelector("#success-panel");
-  const submitButton = document.querySelector("#submit-button");
-  const formAlert = document.querySelector("#form-alert");
-  const parcelFields = document.querySelector("#parcel-fields");
-  const parcelSingle = document.querySelector(".parcel-single");
-  const parcelRange = document.querySelector(".parcel-range");
-  const accessCodeField = document.querySelector(".access-code-field");
-  const unitsSelect = document.querySelector("#unidade");
+  const DESIGN_WIDTH = 1448;
+  const DESIGN_HEIGHT = 1086;
+  const MAX_SCALE = 1.15;
 
-  const digitsOnly = (value) => String(value || "").replace(/\D/g, "");
+  const shell = document.getElementById("stageShell");
+  const stage = document.getElementById("stage");
+  const form = document.getElementById("boletoForm");
+  const toast = document.getElementById("toast");
+  const parcelModal = document.getElementById("parcelModal");
+  const infoModal = document.getElementById("infoModal");
+  const infoTitle = document.getElementById("infoTitle");
+  const infoText = document.getElementById("infoText");
+  const specificFields = document.getElementById("specificFields");
+  const rangeFields = document.getElementById("rangeFields");
+  const modalHint = document.getElementById("modalHint");
+  const submitButton = document.getElementById("submitButton");
 
-  function populateUnits() {
-    const units = Array.isArray(config.UNIDADES) && config.UNIDADES.length
-      ? config.UNIDADES
-      : ["Matriz"];
+  const fields = {
+    nome: document.getElementById("nome"),
+    unidade: document.getElementById("unidade"),
+    telefone: document.getElementById("telefone"),
+    cpf: document.getElementById("cpf"),
+    contrato: document.getElementById("contrato"),
+    consentimento: document.getElementById("consentimento"),
+    parcelaEspecifica: document.getElementById("parcelaEspecifica"),
+    parcelaInicial: document.getElementById("parcelaInicial"),
+    parcelaFinal: document.getElementById("parcelaFinal")
+  };
 
-    units.forEach((unit) => {
-      if ([...unitsSelect.options].some((option) => option.value === unit)) return;
-      const option = document.createElement("option");
-      option.value = unit;
-      option.textContent = unit;
-      unitsSelect.appendChild(option);
-    });
+  const state = {
+    tipoParcela: "primeira",
+    parcelaEspecifica: "",
+    parcelaInicial: "",
+    parcelaFinal: ""
+  };
+
+  function fitStage() {
+    const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    const scale = Math.min(viewportWidth / DESIGN_WIDTH, MAX_SCALE);
+    stage.style.transform = `scale(${scale})`;
+    shell.style.width = `${DESIGN_WIDTH * scale}px`;
+    shell.style.height = `${DESIGN_HEIGHT * scale}px`;
   }
 
-  function setupAccessCode() {
-    const enabled = Boolean(config.REQUIRE_ACCESS_CODE);
-    accessCodeField.hidden = !enabled;
-    document.querySelector("#codigoAcesso").required = enabled;
+  function digits(value) {
+    return String(value || "").replace(/\D/g, "");
   }
 
-  function maskCpf(value) {
-    const digits = digitsOnly(value).slice(0, 11);
-    return digits
-      .replace(/^(\d{3})(\d)/, "$1.$2")
-      .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
-      .replace(/\.(\d{3})(\d)/, ".$1-$2");
+  function formatCpf(value) {
+    const d = digits(value).slice(0, 11);
+    return d
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
   }
 
-  function maskPhone(value) {
-    const digits = digitsOnly(value).slice(0, 11);
-    if (digits.length <= 10) {
-      return digits
-        .replace(/^(\d{2})(\d)/, "($1) $2")
-        .replace(/(\d{4})(\d)/, "$1-$2");
+  function formatPhone(value) {
+    const d = digits(value).slice(0, 11);
+    if (d.length <= 10) {
+      return d.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{4})(\d)/, "$1-$2");
     }
-    return digits
-      .replace(/^(\d{2})(\d)/, "($1) $2")
-      .replace(/(\d{5})(\d)/, "$1-$2");
+    return d.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
   }
 
   function isValidCpf(value) {
-    const cpf = digitsOnly(value);
+    const cpf = digits(value);
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-
-    const digit = (length) => {
-      let total = 0;
-      let weight = length + 1;
-      for (let index = 0; index < length; index += 1) {
-        total += Number(cpf[index]) * weight;
-        weight -= 1;
-      }
-      const remainder = (total * 10) % 11;
-      return remainder === 10 ? 0 : remainder;
+    const calc = (length) => {
+      let sum = 0;
+      for (let i = 0; i < length; i += 1) sum += Number(cpf[i]) * (length + 1 - i);
+      const mod = (sum * 10) % 11;
+      return mod === 10 ? 0 : mod;
     };
-
-    return digit(9) === Number(cpf[9]) && digit(10) === Number(cpf[10]);
+    return calc(9) === Number(cpf[9]) && calc(10) === Number(cpf[10]);
   }
 
-  function errorElementFor(field) {
-    return field.closest(".field")?.querySelector(".field-error") || null;
+  function showToast(message, type = "error") {
+    toast.textContent = message;
+    toast.classList.toggle("success", type === "success");
+    toast.hidden = false;
+    window.clearTimeout(showToast.timer);
+    showToast.timer = window.setTimeout(() => { toast.hidden = true; }, 4200);
   }
 
-  function setFieldError(field, message = "") {
-    if (!field) return;
-    field.setAttribute("aria-invalid", message ? "true" : "false");
-    const error = errorElementFor(field);
-    if (error) error.textContent = message;
+  function setInvalid(element, invalid) {
+    element.classList.toggle("is-invalid", invalid);
   }
 
-  function clearFieldError(field) {
-    setFieldError(field, "");
+  function clearValidation() {
+    [fields.nome, fields.unidade, fields.telefone, fields.cpf].forEach((el) => setInvalid(el, false));
+    document.querySelector(".consent-hitbox")?.classList.remove("is-invalid");
   }
 
-  function clearErrors() {
-    form.querySelectorAll("[aria-invalid]").forEach((field) => field.setAttribute("aria-invalid", "false"));
-    form.querySelectorAll(".field-error").forEach((error) => { error.textContent = ""; });
-    const consentError = document.querySelector("#consent-error");
-    consentError.textContent = "";
-    document.querySelector("#consentimento").setAttribute("aria-invalid", "false");
-    formAlert.hidden = true;
-    formAlert.textContent = "";
+  function selectedType() {
+    return form.querySelector('input[name="tipoParcela"]:checked')?.value || "primeira";
   }
 
-  function selectedRequestType() {
-    return form.querySelector('input[name="tipoSolicitacao"]:checked')?.value || "primeira_disponivel";
+  function updateCards() {
+    document.querySelectorAll(".option-card").forEach((card) => {
+      card.classList.toggle("is-selected", card.querySelector("input")?.checked === true);
+    });
   }
 
-  function updateParcelFields() {
-    const type = selectedRequestType();
-    const isSingle = type === "parcela_especifica";
-    const isRange = type === "intervalo";
-
-    parcelFields.hidden = !(isSingle || isRange);
-    parcelSingle.hidden = !isSingle;
-    parcelRange.hidden = !isRange;
-
-    const single = document.querySelector("#parcela");
-    const start = document.querySelector("#parcelaInicial");
-    const end = document.querySelector("#parcelaFinal");
-
-    single.required = isSingle;
-    start.required = isRange;
-    end.required = isRange;
-
-    if (!isSingle) {
-      single.value = "";
-      clearFieldError(single);
-    }
-    if (!isRange) {
-      start.value = "";
-      end.value = "";
-      clearFieldError(start);
-      clearFieldError(end);
-    }
+  function openParcelModal(type) {
+    state.tipoParcela = type;
+    specificFields.hidden = type !== "especifica";
+    rangeFields.hidden = type !== "intervalo";
+    modalHint.textContent = type === "especifica"
+      ? "Informe o número exato da parcela."
+      : "Informe o intervalo consecutivo desejado.";
+    parcelModal.hidden = false;
+    window.setTimeout(() => {
+      (type === "especifica" ? fields.parcelaEspecifica : fields.parcelaInicial)?.focus();
+    }, 0);
   }
 
-  function validateForm() {
-    clearErrors();
-    let valid = true;
+  function closeParcelModal() {
+    parcelModal.hidden = true;
+  }
 
-    const name = document.querySelector("#solicitante");
-    const unit = document.querySelector("#unidade");
-    const phone = document.querySelector("#telefone");
-    const cpf = document.querySelector("#cpf");
-    const contract = document.querySelector("#contrato");
-    const accessCode = document.querySelector("#codigoAcesso");
-    const consent = document.querySelector("#consentimento");
-
-    if (name.value.trim().length < 3) {
-      setFieldError(name, "Informe o nome completo.");
-      valid = false;
-    }
-    if (!unit.value) {
-      setFieldError(unit, "Selecione a unidade.");
-      valid = false;
-    }
-    if (![10, 11].includes(digitsOnly(phone.value).length)) {
-      setFieldError(phone, "Informe um telefone com DDD.");
-      valid = false;
-    }
-    if (!isValidCpf(cpf.value)) {
-      setFieldError(cpf, "CPF invalido. Confira os numeros.");
-      valid = false;
-    }
-    if (contract.value && !/^\d{4,20}$/.test(digitsOnly(contract.value))) {
-      setFieldError(contract, "Contrato deve conter apenas numeros.");
-      valid = false;
-    }
-    if (config.REQUIRE_ACCESS_CODE && accessCode.value.trim().length < 4) {
-      setFieldError(accessCode, "Informe o codigo interno.");
-      valid = false;
-    }
-
-    const type = selectedRequestType();
-    if (type === "parcela_especifica") {
-      const parcel = document.querySelector("#parcela");
-      if (!parcel.value || Number(parcel.value) < 1) {
-        setFieldError(parcel, "Informe a parcela.");
-        valid = false;
+  function confirmParcelModal() {
+    if (state.tipoParcela === "especifica") {
+      const n = Number(fields.parcelaEspecifica.value);
+      if (!Number.isInteger(n) || n < 1) {
+        showToast("Informe uma parcela válida.");
+        fields.parcelaEspecifica.focus();
+        return;
       }
-    }
-
-    if (type === "intervalo") {
-      const start = document.querySelector("#parcelaInicial");
-      const end = document.querySelector("#parcelaFinal");
-      if (!start.value || Number(start.value) < 1) {
-        setFieldError(start, "Informe a parcela inicial.");
-        valid = false;
+      state.parcelaEspecifica = String(n);
+    } else if (state.tipoParcela === "intervalo") {
+      const first = Number(fields.parcelaInicial.value);
+      const last = Number(fields.parcelaFinal.value);
+      if (!Number.isInteger(first) || !Number.isInteger(last) || first < 1 || last < first) {
+        showToast("Informe um intervalo válido de parcelas.");
+        fields.parcelaInicial.focus();
+        return;
       }
-      if (!end.value || Number(end.value) < 1) {
-        setFieldError(end, "Informe a parcela final.");
-        valid = false;
-      }
-      if (start.value && end.value && Number(start.value) > Number(end.value)) {
-        setFieldError(end, "A parcela final deve ser igual ou maior.");
-        valid = false;
-      }
+      state.parcelaInicial = String(first);
+      state.parcelaFinal = String(last);
     }
-
-    if (!consent.checked) {
-      consent.setAttribute("aria-invalid", "true");
-      document.querySelector("#consent-error").textContent = "Confirme a autorizacao antes de enviar.";
-      valid = false;
-    }
-
-    return valid;
+    closeParcelModal();
+    showToast("Parcelas configuradas.", "success");
   }
 
-  function createRequestId() {
-    if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
-    return `web-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  function validate() {
+    clearValidation();
+    const errors = [];
+    if (fields.nome.value.trim().length < 3) {
+      setInvalid(fields.nome, true);
+      errors.push("nome completo");
+    }
+    if (!fields.unidade.value) {
+      setInvalid(fields.unidade, true);
+      errors.push("unidade");
+    }
+    if (digits(fields.telefone.value).length < 10) {
+      setInvalid(fields.telefone, true);
+      errors.push("WhatsApp com DDD");
+    }
+    if (!isValidCpf(fields.cpf.value)) {
+      setInvalid(fields.cpf, true);
+      errors.push("CPF válido");
+    }
+    if (!fields.consentimento.checked) {
+      document.querySelector(".consent-hitbox")?.classList.add("is-invalid");
+      errors.push("autorização");
+    }
+    const type = selectedType();
+    if (type === "especifica" && !state.parcelaEspecifica) errors.push("número da parcela");
+    if (type === "intervalo" && (!state.parcelaInicial || !state.parcelaFinal)) errors.push("intervalo de parcelas");
+    if (errors.length) {
+      showToast(`Revise: ${errors.join(", ")}.`);
+      return false;
+    }
+    return true;
   }
 
-  function buildPayload() {
-    const type = selectedRequestType();
-    let initial = "";
-    let final = "";
-
-    if (type === "parcela_especifica") {
-      initial = document.querySelector("#parcela").value;
-      final = initial;
-    } else if (type === "intervalo") {
-      initial = document.querySelector("#parcelaInicial").value;
-      final = document.querySelector("#parcelaFinal").value;
-    }
-
-    return {
-      requestId: createRequestId(),
-      submittedAt: new Date().toISOString(),
-      solicitante: document.querySelector("#solicitante").value.trim(),
-      unidade: document.querySelector("#unidade").value,
-      telefone: digitsOnly(document.querySelector("#telefone").value),
-      cpf: digitsOnly(document.querySelector("#cpf").value),
-      contrato: digitsOnly(document.querySelector("#contrato").value),
-      tipoSolicitacao: type,
-      parcelaInicial: initial ? Number(initial) : "",
-      parcelaFinal: final ? Number(final) : "",
-      codigoAcesso: config.REQUIRE_ACCESS_CODE ? document.querySelector("#codigoAcesso").value.trim() : "",
-      consentimento: true,
-      website: document.querySelector("#website").value,
-      origem: "GITHUB_PAGES"
-    };
+  function requestId() {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const stamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+    const random = Math.random().toString(36).slice(2, 7).toUpperCase();
+    return `BOL-WEB-${stamp}-${random}`;
   }
 
-  async function postPayload(payload) {
-    const endpoint = String(config.APPS_SCRIPT_URL || "").trim();
-
-    if (!endpoint) {
-      if (!config.ALLOW_DEMO_MODE) throw new Error("Endpoint do Apps Script nao configurado.");
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      return { demo: true };
+  async function sendRequest(payload) {
+    const config = window.BOLETO_CREDVIX_CONFIG || window.APP_CONFIG || {};
+    const url = String(config.APPS_SCRIPT_URL || "").trim();
+    const demo = config.ALLOW_DEMO_MODE !== false;
+    if (!url) {
+      if (demo) return { ok: true, demo: true, id: payload.idSolicitacao };
+      throw new Error("Integração ainda não configurada.");
     }
-
-    const options = {
+    const response = await fetch(url, {
       method: "POST",
-      mode: "no-cors",
-      cache: "no-store",
-      redirect: "follow",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    };
-
-    try {
-      await fetch(endpoint, options);
-    } catch (error) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      await fetch(endpoint, options);
-    }
-
-    return { demo: false };
-  }
-
-  function setLoading(isLoading) {
-    submitButton.disabled = isLoading;
-    submitButton.classList.toggle("loading", isLoading);
-    submitButton.querySelector(".button-label").textContent = isLoading
-      ? "ENVIANDO..."
-      : "GERAR BOLETO E ENVIAR NO WHATSAPP";
-  }
-
-  function showSuccess(payload, response) {
-    form.hidden = true;
-    successPanel.hidden = false;
-    const protocol = `WEB-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${payload.requestId.slice(0, 8).toUpperCase()}`;
-    document.querySelector("#protocol-value").textContent = response.demo ? `${protocol}-DEMO` : protocol;
-    successPanel.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
-  function resetForm() {
-    form.reset();
-    clearErrors();
-    updateParcelFields();
-    successPanel.hidden = true;
-    form.hidden = false;
-    document.querySelector("#solicitante").focus();
+      body: JSON.stringify(payload),
+      redirect: "follow"
+    });
+    const text = await response.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { ok: response.ok, message: text }; }
+    if (!response.ok || data.ok === false) throw new Error(data.message || "Não foi possível registrar a solicitação.");
+    return data;
   }
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!validate()) return;
+    const type = selectedType();
+    const payload = {
+      idSolicitacao: requestId(),
+      origem: "GitHub Pages",
+      solicitante: fields.nome.value.trim(),
+      unidade: fields.unidade.value,
+      telefone: digits(fields.telefone.value),
+      cpf: digits(fields.cpf.value),
+      contrato: digits(fields.contrato.value),
+      tipoSolicitacao: type,
+      parcelaEspecifica: type === "especifica" ? state.parcelaEspecifica : "",
+      parcelaInicial: type === "intervalo" ? state.parcelaInicial : "",
+      parcelaFinal: type === "intervalo" ? state.parcelaFinal : "",
+      consentimento: true,
+      status: "PENDENTE",
+      dataHoraCliente: new Date().toISOString()
+    };
 
-    if (!validateForm()) {
-      const firstInvalid = form.querySelector('[aria-invalid="true"]');
-      firstInvalid?.focus({ preventScroll: true });
-      firstInvalid?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-
-    const payload = buildPayload();
-    setLoading(true);
-
+    submitButton.disabled = true;
     try {
-      const response = await postPayload(payload);
-      showSuccess(payload, response);
+      const result = await sendRequest(payload);
+      showToast(result.demo
+        ? `Modo demonstração: solicitação ${payload.idSolicitacao} validada.`
+        : `Solicitação ${result.id || payload.idSolicitacao} registrada com sucesso.`, "success");
+      if (!result.demo) {
+        form.reset();
+        state.tipoParcela = "primeira";
+        state.parcelaEspecifica = "";
+        state.parcelaInicial = "";
+        state.parcelaFinal = "";
+        form.querySelector('input[value="primeira"]').checked = true;
+        updateCards();
+      }
     } catch (error) {
-      formAlert.textContent = error instanceof Error
-        ? error.message
-        : "Nao foi possivel enviar a solicitacao. Tente novamente.";
-      formAlert.hidden = false;
+      showToast(error instanceof Error ? error.message : "Falha ao registrar a solicitação.");
     } finally {
-      setLoading(false);
+      submitButton.disabled = false;
     }
   });
 
-  document.querySelector("#cpf").addEventListener("input", (event) => {
-    event.target.value = maskCpf(event.target.value);
-    if (event.target.getAttribute("aria-invalid") === "true") clearFieldError(event.target);
-  });
+  fields.cpf.addEventListener("input", () => { fields.cpf.value = formatCpf(fields.cpf.value); setInvalid(fields.cpf, false); });
+  fields.telefone.addEventListener("input", () => { fields.telefone.value = formatPhone(fields.telefone.value); setInvalid(fields.telefone, false); });
+  fields.nome.addEventListener("input", () => setInvalid(fields.nome, false));
+  fields.unidade.addEventListener("change", () => setInvalid(fields.unidade, false));
+  fields.consentimento.addEventListener("change", () => document.querySelector(".consent-hitbox")?.classList.remove("is-invalid"));
 
-  document.querySelector("#telefone").addEventListener("input", (event) => {
-    event.target.value = maskPhone(event.target.value);
-    if (event.target.getAttribute("aria-invalid") === "true") clearFieldError(event.target);
-  });
-
-  document.querySelector("#contrato").addEventListener("input", (event) => {
-    event.target.value = digitsOnly(event.target.value);
-    if (event.target.getAttribute("aria-invalid") === "true") clearFieldError(event.target);
-  });
-
-  form.querySelectorAll("input, select").forEach((field) => {
-    field.addEventListener("change", () => {
-      if (field.getAttribute("aria-invalid") === "true") clearFieldError(field);
+  form.querySelectorAll('input[name="tipoParcela"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      updateCards();
+      const type = selectedType();
+      state.tipoParcela = type;
+      if (type !== "primeira") openParcelModal(type);
     });
   });
 
-  form.querySelectorAll('input[name="tipoSolicitacao"]').forEach((radio) => {
-    radio.addEventListener("change", updateParcelFields);
-  });
+  document.querySelector("[data-close-modal]")?.addEventListener("click", closeParcelModal);
+  document.querySelector("[data-confirm-modal]")?.addEventListener("click", confirmParcelModal);
+  parcelModal.addEventListener("click", (event) => { if (event.target === parcelModal) closeParcelModal(); });
 
-  document.querySelector("#new-request-button").addEventListener("click", resetForm);
+  function showInfo(title, text) {
+    infoTitle.textContent = title;
+    infoText.textContent = text;
+    infoModal.hidden = false;
+  }
+  document.querySelectorAll("[data-close-info]").forEach((button) => button.addEventListener("click", () => { infoModal.hidden = true; }));
+  infoModal.addEventListener("click", (event) => { if (event.target === infoModal) infoModal.hidden = true; });
 
-  populateUnits();
-  setupAccessCode();
-  updateParcelFields();
+  document.querySelector('[data-action="request"]')?.addEventListener("click", () => fields.nome.focus());
+  document.querySelector('[data-action="how"]')?.addEventListener("click", () => showInfo("Como Funciona", "Preencha seus dados, escolha a parcela e confirme. O pedido entra na fila e o boleto é enviado ao WhatsApp informado."));
+  document.querySelector('[data-action="help"]')?.addEventListener("click", () => showInfo("Dúvidas", "O contrato é opcional. Para emissão automática da primeira parcela disponível, mantenha a primeira opção selecionada."));
+  document.querySelector('[data-action="security"]')?.addEventListener("click", () => showInfo("Segurança", "Os dados são usados somente para registrar a solicitação e processar a emissão do boleto."));
+
+  window.addEventListener("resize", fitStage, { passive: true });
+  window.addEventListener("orientationchange", fitStage, { passive: true });
+  fitStage();
+  updateCards();
 })();
