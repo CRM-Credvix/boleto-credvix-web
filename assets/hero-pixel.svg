@@ -1,49 +1,62 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 620" role="img" aria-labelledby="title desc">
-  <title id="title">Celular, boleto e WhatsApp em estilo neon</title>
-  <desc id="desc">Ilustração vetorial decorativa em azul, roxo e rosa.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 650" role="img" aria-labelledby="title desc">
+  <title id="title">Boleto e WhatsApp em pedestal neon</title>
+  <desc id="desc">Ilustração futurista de um boleto e um símbolo de WhatsApp sobre uma base iluminada.</desc>
   <defs>
-    <linearGradient id="neon" x1="130" y1="80" x2="640" y2="520" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#00eaff"/>
-      <stop offset=".48" stop-color="#6a5cff"/>
-      <stop offset="1" stop-color="#ff2fa8"/>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16dcff"/><stop offset=".46" stop-color="#337cff"/><stop offset=".72" stop-color="#8448ff"/><stop offset="1" stop-color="#ff2ba8"/>
     </linearGradient>
-    <radialGradient id="screen" cx="50%" cy="35%" r="80%">
-      <stop offset="0" stop-color="#102848"/>
-      <stop offset="1" stop-color="#030711"/>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#172757"/><stop offset="1" stop-color="#09112d"/>
+    </linearGradient>
+    <radialGradient id="wa" cx="38%" cy="32%" r="70%">
+      <stop stop-color="#45ffbd"/><stop offset=".5" stop-color="#11d77b"/><stop offset="1" stop-color="#036c52"/>
     </radialGradient>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
-      <feGaussianBlur stdDeviation="10" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="soft" x="-80%" y="-80%" width="260%" height="260%">
-      <feGaussianBlur stdDeviation="24"/>
-    </filter>
+    <filter id="glowBlue" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="glowPink" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="shadow" x="-80%" y="-80%" width="260%" height="260%"><feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#000" flood-opacity=".62"/></filter>
   </defs>
-  <ellipse cx="390" cy="530" rx="270" ry="55" fill="#3b0f7e" opacity=".35" filter="url(#soft)"/>
-  <g opacity=".95" fill="none" stroke="url(#neon)" filter="url(#glow)">
-    <ellipse cx="390" cy="505" rx="245" ry="52" stroke-width="4"/>
-    <ellipse cx="390" cy="505" rx="205" ry="34" stroke-width="2" opacity=".7"/>
-    <path d="M102 393c92-72 488-92 592 6" stroke-width="2" opacity=".45"/>
-    <path d="M120 427c118 58 438 55 542-12" stroke-width="2" opacity=".35"/>
+
+  <g opacity=".75">
+    <circle cx="370" cy="290" r="192" fill="none" stroke="#1e7bff" stroke-opacity=".16"/>
+    <circle cx="370" cy="290" r="156" fill="none" stroke="#ef2cff" stroke-opacity=".14"/>
+    <path d="M91 506H750" stroke="#257fff" stroke-opacity=".15"/>
+    <path d="M111 542H730" stroke="#ff2aa8" stroke-opacity=".12"/>
   </g>
-  <g transform="translate(290 78) rotate(8 115 218)">
-    <rect x="0" y="0" width="230" height="438" rx="38" fill="#03060e" stroke="url(#neon)" stroke-width="6" filter="url(#glow)"/>
-    <rect x="17" y="18" width="196" height="398" rx="26" fill="url(#screen)" stroke="#26314b" stroke-width="2"/>
-    <rect x="78" y="12" width="74" height="9" rx="5" fill="#090d18"/>
-    <circle cx="115" cy="180" r="72" fill="#0b1d2d" stroke="#18ff86" stroke-width="5" filter="url(#glow)"/>
-    <path d="M115 125a55 55 0 0 0-47 84l-8 31 32-8a55 55 0 1 0 23-107Zm0 96a41 41 0 0 1-21-5.7l-2-1.2-19 4.5 5-18.5-1.3-2.1A41 41 0 1 1 115 221Zm22-30.5c-1.2-.7-7.5-3.7-8.7-4.1-1.2-.4-2-.6-2.9.7-.9 1.3-3.5 4.3-4.3 5.2-.8.9-1.5 1-2.8.3-7.4-3.6-12.3-6.4-17.3-14.8-1.3-2.2 1.3-2 3.6-6.5.4-.9.2-1.9-.2-2.6-.3-.7-2.9-7-4-9.6-1-2.5-2.1-2.2-2.9-2.2h-2.4c-.9 0-2.4.3-3.6 1.7-1.3 1.4-4.9 4.8-4.9 11.6s5 13.4 5.7 14.3c.7.9 9.8 15.2 24 21.2 9 3.9 12.5 4.1 17.1 3.4 2.7-.4 7.5-3.1 8.4-6 .9-2.9.9-5.3.6-6-.3-.5-1.2-.9-2.4-1.5Z" fill="#eafff3"/>
+
+  <g opacity=".9">
+    <rect x="105" y="210" width="8" height="8" fill="#11d9ff" filter="url(#glowBlue)"/>
+    <rect x="690" y="225" width="10" height="10" fill="#ff2aa8" filter="url(#glowPink)"/>
+    <rect x="666" y="178" width="6" height="6" fill="#8157ff"/>
+    <rect x="167" y="142" width="6" height="6" fill="#3290ff"/>
+    <rect x="620" y="400" width="7" height="7" fill="#17d9ff"/>
+    <rect x="153" y="397" width="7" height="7" fill="#ff2aa8"/>
   </g>
-  <g transform="translate(195 305) rotate(8 135 105)" filter="url(#glow)">
-    <rect x="0" y="0" width="270" height="210" rx="20" fill="#1d1642" stroke="url(#neon)" stroke-width="5"/>
-    <rect x="18" y="18" width="234" height="174" rx="12" fill="#dcd4ff"/>
-    <text x="38" y="55" font-family="Arial, sans-serif" font-size="26" font-weight="800" fill="#20114e">BOLETO</text>
-    <rect x="38" y="74" width="150" height="11" fill="#7f68da"/>
-    <rect x="38" y="96" width="192" height="9" fill="#8f7ae2"/>
-    <rect x="38" y="116" width="126" height="9" fill="#8f7ae2"/>
-    <g fill="#1a113e">
-      <rect x="38" y="148" width="4" height="28"/><rect x="46" y="148" width="2" height="28"/><rect x="52" y="148" width="6" height="28"/><rect x="63" y="148" width="3" height="28"/><rect x="71" y="148" width="7" height="28"/><rect x="82" y="148" width="3" height="28"/><rect x="90" y="148" width="6" height="28"/><rect x="101" y="148" width="2" height="28"/><rect x="108" y="148" width="5" height="28"/><rect x="118" y="148" width="3" height="28"/><rect x="126" y="148" width="8" height="28"/><rect x="139" y="148" width="2" height="28"/><rect x="146" y="148" width="5" height="28"/><rect x="156" y="148" width="3" height="28"/><rect x="164" y="148" width="7" height="28"/><rect x="176" y="148" width="3" height="28"/><rect x="184" y="148" width="6" height="28"/><rect x="195" y="148" width="2" height="28"/><rect x="202" y="148" width="8" height="28"/><rect x="215" y="148" width="4" height="28"/>
+
+  <g filter="url(#shadow)">
+    <ellipse cx="406" cy="547" rx="260" ry="62" fill="#020413" stroke="url(#edge)" stroke-width="5" filter="url(#glowBlue)"/>
+    <ellipse cx="406" cy="530" rx="230" ry="48" fill="#080d24" stroke="#7e4cff" stroke-width="4" filter="url(#glowPink)"/>
+    <ellipse cx="406" cy="516" rx="194" ry="35" fill="#05091c" stroke="#28cfff" stroke-width="3"/>
+    <ellipse cx="406" cy="516" rx="150" ry="22" fill="none" stroke="#ff2aa8" stroke-opacity=".8" stroke-width="3"/>
+  </g>
+
+  <g transform="translate(206 78) rotate(-7 205 215)" filter="url(#shadow)">
+    <path d="M54 30H326L372 76V390H54Z" fill="url(#paper)" stroke="url(#edge)" stroke-width="8"/>
+    <path d="M326 30v46h46" fill="#111a3f" stroke="#df67ff" stroke-width="5"/>
+    <text x="93" y="105" fill="#34b9ff" font-family="Arial, sans-serif" font-size="34" font-weight="800" letter-spacing="5">BOLETO</text>
+    <rect x="90" y="135" width="220" height="17" rx="3" fill="#2d8bff"/>
+    <rect x="90" y="172" width="185" height="13" rx="3" fill="#7b55ff"/>
+    <rect x="90" y="203" width="132" height="13" rx="3" fill="#a948ff"/>
+    <rect x="90" y="238" width="230" height="10" rx="3" fill="#6a49d7"/>
+    <rect x="90" y="265" width="170" height="10" rx="3" fill="#6a49d7"/>
+    <g fill="#8f54ff">
+      <rect x="90" y="310" width="8" height="56"/><rect x="104" y="310" width="5" height="56"/><rect x="116" y="310" width="10" height="56"/><rect x="132" y="310" width="4" height="56"/><rect x="143" y="310" width="8" height="56"/><rect x="158" y="310" width="4" height="56"/><rect x="169" y="310" width="11" height="56"/><rect x="187" y="310" width="6" height="56"/><rect x="199" y="310" width="4" height="56"/><rect x="210" y="310" width="10" height="56"/><rect x="227" y="310" width="5" height="56"/><rect x="239" y="310" width="9" height="56"/><rect x="254" y="310" width="4" height="56"/><rect x="265" y="310" width="11" height="56"/><rect x="283" y="310" width="5" height="56"/><rect x="295" y="310" width="8" height="56"/>
     </g>
+    <rect x="292" y="260" width="48" height="40" rx="5" fill="#291451" stroke="#c252ff" stroke-width="3"/>
+    <text x="302" y="287" fill="#c97aff" font-family="Arial, sans-serif" font-size="20" font-weight="800">R$</text>
   </g>
-  <g fill="#00dfff" opacity=".9" shape-rendering="crispEdges"><rect x="121" y="198" width="8" height="8"/><rect x="151" y="154" width="6" height="6"/><rect x="631" y="248" width="10" height="10"/></g>
-  <g fill="#ff2fa8" opacity=".9" shape-rendering="crispEdges"><rect x="632" y="318" width="8" height="8"/><rect x="596" y="154" width="6" height="6"/><rect x="156" y="278" width="10" height="10"/></g>
+
+  <g transform="translate(408 335)" filter="url(#shadow)">
+    <path d="M90 15c72 0 130 55 130 124 0 70-58 126-130 126-20 0-39-4-56-12l-45 16 14-44C-2 205-9 173-9 139-9 70 18 15 90 15Z" fill="url(#wa)" stroke="#7affc8" stroke-width="8" filter="url(#glowBlue)"/>
+    <path d="M56 89c8-14 18-13 25-4l14 19c5 7 2 13-6 21-6 6-1 15 10 26 12 12 22 17 30 10 8-7 14-9 21-4l19 14c9 7 10 17-4 25-16 10-39 11-67-8-25-17-47-39-61-63-16-27-9-52 19-36Z" fill="none" stroke="#eafff7" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>

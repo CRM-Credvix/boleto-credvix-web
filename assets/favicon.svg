@@ -1,32 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
-  <title id="title">C pixel neon</title>
-  <desc id="desc">Símbolo em formato de C inspirado em pixel art, com degradê azul, roxo e rosa.</desc>
-  <defs>
-    <linearGradient id="g" x1="8" y1="8" x2="88" y2="88" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#00eaff"/>
-      <stop offset=".48" stop-color="#6a5cff"/>
-      <stop offset="1" stop-color="#ff2fa8"/>
-    </linearGradient>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
-      <feGaussianBlur stdDeviation="4.5" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-  <g fill="url(#g)" filter="url(#glow)" shape-rendering="crispEdges">
-    <rect x="24" y="8" width="40" height="8"/>
-    <rect x="16" y="16" width="56" height="8"/>
-    <rect x="8" y="24" width="24" height="8"/>
-    <rect x="8" y="32" width="16" height="32"/>
-    <rect x="8" y="64" width="24" height="8"/>
-    <rect x="16" y="72" width="56" height="8"/>
-    <rect x="24" y="80" width="40" height="8"/>
-    <rect x="64" y="16" width="16" height="8"/>
-    <rect x="64" y="72" width="16" height="8"/>
-    <rect x="72" y="24" width="16" height="8"/>
-    <rect x="72" y="64" width="16" height="8"/>
-  </g>
-  <g fill="#fff" opacity=".72" shape-rendering="crispEdges">
-    <rect x="24" y="16" width="8" height="8"/>
-    <rect x="16" y="32" width="8" height="16"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#00e5ff"/><stop offset=".55" stop-color="#6758ff"/><stop offset="1" stop-color="#ff2aa8"/></linearGradient></defs>
+  <rect width="64" height="64" rx="12" fill="#030615"/>
+  <path d="M18 13h27v7H18v7H11v20h7v7h27v-7H25V20h20v-7z" fill="url(#g)"/>
 </svg>
