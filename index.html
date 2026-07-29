@@ -7,6 +7,9 @@
   <meta name="description" content="Solicitação interna de boletos da Credvix com recebimento automático pelo WhatsApp.">
   <title>Boleto Credvix</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script src="config.js" defer></script>
   <script src="app.js" defer></script>
@@ -46,7 +49,7 @@
         <p class="hero-copy">Em poucos segundos, você solicita e recebe seu boleto diretamente no <strong>WhatsApp.</strong></p>
 
         <div class="hero-visual" aria-hidden="true">
-          <img src="assets/hero-approved.png" alt="">
+          <img src="assets/hero-approved-clean.png" alt="">
         </div>
 
         <ul class="benefit-list" aria-label="Benefícios do serviço">
@@ -75,8 +78,8 @@
         <form id="request-form" novalidate>
           <input type="text" name="website" id="website" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
 
-          <fieldset>
-            <legend><span class="legend-icon">♙</span> DADOS DO SOLICITANTE</legend>
+          <section class="form-section">
+            <h3 class="section-title">DADOS DO SOLICITANTE</h3>
 
             <label class="field field-full">
               <span>Nome completo *</span>
@@ -122,10 +125,10 @@
               <input id="codigoAcesso" name="codigoAcesso" type="password" autocomplete="one-time-code" maxlength="32" placeholder="Código fornecido pela supervisão">
               <small class="field-error"></small>
             </label>
-          </fieldset>
+          </section>
 
-          <fieldset class="parcel-fieldset">
-            <legend><span class="legend-icon">▤</span> ESCOLHA A PARCELA</legend>
+          <section class="form-section parcel-fieldset">
+            <h3 class="section-title">ESCOLHA A PARCELA</h3>
 
             <div class="request-type" role="radiogroup" aria-label="Tipo de parcela">
               <label class="option-row">
@@ -170,7 +173,7 @@
                 </label>
               </div>
             </div>
-          </fieldset>
+          </section>
 
           <label class="consent">
             <input id="consentimento" name="consentimento" type="checkbox" required>

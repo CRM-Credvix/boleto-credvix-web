@@ -207,39 +207,221 @@ legend{padding:0 0 14px;color:#aab6e8;font-size:.8rem;font-weight:850;letter-spa
 
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
 
-/* Pixel Neon v3.1 — ajustes de composição e tipografia */
-@media (min-width:981px){
-  .main-layout{grid-template-columns:minmax(0,1.09fr) minmax(535px,.91fr);gap:42px;padding-top:50px}
-  .hero{min-height:auto;padding-bottom:0}
-  .hero h1{font-size:clamp(4.65rem,5.45vw,5.55rem);line-height:.9;max-width:630px}
-  .hero-copy{max-width:415px;margin-top:22px}
 
-  /* A ilustração volta ao fluxo normal para nunca cobrir o título. */
-  .hero-visual{position:relative;left:auto;top:auto;width:min(470px,72%);height:430px;margin:-18px 0 -8px auto;z-index:1}
-  .hero-visual img{object-position:center;mask-image:radial-gradient(ellipse at center,#000 57%,rgba(0,0,0,.9) 69%,transparent 84%);-webkit-mask-image:radial-gradient(ellipse at center,#000 57%,rgba(0,0,0,.9) 69%,transparent 84%)}
+/* Pixel Neon v3.2 — correções de composição, formulário e fluxo */
 
-  .benefit-list{position:relative;z-index:2;margin-top:-16px;max-width:360px;gap:8px}
+/* Substitui o comportamento nativo de fieldset/legend para evitar artefatos
+   de renderização e manter os títulos internos estáveis em qualquer navegador. */
+.form-section{
+  margin:0;
+  padding:19px 0;
+  border-bottom:1px solid rgba(91,111,166,.2);
+}
+.section-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:0 0 14px;
+  color:#aab6e8;
+  font-family:"Rajdhani","Arial Narrow",Segoe UI,sans-serif;
+  font-size:.9rem;
+  font-weight:700;
+  letter-spacing:.045em;
+  line-height:1;
+  text-transform:uppercase;
+}
+.section-title::before{
+  content:"";
+  width:10px;
+  height:10px;
+  flex:0 0 10px;
+  border:2px solid var(--cyan);
+  border-radius:2px;
+  box-shadow:0 0 9px rgba(24,216,255,.28);
+}
+.parcel-fieldset{padding-bottom:17px}
+
+/* Título do painel no mesmo estilo condensado do mock aprovado. */
+.panel-heading h2{
+  display:block;
+  width:max-content;
+  max-width:100%;
+  margin:0;
+  font-family:"Anton","Arial Narrow","Liberation Sans Narrow",Impact,sans-serif;
+  font-size:2.18rem;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.01em;
+  transform:none;
+  background:linear-gradient(90deg,#18d8ff 0%,#2c8eff 38%,#7d53ff 68%,#ff2aae 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  text-shadow:0 0 20px rgba(93,92,255,.1);
+}
+.panel-heading p{margin-top:8px}
+
+/* Fluxo: abre espaço real entre os itens e posiciona cada seta no centro do vão. */
+.how-strip{max-width:720px}
+.how-strip ol{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  column-gap:96px;
+  row-gap:16px;
+}
+.how-strip li{min-width:0}
+.how-strip li:not(:last-child)::after{
+  right:-58px;
+  top:8px;
+  width:24px;
+  font-size:1.05rem;
+  line-height:1;
+}
+
+@media (min-width:1281px){
+  .main-layout{
+    grid-template-columns:minmax(0,1.08fr) minmax(540px,.92fr);
+    gap:56px;
+    padding-top:50px;
+  }
+
+  /* O texto e a ilustração ocupam células diferentes. Assim, nunca se cruzam. */
+  .hero{
+    display:grid;
+    grid-template-columns:minmax(405px,.62fr) minmax(250px,.38fr);
+    grid-template-areas:
+      "kicker kicker"
+      "title visual"
+      "copy visual"
+      "benefits visual";
+    column-gap:18px;
+    align-items:start;
+    min-height:720px;
+    padding-bottom:0;
+  }
+  .hero-kicker{grid-area:kicker;justify-self:start;margin-bottom:22px}
+  .hero h1{
+    grid-area:title;
+    margin:0;
+    max-width:405px;
+    font-family:"Anton","Arial Narrow","Liberation Sans Narrow",Impact,sans-serif;
+    font-size:clamp(3.35rem,4.15vw,4.15rem);
+    font-weight:900;
+    line-height:.93;
+    letter-spacing:.005em;
+    gap:.045em;
+  }
+  .hero-line{width:auto;max-width:100%;white-space:nowrap}
+  .hero-copy{
+    grid-area:copy;
+    max-width:390px;
+    margin:20px 0 0;
+    font-size:.98rem;
+    line-height:1.65;
+  }
+  .hero-visual{
+    grid-area:visual;
+    align-self:center;
+    width:100%;
+    height:590px;
+    margin:0;
+    position:relative;
+    overflow:hidden;
+    z-index:1;
+  }
+  .hero-visual img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    object-position:center;
+    filter:saturate(1.08) contrast(1.05);
+    -webkit-mask-image:radial-gradient(ellipse at center,#000 66%,rgba(0,0,0,.9) 76%,transparent 94%);
+    mask-image:radial-gradient(ellipse at center,#000 66%,rgba(0,0,0,.9) 76%,transparent 94%);
+  }
+  .benefit-list{
+    grid-area:benefits;
+    position:relative;
+    z-index:2;
+    align-self:end;
+    max-width:395px;
+    margin:28px 0 0;
+    gap:8px;
+  }
   .benefit-list li{min-height:76px;padding:10px 13px;grid-template-columns:52px 1fr}
-  .benefit-symbol{width:45px;height:45px;font-size:1.35rem}
-  .how-strip{position:relative;z-index:2;margin-top:13px;max-width:645px;padding:14px 15px}
+  .benefit-symbol{width:45px;height:45px;font-size:1.3rem}
+
   .request-panel{min-height:790px;padding:29px 28px 23px}
-  fieldset{padding:16px 0}
   .field input,.field select,.phone-input-wrap{height:51px}
   .option-row{min-height:64px;padding:9px 13px}
   .primary-button{height:58px}
   .site-footer{margin-top:16px}
 }
 
-/* Faixa intermediária: mantém duas colunas sem comprimir ou sobrepor o herói. */
-@media (min-width:981px) and (max-width:1240px){
+/* Em larguras intermediárias, a ilustração entra abaixo do texto em vez de
+   disputar espaço com o título ou avançar sobre o painel. */
+@media (min-width:981px) and (max-width:1280px){
   .page-shell{padding:0 28px}
-  .main-layout{grid-template-columns:minmax(0,1fr) minmax(455px,.96fr);gap:26px}
-  .hero h1{font-size:clamp(4rem,6vw,4.75rem);max-width:540px}
-  .hero-copy{max-width:360px}
-  .hero-visual{width:min(390px,76%);height:365px;margin:-8px 0 -6px auto}
-  .benefit-list{max-width:335px;margin-top:-8px}
+  .main-layout{
+    grid-template-columns:minmax(0,1fr) minmax(470px,.96fr);
+    gap:34px;
+    padding-top:44px;
+  }
+  .hero{display:block;min-height:auto;padding-bottom:0}
+  .hero h1{
+    margin-top:25px;
+    max-width:520px;
+    font-family:"Anton","Arial Narrow","Liberation Sans Narrow",Impact,sans-serif;
+    font-size:clamp(3.35rem,4.9vw,4.35rem);
+    font-weight:900;
+    line-height:.93;
+  }
+  .hero-line{width:auto;white-space:nowrap}
+  .hero-copy{max-width:410px;margin-top:20px}
+  .hero-visual{
+    width:min(390px,82%);
+    height:470px;
+    margin:18px auto 8px;
+    overflow:hidden;
+  }
+  .hero-visual img{
+    object-fit:contain;
+    object-position:center;
+    -webkit-mask-image:radial-gradient(ellipse at center,#000 66%,rgba(0,0,0,.9) 78%,transparent 95%);
+    mask-image:radial-gradient(ellipse at center,#000 66%,rgba(0,0,0,.9) 78%,transparent 95%);
+  }
+  .benefit-list{max-width:400px;margin-top:5px}
   .request-panel{min-height:760px;padding:25px 22px 21px}
-  .panel-heading h2{font-size:2.15rem}
-  .how-strip ol{column-gap:30px}
-  .how-strip li:not(:last-child)::after{right:-23px}
+  .panel-heading h2{font-size:2rem}
+  .how-strip ol{column-gap:78px}
+  .how-strip li:not(:last-child)::after{right:-49px}
+}
+
+@media (max-width:980px){
+  .hero h1{
+    font-family:"Anton","Arial Narrow","Liberation Sans Narrow",Impact,sans-serif;
+    font-weight:900;
+    line-height:.93;
+  }
+  .hero-visual{
+    width:min(480px,92%);
+    height:500px;
+    margin:20px auto 4px;
+    overflow:hidden;
+  }
+  .hero-visual img{
+    object-fit:contain;
+    object-position:center;
+    -webkit-mask-image:radial-gradient(ellipse at center,#000 67%,rgba(0,0,0,.9) 79%,transparent 95%);
+    mask-image:radial-gradient(ellipse at center,#000 67%,rgba(0,0,0,.9) 79%,transparent 95%);
+  }
+}
+
+@media (max-width:680px){
+  .panel-heading h2{font-size:1.92rem;line-height:1.02}
+  .section-title{font-size:.86rem;margin-bottom:13px}
+  .hero h1{font-size:clamp(3rem,16vw,4.5rem);max-width:100%}
+  .hero-line{white-space:normal}
+  .hero-visual{width:min(390px,108%);height:420px;margin:16px auto 2px}
+  .how-strip ol{grid-template-columns:1fr;column-gap:0}
+  .how-strip li:not(:last-child)::after{display:none}
 }
