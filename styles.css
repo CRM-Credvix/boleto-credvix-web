@@ -60,3 +60,54 @@ form{position:relative}.form-section{min-width:0;margin:0;padding:18px 0 0;borde
 @media(max-width:760px){.site-shell{padding:0 12px}.topbar{min-height:82px;gap:12px}.brand-logo{width:48px;height:48px}.brand-name{font-size:1rem}.whatsapp-pill{padding:7px 9px;min-width:auto}.whatsapp-pill strong{font-size:.54rem}.whatsapp-pill small{font-size:.43rem}.whatsapp-mark{width:29px;height:29px;font-size:1rem}.main-nav{gap:25px;overflow-x:auto;justify-content:flex-start}.main-layout{grid-template-columns:1fr;padding-top:24px}.hero-copy h1{font-size:clamp(2.7rem,12vw,3.15rem)}.hero-copy h1 span{white-space:normal}.hero-lead{max-width:none}.benefits{max-width:none}.hero-art{min-height:auto}.hero-art img{width:min(100%,650px);max-height:none}.request-column{grid-column:auto}.request-panel{padding:20px 15px;border-radius:16px}.panel-header h2{font-size:clamp(1.9rem,9vw,2.5rem);white-space:normal}.field-grid-two{grid-template-columns:1fr;gap:0}.field input,.field select,.input-with-icon{height:48px}.option-row{min-height:62px}}
 @media(max-width:430px){.brand-name{font-size:.86rem}.whatsapp-pill span:last-child{display:none}.whatsapp-pill{padding:7px;border-radius:50%}.hero-copy h1{font-size:clamp(2.45rem,11vw,2.8rem)}.kicker{font-size:.55rem;white-space:normal;width:fit-content}.request-panel{padding-inline:12px}.option-row{grid-template-columns:25px minmax(0,1fr) auto;padding-inline:9px}.option-decoration{letter-spacing:3px}.primary-button{font-size:.64rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+
+
+/* v6.2 - correcao exclusiva do titulo principal
+   Faz a tipografia responder a largura real da coluna, sem invadir a arte. */
+.hero-copy {
+  container-type: inline-size;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-copy h1 {
+  width: 100%;
+  max-width: 100%;
+  font-size: clamp(2.75rem, 13.8cqw, 5.1rem);
+  line-height: .92;
+  letter-spacing: -.012em;
+}
+
+.hero-copy h1 span {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.hero-art {
+  z-index: 1;
+}
+
+@media (max-width: 1450px) {
+  .hero-copy h1 {
+    font-size: clamp(2.65rem, 13.8cqw, 4.4rem);
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-copy {
+    container-type: normal;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.45rem, 11.5vw, 3.15rem);
+    line-height: .94;
+    letter-spacing: -.01em;
+  }
+
+  .hero-copy h1 span {
+    width: auto;
+    white-space: normal;
+  }
+}
