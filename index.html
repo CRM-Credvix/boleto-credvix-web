@@ -4,54 +4,57 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#02040f">
-  <meta name="description" content="Solicitacao interna de boletos da Credvix com envio automatico pelo WhatsApp.">
+  <meta name="description" content="Solicitação interna de boletos da Credvix com envio automático pelo WhatsApp.">
   <title>Boleto Credvix</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=5.3.0">
+  <link rel="stylesheet" href="styles.css?v=4.3.0">
   <script src="config.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="app.js?v=4.3.0" defer></script>
 </head>
 <body>
-  <div class="ambient-layer" aria-hidden="true"></div>
-  <div class="sparkle-layer sparkle-layer-a" aria-hidden="true"></div>
-  <div class="sparkle-layer sparkle-layer-b" aria-hidden="true"></div>
-  <div class="floor-layer" aria-hidden="true"></div>
+  <div class="page-effects" aria-hidden="true">
+    <div class="ambient-glow ambient-glow-cyan"></div>
+    <div class="ambient-glow ambient-glow-violet"></div>
+    <div class="pixel-field pixel-field-one"></div>
+    <div class="pixel-field pixel-field-two"></div>
+    <div class="tech-floor"></div>
+  </div>
 
   <div class="site-shell">
     <header class="topbar">
-      <a class="brand" href="#inicio" aria-label="Boleto Credvix - inicio">
+      <a class="brand" href="#inicio" aria-label="Boleto Credvix - início">
         <img src="assets/logo-pixel-c.svg" alt="" class="brand-logo">
         <span class="brand-name">BOLETO <strong>CREDVIX</strong></span>
       </a>
 
-      <nav class="main-nav" aria-label="Navegacao principal">
+      <nav class="main-nav" aria-label="Navegação principal">
         <a href="#como-funciona">Como Funciona</a>
         <a href="#solicitar">Solicitar</a>
       </nav>
 
-      <a class="whatsapp-pill" href="#solicitar">
+      <a class="whatsapp-pill" href="#solicitar" aria-label="Solicitar boleto para receber no WhatsApp">
         <span class="whatsapp-mark" aria-hidden="true">◔</span>
         <span>
           <strong>RECEBA NO WHATSAPP</strong>
-          <small>RAPIDO, SEGURO E PRATICO</small>
+          <small>RÁPIDO, SEGURO E PRÁTICO</small>
         </span>
       </a>
     </header>
 
     <main id="inicio" class="main-layout">
       <section class="hero-copy" aria-labelledby="hero-title">
-        <p class="kicker"><span aria-hidden="true">ϟ</span> RAPIDO • SEGURO • SEM BUROCRACIA</p>
+        <p class="kicker"><span aria-hidden="true">ϟ</span> RÁPIDO • SEGURO • SEM BUROCRACIA</p>
 
         <h1 id="hero-title">
-          <span>PECA SEU</span>
+          <span>PEÇA SEU</span>
           <span>BOLETO AGORA</span>
           <span class="gradient-text">E RECEBA NO</span>
           <span class="gradient-text">WHATSAPP</span>
         </h1>
 
         <p class="hero-lead">
-          Em poucos segundos, voce solicita e recebe seu boleto diretamente no
-          <strong>WhatsApp</strong>, com total seguranca.
+          Em poucos segundos, você solicita e recebe seu boleto diretamente no
+          <strong>WhatsApp</strong>, com total segurança.
         </p>
 
         <div id="como-funciona" class="benefits" aria-label="Como Funciona">
@@ -59,7 +62,7 @@
             <span class="benefit-icon" aria-hidden="true">ϟ</span>
             <div>
               <h2>RECEBA NA HORA</h2>
-              <p>Seu boleto e gerado e enviado automaticamente.</p>
+              <p>Seu boleto é gerado e enviado automaticamente.</p>
             </div>
           </article>
 
@@ -67,14 +70,14 @@
             <span class="benefit-icon" aria-hidden="true">◆</span>
             <div>
               <h2>DADOS PROTEGIDOS</h2>
-              <p>Suas informacoes sao criptografadas e 100% seguras.</p>
+              <p>Suas informações são criptografadas e 100% seguras.</p>
             </div>
           </article>
 
           <article class="benefit benefit-pink">
             <span class="benefit-icon benefit-247" aria-hidden="true">24/7</span>
             <div>
-              <h2>DISPONIVEL 24/7</h2>
+              <h2>DISPONÍVEL 24/7</h2>
               <p>Solicite a qualquer hora, todos os dias da semana.</p>
             </div>
           </article>
@@ -82,14 +85,12 @@
       </section>
 
       <section class="hero-art" aria-label="Boleto enviado pelo WhatsApp">
-        <div class="hero-halo" aria-hidden="true"></div>
-        <img src="assets/hero-neon-xl.png" alt="Ilustracao de boleto e WhatsApp em estilo neon">
+        <div class="hero-glow" aria-hidden="true"></div>
+        <img src="assets/hero-neon-xl.png" alt="Ilustração de boleto e WhatsApp em estilo neon">
       </section>
 
       <aside class="request-column">
         <section id="solicitar" class="request-panel" aria-labelledby="form-title">
-          <div class="panel-glow" aria-hidden="true"></div>
-
           <header class="panel-header">
             <h2 id="form-title">SOLICITE SEU BOLETO</h2>
             <p>Preencha os dados abaixo para receber no <strong>WhatsApp</strong></p>
@@ -135,14 +136,14 @@
 
                 <label class="field">
                   <span>Contrato <em>(opcional)</em></span>
-                  <input id="contrato" name="contrato" type="text" inputmode="numeric" autocomplete="off" placeholder="Informe o numero do contrato" maxlength="20">
+                  <input id="contrato" name="contrato" type="text" inputmode="numeric" autocomplete="off" placeholder="Informe o número do contrato" maxlength="20">
                   <small class="field-error" aria-live="polite"></small>
                 </label>
               </div>
 
               <label class="field access-code-field" hidden>
-                <span>Codigo interno *</span>
-                <input id="codigoAcesso" name="codigoAcesso" type="password" maxlength="32" autocomplete="one-time-code" placeholder="Codigo fornecido pela supervisao">
+                <span>Código interno *</span>
+                <input id="codigoAcesso" name="codigoAcesso" type="password" maxlength="32" autocomplete="one-time-code" placeholder="Código fornecido pela supervisão">
                 <small class="field-error" aria-live="polite"></small>
               </label>
             </fieldset>
@@ -155,7 +156,7 @@
                   <input type="radio" name="tipoSolicitacao" value="primeira_disponivel" checked>
                   <span class="radio-ui" aria-hidden="true"></span>
                   <span class="option-copy">
-                    <strong>Primeira disponivel</strong>
+                    <strong>Primeira disponível</strong>
                     <small>Seleciona a menor parcela habilitada.</small>
                   </span>
                   <span class="option-decoration yellow" aria-hidden="true">●</span>
@@ -165,8 +166,8 @@
                   <input type="radio" name="tipoSolicitacao" value="parcela_especifica">
                   <span class="radio-ui" aria-hidden="true"></span>
                   <span class="option-copy">
-                    <strong>Parcela especifica</strong>
-                    <small>Escolha uma unica parcela.</small>
+                    <strong>Parcela específica</strong>
+                    <small>Escolha uma única parcela.</small>
                   </span>
                   <span class="option-decoration blue" aria-hidden="true">◆ ◆</span>
                 </label>
@@ -184,7 +185,7 @@
 
               <div id="parcel-fields" class="parcel-fields" hidden>
                 <label class="field parcel-single" hidden>
-                  <span>Numero da parcela *</span>
+                  <span>Número da parcela *</span>
                   <input id="parcela" name="parcela" type="number" min="1" max="999" inputmode="numeric" placeholder="Ex.: 9">
                   <small class="field-error" aria-live="polite"></small>
                 </label>
@@ -208,7 +209,7 @@
             <label class="consent">
               <input id="consentimento" name="consentimento" type="checkbox" required>
               <span class="checkbox-ui" aria-hidden="true"></span>
-              <span class="consent-copy">Confirmo que os dados foram conferidos e autorizo o uso para emissao e envio do boleto solicitado.</span>
+              <span class="consent-copy">Confirmo que os dados foram conferidos e autorizo o uso para emissão e envio do boleto solicitado.</span>
             </label>
             <small id="consent-error" class="standalone-error" aria-live="polite"></small>
 
@@ -222,20 +223,17 @@
           </form>
 
           <section id="success-panel" class="success-panel" hidden aria-live="polite">
-            <div class="success-icon" aria-hidden="true">✓</div>
-            <h2>Solicitacao recebida</h2>
-            <p>O pedido entrou na fila. O boleto sera enviado ao WhatsApp informado depois do processamento.</p>
-            <div class="protocol-box">
-              <small>PROTOCOLO</small>
-              <strong id="protocol-value"></strong>
-            </div>
-            <button id="new-request-button" class="secondary-button" type="button">Fazer nova solicitacao</button>
+            <div class="success-icon">✓</div>
+            <h2>Solicitação recebida</h2>
+            <p>O pedido entrou na fila. O boleto será enviado ao WhatsApp informado depois do processamento.</p>
+            <div class="protocol-box"><small>PROTOCOLO</small><strong id="protocol-value"></strong></div>
+            <button id="new-request-button" class="secondary-button" type="button">Fazer nova solicitação</button>
           </section>
         </section>
 
         <div class="privacy-card">
           <span class="privacy-lock" aria-hidden="true">▣</span>
-          <p>Seus dados estao protegidos com criptografia de ponta a ponta.<br>Privacidade garantida. Sem compartilhamento de informacoes.</p>
+          <p>Seus dados estão protegidos com criptografia de ponta a ponta.<br>Privacidade garantida. Sem compartilhamento de informações.</p>
         </div>
       </aside>
     </main>
