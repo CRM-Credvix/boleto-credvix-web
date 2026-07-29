@@ -244,25 +244,13 @@
   updateParcelFields();
 })();
 
-// Pixel-perfect stage: preserves the exact 1448x1086 mock and scales it proportionally.
+// Keeps transparent overlay fields visible only while focused or after receiving a value.
 (() => {
-  const stage = document.querySelector('#pixel-stage');
-  const shell = document.querySelector('#stage-shell');
-  if (!stage || !shell) return;
-
-  const BASE_WIDTH = 1448;
-  const BASE_HEIGHT = 1086;
-
-  function resizeStage() {
-    const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-    const scale = viewportWidth / BASE_WIDTH;
-    stage.style.transform = `scale(${scale})`;
-    shell.style.height = `${Math.ceil(BASE_HEIGHT * scale)}px`;
-  }
-
   function syncVisibleValue(control) {
     if (!control) return;
-    const hasValue = control.tagName === 'SELECT' ? Boolean(control.value) : Boolean(control.value.trim());
+    const hasValue = control.tagName === 'SELECT'
+      ? Boolean(control.value)
+      : Boolean(control.value.trim());
     control.classList.toggle('has-value', hasValue);
   }
 
@@ -272,7 +260,4 @@
     control.addEventListener('change', () => syncVisibleValue(control));
     control.addEventListener('blur', () => syncVisibleValue(control));
   });
-
-  resizeStage();
-  window.addEventListener('resize', resizeStage, { passive: true });
 })();

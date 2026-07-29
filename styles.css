@@ -14,23 +14,28 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; background: #02040f; }
-body { margin: 0; min-width: 320px; min-height: 100vh; overflow-x: hidden; background: #02040f; }
+body {
+  margin: 0;
+  min-width: 1448px;
+  min-height: 1086px;
+  overflow: auto;
+  background: #02040f;
+}
 button, input, select { font: inherit; }
 
 .stage-shell {
   position: relative;
-  width: 100%;
-  overflow: hidden;
+  width: 1448px;
+  height: 1086px;
+  margin: 0 auto;
+  overflow: visible;
   background: #02040f;
 }
 
 .pixel-stage {
-  position: absolute;
-  left: 0;
-  top: 0;
+  position: relative;
   width: 1448px;
   height: 1086px;
-  transform-origin: top left;
   isolation: isolate;
 }
 
@@ -48,8 +53,6 @@ button, input, select { font: inherit; }
 .hotspot { position: absolute; z-index: 2; display: block; }
 .nav-how { left: 478px; top: 30px; width: 145px; height: 48px; }
 .nav-request { left: 632px; top: 30px; width: 95px; height: 48px; }
-.nav-doubts { left: 741px; top: 30px; width: 86px; height: 48px; }
-.nav-security { left: 842px; top: 30px; width: 102px; height: 48px; }
 .nav-whatsapp { left: 1137px; top: 20px; width: 240px; height: 65px; }
 
 .screen-reader-section,
@@ -148,15 +151,19 @@ button, input, select { font: inherit; }
 .option-visual {
   position: absolute;
   inset: 0;
-  border: 1px solid transparent;
+  border: 0;
   border-radius: 8px;
-  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+  background: transparent;
+  box-shadow: none;
+  outline: 0;
 }
-.overlay-option:hover .option-visual { border-color: rgba(34,174,255,.35); }
+.overlay-option:hover .option-visual,
+.overlay-option:focus-within .option-visual,
 .overlay-option input:checked + .option-visual {
-  border-color: #08d8ff;
-  box-shadow: 0 0 14px rgba(10,213,255,.24), inset 0 0 18px rgba(6,58,102,.16);
-  background: rgba(5,37,70,.08);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: 0;
 }
 
 .parcel-fields {
@@ -198,25 +205,22 @@ button, input, select { font: inherit; }
 .overlay-consent input { position: absolute; opacity: 0; }
 .consent-box {
   position: absolute;
-  left: 2px;
+  left: 12px;
   top: 10px;
   width: 17px;
   height: 17px;
-  border: 1px solid #d8e0f0;
-  background: #061027;
-}
-.overlay-consent input:checked + .consent-box {
-  border-color: #14e7ff;
-  background: linear-gradient(135deg, #18d8ff, #a245ff 65%, #ff2eb8);
-  box-shadow: 0 0 10px rgba(27,221,255,.45);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 .overlay-consent input:checked + .consent-box::after {
   content: "✓";
   position: absolute;
   inset: -2px 0 0 2px;
-  color: white;
-  font-size: 14px;
-  font-weight: 800;
+  color: #16e7ff;
+  font-size: 15px;
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(22,231,255,.75);
 }
 .standalone-error {
   position: absolute;
@@ -304,6 +308,3 @@ button, input, select { font: inherit; }
 .protocol-box strong { display: block; margin-top: 7px; color: #24dcff; }
 .success-panel button { border: 0; border-radius: 8px; padding: 14px 22px; color: white; background: linear-gradient(90deg,#13cfff,#a33fff,#ff2eae); cursor: pointer; }
 
-@media (max-width: 760px) {
-  .stage-shell { overflow-x: auto; overflow-y: hidden; }
-}
