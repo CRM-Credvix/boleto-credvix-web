@@ -15,8 +15,12 @@
   const digitsOnly = (value) => String(value || "").replace(/\D/g, "");
 
   function populateUnits() {
-    const units = Array.isArray(config.UNIDADES) ? config.UNIDADES : [];
+    const units = Array.isArray(config.UNIDADES) && config.UNIDADES.length
+      ? config.UNIDADES
+      : ["Matriz"];
+
     units.forEach((unit) => {
+      if ([...unitsSelect.options].some((option) => option.value === unit)) return;
       const option = document.createElement("option");
       option.value = unit;
       option.textContent = unit;
@@ -53,28 +57,41 @@
   function isValidCpf(value) {
     const cpf = digitsOnly(value);
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-    const calc = (factor) => {
+
+    const digit = (length) => {
       let total = 0;
-      const limit = factor === 10 ? 9 : 10;
-      for (let i = 0; i < limit; i += 1) total += Number(cpf[i]) * (factor - i);
+      let weight = length + 1;
+      for (let index = 0; index < length; index += 1) {
+        total += Number(cpf[index]) * weight;
+        weight -= 1;
+      }
       const remainder = (total * 10) % 11;
       return remainder === 10 ? 0 : remainder;
     };
-    return calc(10) === Number(cpf[9]) && calc(11) === Number(cpf[10]);
+
+    return digit(9) === Number(cpf[9]) && digit(10) === Number(cpf[10]);
+  }
+
+  function errorElementFor(field) {
+    return field.closest(".field")?.querySelector(".field-error") || null;
   }
 
   function setFieldError(field, message = "") {
     if (!field) return;
     field.setAttribute("aria-invalid", message ? "true" : "false");
-    const container = field.closest(".field");
-    const error = container?.querySelector(".field-error");
+    const error = errorElementFor(field);
     if (error) error.textContent = message;
+  }
+
+  function clearFieldError(field) {
+    setFieldError(field, "");
   }
 
   function clearErrors() {
     form.querySelectorAll("[aria-invalid]").forEach((field) => field.setAttribute("aria-invalid", "false"));
     form.querySelectorAll(".field-error").forEach((error) => { error.textContent = ""; });
-    document.querySelector("#consent-error").textContent = "";
+    const consentError = document.querySelector("#consent-error");
+    consentError.textContent = "";
     document.querySelector("#consentimento").setAttribute("aria-invalid", "false");
     formAlert.hidden = true;
     formAlert.textContent = "";
@@ -88,17 +105,35 @@
     const type = selectedRequestType();
     const isSingle = type === "parcela_especifica";
     const isRange = type === "intervalo";
+
     parcelFields.hidden = !(isSingle || isRange);
     parcelSingle.hidden = !isSingle;
     parcelRange.hidden = !isRange;
-    document.querySelector("#parcela").required = isSingle;
-    document.querySelector("#parcelaInicial").required = isRange;
-    document.querySelector("#parcelaFinal").required = isRange;
+
+    const single = document.querySelector("#parcela");
+    const start = document.querySelector("#parcelaInicial");
+    const end = document.querySelector("#parcelaFinal");
+
+    single.required = isSingle;
+    start.required = isRange;
+    end.required = isRange;
+
+    if (!isSingle) {
+      single.value = "";
+      clearFieldError(single);
+    }
+    if (!isRange) {
+      start.value = "";
+      end.value = "";
+      clearFieldError(start);
+      clearFieldError(end);
+    }
   }
 
   function validateForm() {
     clearErrors();
     let valid = true;
+
     const name = document.querySelector("#solicitante");
     const unit = document.querySelector("#unidade");
     const phone = document.querySelector("#telefone");
@@ -107,31 +142,63 @@
     const accessCode = document.querySelector("#codigoAcesso");
     const consent = document.querySelector("#consentimento");
 
-    if (name.value.trim().length < 3) { setFieldError(name, "Informe o nome completo."); valid = false; }
-    if (!unit.value) { setFieldError(unit, "Selecione a unidade."); valid = false; }
-    const phoneDigits = digitsOnly(phone.value);
-    if (![10, 11].includes(phoneDigits.length)) { setFieldError(phone, "Informe um telefone com DDD."); valid = false; }
-    if (!isValidCpf(cpf.value)) { setFieldError(cpf, "CPF inválido. Confira os números."); valid = false; }
-    if (contract.value && !/^\d{4,20}$/.test(digitsOnly(contract.value))) { setFieldError(contract, "Contrato deve conter apenas números."); valid = false; }
-    if (config.REQUIRE_ACCESS_CODE && accessCode.value.trim().length < 4) { setFieldError(accessCode, "Informe o código interno."); valid = false; }
+    if (name.value.trim().length < 3) {
+      setFieldError(name, "Informe o nome completo.");
+      valid = false;
+    }
+    if (!unit.value) {
+      setFieldError(unit, "Selecione a unidade.");
+      valid = false;
+    }
+    if (![10, 11].includes(digitsOnly(phone.value).length)) {
+      setFieldError(phone, "Informe um telefone com DDD.");
+      valid = false;
+    }
+    if (!isValidCpf(cpf.value)) {
+      setFieldError(cpf, "CPF invalido. Confira os numeros.");
+      valid = false;
+    }
+    if (contract.value && !/^\d{4,20}$/.test(digitsOnly(contract.value))) {
+      setFieldError(contract, "Contrato deve conter apenas numeros.");
+      valid = false;
+    }
+    if (config.REQUIRE_ACCESS_CODE && accessCode.value.trim().length < 4) {
+      setFieldError(accessCode, "Informe o codigo interno.");
+      valid = false;
+    }
 
     const type = selectedRequestType();
     if (type === "parcela_especifica") {
       const parcel = document.querySelector("#parcela");
-      if (!parcel.value || Number(parcel.value) < 1) { setFieldError(parcel, "Informe a parcela."); valid = false; }
+      if (!parcel.value || Number(parcel.value) < 1) {
+        setFieldError(parcel, "Informe a parcela.");
+        valid = false;
+      }
     }
+
     if (type === "intervalo") {
       const start = document.querySelector("#parcelaInicial");
       const end = document.querySelector("#parcelaFinal");
-      if (!start.value || Number(start.value) < 1) { setFieldError(start, "Informe a parcela inicial."); valid = false; }
-      if (!end.value || Number(end.value) < 1) { setFieldError(end, "Informe a parcela final."); valid = false; }
-      if (start.value && end.value && Number(start.value) > Number(end.value)) { setFieldError(end, "A parcela final deve ser igual ou maior."); valid = false; }
+      if (!start.value || Number(start.value) < 1) {
+        setFieldError(start, "Informe a parcela inicial.");
+        valid = false;
+      }
+      if (!end.value || Number(end.value) < 1) {
+        setFieldError(end, "Informe a parcela final.");
+        valid = false;
+      }
+      if (start.value && end.value && Number(start.value) > Number(end.value)) {
+        setFieldError(end, "A parcela final deve ser igual ou maior.");
+        valid = false;
+      }
     }
+
     if (!consent.checked) {
       consent.setAttribute("aria-invalid", "true");
-      document.querySelector("#consent-error").textContent = "Confirme a autorização antes de enviar.";
+      document.querySelector("#consent-error").textContent = "Confirme a autorizacao antes de enviar.";
       valid = false;
     }
+
     return valid;
   }
 
@@ -144,6 +211,7 @@
     const type = selectedRequestType();
     let initial = "";
     let final = "";
+
     if (type === "parcela_especifica") {
       initial = document.querySelector("#parcela").value;
       final = initial;
@@ -172,9 +240,10 @@
 
   async function postPayload(payload) {
     const endpoint = String(config.APPS_SCRIPT_URL || "").trim();
+
     if (!endpoint) {
-      if (!config.ALLOW_DEMO_MODE) throw new Error("Endpoint do Apps Script não configurado.");
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      if (!config.ALLOW_DEMO_MODE) throw new Error("Endpoint do Apps Script nao configurado.");
+      await new Promise((resolve) => setTimeout(resolve, 700));
       return { demo: true };
     }
 
@@ -189,17 +258,20 @@
 
     try {
       await fetch(endpoint, options);
-    } catch (firstError) {
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+    } catch (error) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       await fetch(endpoint, options);
     }
+
     return { demo: false };
   }
 
   function setLoading(isLoading) {
     submitButton.disabled = isLoading;
     submitButton.classList.toggle("loading", isLoading);
-    submitButton.querySelector(".button-label").textContent = isLoading ? "Enviando..." : "Gerar boleto e receber no WhatsApp";
+    submitButton.querySelector(".button-label").textContent = isLoading
+      ? "ENVIANDO..."
+      : "GERAR BOLETO E ENVIAR NO WHATSAPP";
   }
 
   function showSuccess(payload, response) {
@@ -221,48 +293,58 @@
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+
     if (!validateForm()) {
-      form.querySelector('[aria-invalid="true"]')?.focus();
+      const firstInvalid = form.querySelector('[aria-invalid="true"]');
+      firstInvalid?.focus({ preventScroll: true });
+      firstInvalid?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+
     const payload = buildPayload();
     setLoading(true);
+
     try {
       const response = await postPayload(payload);
       showSuccess(payload, response);
     } catch (error) {
-      formAlert.textContent = error instanceof Error ? error.message : "Não foi possível enviar a solicitação. Tente novamente.";
+      formAlert.textContent = error instanceof Error
+        ? error.message
+        : "Nao foi possivel enviar a solicitacao. Tente novamente.";
       formAlert.hidden = false;
     } finally {
       setLoading(false);
     }
   });
 
-  document.querySelector("#cpf").addEventListener("input", (event) => { event.target.value = maskCpf(event.target.value); });
-  document.querySelector("#telefone").addEventListener("input", (event) => { event.target.value = maskPhone(event.target.value); });
-  document.querySelector("#contrato").addEventListener("input", (event) => { event.target.value = digitsOnly(event.target.value); });
-  form.querySelectorAll('input[name="tipoSolicitacao"]').forEach((radio) => radio.addEventListener("change", updateParcelFields));
+  document.querySelector("#cpf").addEventListener("input", (event) => {
+    event.target.value = maskCpf(event.target.value);
+    if (event.target.getAttribute("aria-invalid") === "true") clearFieldError(event.target);
+  });
+
+  document.querySelector("#telefone").addEventListener("input", (event) => {
+    event.target.value = maskPhone(event.target.value);
+    if (event.target.getAttribute("aria-invalid") === "true") clearFieldError(event.target);
+  });
+
+  document.querySelector("#contrato").addEventListener("input", (event) => {
+    event.target.value = digitsOnly(event.target.value);
+    if (event.target.getAttribute("aria-invalid") === "true") clearFieldError(event.target);
+  });
+
+  form.querySelectorAll("input, select").forEach((field) => {
+    field.addEventListener("change", () => {
+      if (field.getAttribute("aria-invalid") === "true") clearFieldError(field);
+    });
+  });
+
+  form.querySelectorAll('input[name="tipoSolicitacao"]').forEach((radio) => {
+    radio.addEventListener("change", updateParcelFields);
+  });
+
   document.querySelector("#new-request-button").addEventListener("click", resetForm);
 
   populateUnits();
   setupAccessCode();
   updateParcelFields();
-})();
-
-// Keeps transparent overlay fields visible only while focused or after receiving a value.
-(() => {
-  function syncVisibleValue(control) {
-    if (!control) return;
-    const hasValue = control.tagName === 'SELECT'
-      ? Boolean(control.value)
-      : Boolean(control.value.trim());
-    control.classList.toggle('has-value', hasValue);
-  }
-
-  document.querySelectorAll('.overlay-field input, .overlay-field select').forEach((control) => {
-    syncVisibleValue(control);
-    control.addEventListener('input', () => syncVisibleValue(control));
-    control.addEventListener('change', () => syncVisibleValue(control));
-    control.addEventListener('blur', () => syncVisibleValue(control));
-  });
 })();
