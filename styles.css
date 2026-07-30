@@ -62,36 +62,51 @@ form{position:relative}.form-section{min-width:0;margin:0;padding:18px 0 0;borde
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
 
 
-/* v6.2 - correcao exclusiva do titulo principal
-   Faz a tipografia responder a largura real da coluna, sem invadir a arte. */
+/* v6.3 - correcao definitiva do titulo principal.
+   O tamanho responde a largura real da coluna e nunca invade a arte. */
 .hero-copy {
   container-type: inline-size;
   position: relative;
-  z-index: 2;
+  z-index: 3;
+  overflow: visible;
 }
 
 .hero-copy h1 {
   width: 100%;
   max-width: 100%;
-  font-size: clamp(2.75rem, 13.8cqw, 5.1rem);
-  line-height: .92;
-  letter-spacing: -.012em;
+  margin: 0;
+  font-size: clamp(2.35rem, 10.35cqw, 4.65rem);
+  line-height: .93;
+  letter-spacing: -.024em;
 }
 
 .hero-copy h1 span {
   display: block;
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
   white-space: nowrap;
 }
 
 .hero-art {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-art img {
+  position: relative;
   z-index: 1;
 }
 
 @media (max-width: 1450px) {
   .hero-copy h1 {
-    font-size: clamp(2.65rem, 13.8cqw, 4.4rem);
+    font-size: clamp(2.25rem, 10.1cqw, 4rem);
+    letter-spacing: -.026em;
+  }
+}
+
+@media (max-width: 1160px) {
+  .hero-copy h1 {
+    font-size: clamp(2.2rem, 10.15cqw, 3.8rem);
   }
 }
 
@@ -101,9 +116,9 @@ form{position:relative}.form-section{min-width:0;margin:0;padding:18px 0 0;borde
   }
 
   .hero-copy h1 {
-    font-size: clamp(2.45rem, 11.5vw, 3.15rem);
-    line-height: .94;
-    letter-spacing: -.01em;
+    font-size: clamp(2.35rem, 11vw, 3.15rem);
+    line-height: .95;
+    letter-spacing: -.018em;
   }
 
   .hero-copy h1 span {
