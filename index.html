@@ -4,242 +4,157 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#02040f">
-  <meta name="description" content="Solicitação interna de boletos da Credvix com envio automático pelo WhatsApp.">
+  <meta name="description" content="Solicitação de boletos da Credvix com envio pelo WhatsApp.">
   <title>Boleto Credvix</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=6.3.0">
+  <link rel="preload" href="assets/pixel-neon-whatsapp-desktop.webp" as="image" type="image/webp" media="(min-width: 901px)">
+  <link rel="stylesheet" href="styles.css?v=8.0.0">
   <script src="config.js" defer></script>
-  <script src="app.js?v=6.1.0" defer></script>
+  <script src="app.js?v=8.0.0" defer></script>
 </head>
 <body>
-  <div class="page-effects" aria-hidden="true">
-    <div class="ambient-glow ambient-glow-cyan"></div>
-    <div class="ambient-glow ambient-glow-violet"></div>
-    <div class="pixel-field pixel-field-one"></div>
-    <div class="pixel-field pixel-field-two"></div>
-    <div class="tech-floor"></div>
-  </div>
+  <main id="inicio" class="visual-stage">
+    <img
+      class="desktop-mock"
+      src="assets/pixel-neon-whatsapp-desktop.webp"
+      width="1672"
+      height="941"
+      alt=""
+      aria-hidden="true"
+      fetchpriority="high"
+    >
 
-  <div class="site-shell">
-    <header class="topbar">
-      <a class="brand" href="#inicio" aria-label="Boleto Credvix - início">
-        <img src="assets/logo-pixel-c.svg" alt="" class="brand-logo">
-        <span class="brand-name">BOLETO <strong>CREDVIX</strong></span>
-      </a>
+    <a class="desktop-hotspot hotspot-brand" href="#inicio" aria-label="Credvix — início"></a>
+    <a class="desktop-hotspot hotspot-how" href="#como-funciona">Como Funciona</a>
+    <a class="desktop-hotspot hotspot-request" href="#solicitar">Solicitar</a>
 
-      <nav class="main-nav" aria-label="Navegação principal">
-        <a href="#como-funciona">Como Funciona</a>
-        <a href="#solicitar">Solicitar</a>
-        <a href="#duvidas">Dúvidas</a>
-        <a href="#seguranca">Segurança</a>
-      </nav>
+    <section class="mobile-intro" aria-labelledby="mobile-title">
+      <header class="mobile-header">
+        <a class="mobile-brand" href="#inicio" aria-label="Credvix — início">
+          <img src="assets/logo-pixel-c.svg" alt="">
+          <strong>CREDVIX</strong>
+        </a>
+        <nav aria-label="Navegação principal">
+          <a href="#como-funciona">Como Funciona</a>
+          <a href="#solicitar">Solicitar</a>
+        </nav>
+      </header>
 
-      <a class="whatsapp-pill" href="#solicitar" aria-label="Solicitar boleto para receber no WhatsApp">
-        <span class="whatsapp-mark" aria-hidden="true">◔</span>
-        <span>
-          <strong>RECEBA NO WHATSAPP</strong>
-          <small>RÁPIDO, SEGURO E PRÁTICO</small>
-        </span>
-      </a>
-    </header>
+      <div class="mobile-hero">
+        <h1 id="mobile-title">PEÇA SEU BOLETO<br><span>RECEBA NO WHATSAPP</span></h1>
+        <p>Rápido, seguro e sem complicação.</p>
+      </div>
 
-    <main id="inicio" class="main-layout">
-      <section class="hero-copy" aria-labelledby="hero-title">
-        <p class="kicker"><span aria-hidden="true">ϟ</span> RÁPIDO • SEGURO • SEM BUROCRACIA</p>
+      <div id="como-funciona" class="mobile-benefits" aria-label="Como Funciona">
+        <span>⚡ Rápido</span>
+        <span>◇ Seguro</span>
+        <span>◔ Direto no WhatsApp</span>
+      </div>
+    </section>
 
-        <h1 id="hero-title">
-          <span>PEÇA SEU</span>
-          <span>BOLETO AGORA</span>
-          <span class="gradient-text">E RECEBA NO</span>
-          <span class="gradient-text">WHATSAPP</span>
-        </h1>
+    <section id="solicitar" class="form-layer" aria-labelledby="form-title">
+      <h2 id="form-title" class="mobile-form-title">SOLICITE SEU BOLETO</h2>
 
-        <p class="hero-lead">
-          Em poucos segundos, você solicita e recebe seu boleto diretamente no
-          <strong>WhatsApp</strong>, com total segurança.
-        </p>
+      <form id="request-form" novalidate>
+        <input id="website" name="website" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
 
-        <div id="como-funciona" class="benefits" aria-label="Como Funciona">
-          <article class="benefit benefit-cyan">
-            <span class="benefit-icon" aria-hidden="true">ϟ</span>
-            <div>
-              <h2>RECEBA NA HORA</h2>
-              <p>Seu boleto é gerado e enviado automaticamente.</p>
-            </div>
-          </article>
+        <label class="field slot-name">
+          <span class="field-label">Nome completo</span>
+          <input id="solicitante" name="solicitante" type="text" maxlength="80" autocomplete="name" placeholder=" " required>
+          <small class="field-error" aria-live="polite"></small>
+        </label>
 
-          <article class="benefit benefit-purple">
-            <span class="benefit-icon" aria-hidden="true">◆</span>
-            <div>
-              <h2>DADOS PROTEGIDOS</h2>
-              <p>Suas informações são criptografadas e 100% seguras.</p>
-            </div>
-          </article>
+        <label class="field slot-cpf">
+          <span class="field-label">CPF</span>
+          <input id="cpf" name="cpf" type="text" inputmode="numeric" autocomplete="off" placeholder=" " maxlength="14" required>
+          <small class="field-error" aria-live="polite"></small>
+        </label>
 
-          <article class="benefit benefit-pink">
-            <span class="benefit-icon benefit-247" aria-hidden="true">24/7</span>
-            <div>
-              <h2>DISPONÍVEL 24/7</h2>
-              <p>Solicite a qualquer hora, todos os dias da semana.</p>
-            </div>
-          </article>
-        </div>
-      </section>
+        <label class="field slot-phone">
+          <span class="field-label">Telefone</span>
+          <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder=" " maxlength="16" required>
+          <small class="field-error" aria-live="polite"></small>
+        </label>
 
-      <section class="hero-art" aria-label="Boleto enviado pelo WhatsApp">
-        <div class="hero-glow" aria-hidden="true"></div>
-        <img src="assets/hero-neon-integrado.png?v=6.3.0" alt="Ilustração de boleto e WhatsApp em estilo neon">
-      </section>
+        <label class="field slot-unit">
+          <span class="field-label">Unidade</span>
+          <select id="unidade" name="unidade" required>
+            <option value="">Selecione sua unidade</option>
+          </select>
+          <small class="field-error" aria-live="polite"></small>
+        </label>
 
-      <aside class="request-column" id="seguranca">
-        <span id="duvidas" class="anchor-target" aria-hidden="true"></span>
-        <section id="solicitar" class="request-panel" aria-labelledby="form-title">
-          <header class="panel-header">
-            <h2 id="form-title">SOLICITE SEU BOLETO</h2>
-            <p>Preencha os dados abaixo para receber no <strong>WhatsApp</strong></p>
-          </header>
+        <label class="field slot-contract">
+          <span class="field-label">Contrato <em>(opcional)</em></span>
+          <input id="contrato" name="contrato" type="text" inputmode="numeric" autocomplete="off" placeholder=" " maxlength="20">
+          <small class="field-error" aria-live="polite"></small>
+        </label>
 
-          <form id="request-form" novalidate>
-            <input id="website" name="website" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <label class="field access-code-field" hidden>
+          <span class="field-label">Código interno</span>
+          <input id="codigoAcesso" name="codigoAcesso" type="password" maxlength="32" autocomplete="one-time-code" placeholder="Código fornecido pela supervisão">
+          <small class="field-error" aria-live="polite"></small>
+        </label>
 
-            <fieldset class="form-section">
-              <legend><span aria-hidden="true">♙</span> DADOS DO SOLICITANTE</legend>
+        <fieldset class="parcel-choice">
+          <legend class="mobile-only-label">Parcelas</legend>
 
-              <label class="field field-full">
-                <span>Nome completo *</span>
-                <input id="solicitante" name="solicitante" type="text" maxlength="80" autocomplete="name" placeholder="Digite seu nome completo" required>
-                <small class="field-error" aria-live="polite"></small>
-              </label>
+          <label class="parcel-option slot-specific">
+            <input type="radio" name="tipoSolicitacao" value="parcela_especifica" checked>
+            <span>Parcela específica</span>
+          </label>
 
-              <div class="field-grid field-grid-two">
-                <label class="field">
-                  <span>Unidade *</span>
-                  <select id="unidade" name="unidade" required>
-                    <option value="">Selecione sua unidade</option>
-                  </select>
-                  <small class="field-error" aria-live="polite"></small>
-                </label>
+          <label class="parcel-option slot-range">
+            <input type="radio" name="tipoSolicitacao" value="intervalo">
+            <span>Intervalo</span>
+          </label>
+        </fieldset>
 
-                <label class="field">
-                  <span>Telefone (WhatsApp) *</span>
-                  <div class="input-with-icon">
-                    <span class="input-icon" aria-hidden="true">●</span>
-                    <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 91234-5678" maxlength="16" required>
-                  </div>
-                  <small class="field-error" aria-live="polite"></small>
-                </label>
-              </div>
+        <div id="parcel-fields" class="parcel-fields" hidden>
+          <label class="field parcel-single" hidden>
+            <span class="field-label">Número da parcela</span>
+            <input id="parcela" name="parcela" type="number" min="1" max="999" inputmode="numeric" placeholder="Ex.: 9">
+            <small class="field-error" aria-live="polite"></small>
+          </label>
 
-              <div class="field-grid field-grid-two">
-                <label class="field">
-                  <span>CPF *</span>
-                  <input id="cpf" name="cpf" type="text" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" maxlength="14" required>
-                  <small class="field-error" aria-live="polite"></small>
-                </label>
-
-                <label class="field">
-                  <span>Contrato <em>(opcional)</em></span>
-                  <input id="contrato" name="contrato" type="text" inputmode="numeric" autocomplete="off" placeholder="Informe o número do contrato" maxlength="20">
-                  <small class="field-error" aria-live="polite"></small>
-                </label>
-              </div>
-
-              <label class="field access-code-field" hidden>
-                <span>Código interno *</span>
-                <input id="codigoAcesso" name="codigoAcesso" type="password" maxlength="32" autocomplete="one-time-code" placeholder="Código fornecido pela supervisão">
-                <small class="field-error" aria-live="polite"></small>
-              </label>
-            </fieldset>
-
-            <fieldset class="form-section parcel-section">
-              <legend><span aria-hidden="true">▤</span> ESCOLHA A PARCELA</legend>
-
-              <div class="request-type" role="radiogroup" aria-label="Tipo de parcela">
-                <label class="option-row">
-                  <input type="radio" name="tipoSolicitacao" value="primeira_disponivel" checked>
-                  <span class="radio-ui" aria-hidden="true"></span>
-                  <span class="option-copy">
-                    <strong>Primeira disponível</strong>
-                    <small>Seleciona a menor parcela habilitada.</small>
-                  </span>
-                  <span class="option-decoration yellow" aria-hidden="true">●</span>
-                </label>
-
-                <label class="option-row">
-                  <input type="radio" name="tipoSolicitacao" value="parcela_especifica">
-                  <span class="radio-ui" aria-hidden="true"></span>
-                  <span class="option-copy">
-                    <strong>Parcela específica</strong>
-                    <small>Escolha uma única parcela.</small>
-                  </span>
-                  <span class="option-decoration blue" aria-hidden="true">◆ ◆</span>
-                </label>
-
-                <label class="option-row">
-                  <input type="radio" name="tipoSolicitacao" value="intervalo">
-                  <span class="radio-ui" aria-hidden="true"></span>
-                  <span class="option-copy">
-                    <strong>Intervalo de parcelas</strong>
-                    <small>Escolha duas ou mais parcelas consecutivas.</small>
-                  </span>
-                  <span class="option-decoration pink" aria-hidden="true">◆ ◆ ◆</span>
-                </label>
-              </div>
-
-              <div id="parcel-fields" class="parcel-fields" hidden>
-                <label class="field parcel-single" hidden>
-                  <span>Número da parcela *</span>
-                  <input id="parcela" name="parcela" type="number" min="1" max="999" inputmode="numeric" placeholder="Ex.: 9">
-                  <small class="field-error" aria-live="polite"></small>
-                </label>
-
-                <div class="field-grid field-grid-two parcel-range" hidden>
-                  <label class="field">
-                    <span>Parcela inicial *</span>
-                    <input id="parcelaInicial" name="parcelaInicial" type="number" min="1" max="999" inputmode="numeric" placeholder="Ex.: 8">
-                    <small class="field-error" aria-live="polite"></small>
-                  </label>
-
-                  <label class="field">
-                    <span>Parcela final *</span>
-                    <input id="parcelaFinal" name="parcelaFinal" type="number" min="1" max="999" inputmode="numeric" placeholder="Ex.: 10">
-                    <small class="field-error" aria-live="polite"></small>
-                  </label>
-                </div>
-              </div>
-            </fieldset>
-
-            <label class="consent">
-              <input id="consentimento" name="consentimento" type="checkbox" required>
-              <span class="checkbox-ui" aria-hidden="true"></span>
-              <span class="consent-copy">Confirmo que os dados foram conferidos e autorizo o uso para emissão e envio do boleto solicitado.</span>
+          <div class="parcel-range" hidden>
+            <label class="field">
+              <span class="field-label">Parcela inicial</span>
+              <input id="parcelaInicial" name="parcelaInicial" type="number" min="1" max="999" inputmode="numeric" placeholder="Ex.: 8">
+              <small class="field-error" aria-live="polite"></small>
             </label>
-            <small id="consent-error" class="standalone-error" aria-live="polite"></small>
 
-            <div id="form-alert" class="form-alert" role="alert" hidden></div>
-
-            <button id="submit-button" class="primary-button" type="submit">
-              <span class="button-label">GERAR BOLETO E ENVIAR NO WHATSAPP</span>
-              <span class="button-arrow" aria-hidden="true">→</span>
-              <span class="spinner" aria-hidden="true"></span>
-            </button>
-          </form>
-
-          <section id="success-panel" class="success-panel" hidden aria-live="polite">
-            <div class="success-icon">✓</div>
-            <h2>Solicitação recebida</h2>
-            <p>O pedido entrou na fila. O boleto será enviado ao WhatsApp informado depois do processamento.</p>
-            <div class="protocol-box"><small>PROTOCOLO</small><strong id="protocol-value"></strong></div>
-            <button id="new-request-button" class="secondary-button" type="button">Fazer nova solicitação</button>
-          </section>
-        </section>
-
-        <div class="privacy-card">
-          <span class="privacy-lock" aria-hidden="true">▣</span>
-          <p>Seus dados estão protegidos com criptografia de ponta a ponta.<br>Privacidade garantida. Sem compartilhamento de informações.</p>
+            <label class="field">
+              <span class="field-label">Parcela final</span>
+              <input id="parcelaFinal" name="parcelaFinal" type="number" min="1" max="999" inputmode="numeric" placeholder="Ex.: 10">
+              <small class="field-error" aria-live="polite"></small>
+            </label>
+          </div>
         </div>
-      </aside>
-    </main>
-  </div>
+
+        <label class="consent">
+          <input id="consentimento" name="consentimento" type="checkbox" required>
+          <span class="checkbox-ui" aria-hidden="true"></span>
+          <span class="consent-copy">Autorizo o envio pelo WhatsApp</span>
+        </label>
+        <small id="consent-error" class="standalone-error" aria-live="polite"></small>
+
+        <div id="form-alert" class="form-alert" role="alert" hidden></div>
+
+        <button id="submit-button" class="primary-button" type="submit">
+          <span class="button-label">SOLICITAR BOLETO</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <section id="success-panel" class="success-panel" hidden aria-live="polite">
+        <div class="success-icon">✓</div>
+        <h2>Solicitação recebida</h2>
+        <p>O pedido entrou na fila. O boleto será enviado ao WhatsApp informado depois do processamento.</p>
+        <div class="protocol-box"><small>PROTOCOLO</small><strong id="protocol-value"></strong></div>
+        <button id="new-request-button" class="secondary-button" type="button">Fazer nova solicitação</button>
+      </section>
+    </section>
+  </main>
 </body>
 </html>

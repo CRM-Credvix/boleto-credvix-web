@@ -11,6 +11,7 @@
   const parcelRange = document.querySelector(".parcel-range");
   const accessCodeField = document.querySelector(".access-code-field");
   const unitsSelect = document.querySelector("#unidade");
+  let parcelChoiceTouched = false;
 
   const digitsOnly = (value) => String(value || "").replace(/\D/g, "");
 
@@ -105,8 +106,9 @@
     const type = selectedRequestType();
     const isSingle = type === "parcela_especifica";
     const isRange = type === "intervalo";
+    const shouldReveal = parcelChoiceTouched && (isSingle || isRange);
 
-    parcelFields.hidden = !(isSingle || isRange);
+    parcelFields.hidden = !shouldReveal;
     parcelSingle.hidden = !isSingle;
     parcelRange.hidden = !isRange;
 
@@ -271,7 +273,7 @@
     submitButton.classList.toggle("loading", isLoading);
     submitButton.querySelector(".button-label").textContent = isLoading
       ? "ENVIANDO..."
-      : "GERAR BOLETO E ENVIAR NO WHATSAPP";
+      : "SOLICITAR BOLETO";
   }
 
   function showSuccess(payload, response) {
@@ -284,6 +286,7 @@
 
   function resetForm() {
     form.reset();
+    parcelChoiceTouched = false;
     clearErrors();
     updateParcelFields();
     successPanel.hidden = true;
@@ -293,6 +296,8 @@
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    parcelChoiceTouched = true;
+    updateParcelFields();
 
     if (!validateForm()) {
       const firstInvalid = form.querySelector('[aria-invalid="true"]');
@@ -339,7 +344,10 @@
   });
 
   form.querySelectorAll('input[name="tipoSolicitacao"]').forEach((radio) => {
-    radio.addEventListener("change", updateParcelFields);
+    radio.addEventListener("click", () => {
+      parcelChoiceTouched = true;
+      updateParcelFields();
+    });
   });
 
   document.querySelector("#new-request-button").addEventListener("click", resetForm);
