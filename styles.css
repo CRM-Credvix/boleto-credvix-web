@@ -21,6 +21,7 @@ html {
 }
 
 body {
+  position: relative;
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
@@ -32,6 +33,33 @@ body {
     #01030d;
 }
 
+/* Prolonga a atmosfera do mock apenas nas faixas que sobram em telas largas. */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -2.5vmax;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body::before {
+  background:
+    linear-gradient(90deg, rgba(0, 4, 20, .18), rgba(4, 3, 24, .08) 48%, rgba(21, 3, 35, .2)),
+    url("assets/pixel-neon-whatsapp-desktop.webp") center / cover no-repeat;
+  filter: blur(18px) saturate(.88) brightness(.62);
+  transform: scale(1.035);
+}
+
+body::after {
+  background:
+    radial-gradient(circle, rgba(61, 188, 255, .78) 0 1px, transparent 1.7px) 9px 17px / 47px 59px,
+    radial-gradient(circle, rgba(203, 73, 255, .68) 0 1px, transparent 1.8px) 31px 4px / 73px 83px,
+    linear-gradient(rgba(41, 103, 227, .13) 1px, transparent 1px) 0 0 / 46px 46px,
+    linear-gradient(90deg, rgba(73, 55, 202, .12) 1px, transparent 1px) 0 0 / 46px 46px;
+  opacity: .48;
+}
+
 button,
 input,
 select { font: inherit; }
@@ -41,6 +69,7 @@ button { color: inherit; }
 
 .visual-stage {
   position: fixed;
+  z-index: 1;
   left: 50%;
   top: 50%;
   width: min(100vw, 177.6833vh);
@@ -623,6 +652,9 @@ button { color: inherit; }
     overflow-y: auto;
     background: #01030d;
   }
+
+  body::before,
+  body::after { display: none; }
 
   .visual-stage {
     position: relative;
