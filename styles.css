@@ -26,7 +26,10 @@ body {
   margin: 0;
   overflow: hidden;
   color: #fff;
-  background: #01030d;
+  background:
+    radial-gradient(circle at 7% 55%, rgba(20, 106, 255, .22), transparent 25%),
+    radial-gradient(circle at 94% 60%, rgba(180, 35, 255, .18), transparent 27%),
+    #01030d;
 }
 
 button,
@@ -40,14 +43,13 @@ button { color: inherit; }
   position: fixed;
   left: 50%;
   top: 50%;
-  width: max(100vw, 177.6833vh);
-  height: max(100vh, 56.2799vw);
-  min-width: 100vw;
-  min-height: 100vh;
-  overflow: hidden;
+  width: min(100vw, 177.6833vh);
+  height: min(100vh, 56.2799vw);
+  overflow: visible;
   transform: translate(-50%, -50%);
   isolation: isolate;
   background: #01030d;
+  box-shadow: 0 0 5vw rgba(34, 63, 187, .18);
 }
 
 .desktop-mock {
@@ -146,6 +148,109 @@ button { color: inherit; }
 .field select {
   appearance: none;
   cursor: pointer;
+}
+
+.slot-unit { z-index: 40; }
+
+.unit-native-select {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.unit-combobox {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.unit-trigger {
+  width: 100%;
+  height: 100%;
+  padding: 0 9% 0 11.5%;
+  border: 0;
+  border-radius: .48vw;
+  outline: 0;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: clamp(.56rem, .94vw, 1rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background .16s ease, box-shadow .16s ease, color .16s ease;
+}
+
+.unit-trigger[aria-expanded="true"],
+.unit-trigger.has-value {
+  color: #f8fbff;
+  background: rgba(3, 13, 37, .96);
+  box-shadow: inset 0 0 0 1px rgba(57, 143, 255, .95), 0 0 .9vw rgba(24, 191, 255, .22);
+}
+
+.unit-trigger:focus-visible {
+  color: #f8fbff;
+  background: rgba(3, 13, 37, .96);
+  box-shadow: inset 0 0 0 2px var(--cyan), 0 0 .9vw rgba(24, 191, 255, .35);
+}
+
+.slot-unit:has(.unit-native-select[aria-invalid="true"]) .unit-trigger {
+  color: #fff;
+  background: rgba(31, 5, 34, .96);
+  box-shadow: inset 0 0 0 1px var(--danger), 0 0 .8vw rgba(255, 74, 173, .24);
+}
+
+.unit-list {
+  position: absolute;
+  left: 0;
+  top: calc(100% + .45vw);
+  z-index: 100;
+  width: clamp(420px, 34vw, 620px);
+  max-width: calc(100vw - 2rem);
+  max-height: 42vh;
+  padding: .35vw;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid rgba(54, 188, 255, .75);
+  border-radius: .55vw;
+  background: rgba(2, 8, 27, .985);
+  box-shadow: 0 0 1.6vw rgba(34, 119, 255, .35), 0 0 2vw rgba(188, 45, 255, .18);
+  scrollbar-color: var(--cyan) rgba(10, 24, 55, .9);
+  scrollbar-width: thin;
+}
+
+.unit-option {
+  width: 100%;
+  min-height: 2.1vw;
+  padding: .48vw .62vw;
+  border: 0;
+  border-radius: .34vw;
+  color: #f8fbff;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: clamp(.62rem, .86vw, .94rem);
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.unit-option:hover,
+.unit-option:focus-visible,
+.unit-option.is-active {
+  outline: 0;
+  color: #fff;
+  background: linear-gradient(90deg, rgba(38, 132, 255, .72), rgba(84, 80, 224, .58));
+  box-shadow: inset 0 0 0 1px rgba(102, 220, 255, .52);
+}
+
+.unit-option[aria-selected="true"] {
+  background: linear-gradient(90deg, rgba(30, 146, 255, .78), rgba(125, 64, 221, .65));
 }
 
 .field input:focus,
@@ -666,6 +771,48 @@ button { color: inherit; }
     background: rgba(3, 13, 36, .94);
     box-shadow: inset 0 0 16px rgba(33, 94, 173, .08);
     font-size: .9rem;
+  }
+
+  .unit-combobox { height: 47px; }
+
+  .unit-trigger {
+    height: 47px;
+    padding: 0 42px 0 13px;
+    border: 1px solid rgba(100, 129, 191, .72);
+    border-radius: 8px;
+    color: #fff;
+    background: rgba(3, 13, 36, .94);
+    box-shadow: inset 0 0 16px rgba(33, 94, 173, .08);
+    font-size: .9rem;
+  }
+
+  .unit-trigger::after {
+    content: "";
+    position: absolute;
+    right: 15px;
+    top: 18px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #c8d8ff;
+    border-bottom: 2px solid #c8d8ff;
+    transform: rotate(45deg);
+  }
+
+  .unit-list {
+    top: calc(100% + 6px);
+    width: 100%;
+    max-width: none;
+    max-height: min(46vh, 360px);
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0 0 22px rgba(34, 119, 255, .35);
+  }
+
+  .unit-option {
+    min-height: 42px;
+    padding: 9px 10px;
+    border-radius: 6px;
+    font-size: .82rem;
   }
 
   .field input:focus,

@@ -12,6 +12,8 @@
   const accessCodeField = document.querySelector(".access-code-field");
   const unitsSelect = document.querySelector("#unidade");
   let parcelChoiceTouched = false;
+  let unitTrigger = null;
+  let unitList = null;
 
   const digitsOnly = (value) => String(value || "").replace(/\D/g, "");
 
@@ -27,6 +29,166 @@
       option.textContent = unit;
       unitsSelect.appendChild(option);
     });
+  }
+
+  function syncUnitCombobox() {
+    if (!unitTrigger || !unitList) return;
+
+    const selectedText = unitsSelect.value
+      ? unitsSelect.selectedOptions[0]?.textContent || unitsSelect.value
+      : "Selecione sua unidade";
+    unitTrigger.querySelector(".unit-trigger-label").textContent = selectedText;
+    unitTrigger.classList.toggle("has-value", Boolean(unitsSelect.value));
+
+    unitList.querySelectorAll(".unit-option").forEach((option) => {
+      option.setAttribute("aria-selected", String(option.dataset.value === unitsSelect.value));
+    });
+  }
+
+  function closeUnitList({ restoreFocus = false } = {}) {
+    if (!unitTrigger || !unitList) return;
+    unitList.hidden = true;
+    unitTrigger.setAttribute("aria-expanded", "false");
+    unitList.querySelectorAll(".unit-option").forEach((option) => option.classList.remove("is-active"));
+    if (restoreFocus) unitTrigger.focus();
+  }
+
+  function openUnitList() {
+    if (!unitTrigger || !unitList) return;
+    unitList.hidden = false;
+    unitTrigger.setAttribute("aria-expanded", "true");
+
+    const selected = unitList.querySelector('[aria-selected="true"]');
+    const first = unitList.querySelector(".unit-option");
+    const target = selected || first;
+    target?.classList.add("is-active");
+    target?.scrollIntoView({ block: "nearest" });
+  }
+
+  function chooseUnit(value) {
+    unitsSelect.value = value;
+    unitsSelect.dispatchEvent(new Event("change", { bubbles: true }));
+    syncUnitCombobox();
+    closeUnitList({ restoreFocus: true });
+  }
+
+  function moveUnitFocus(direction) {
+    const options = [...unitList.querySelectorAll(".unit-option")];
+    if (!options.length) return;
+
+    const currentIndex = options.findIndex((option) => option.classList.contains("is-active"));
+    let nextIndex = currentIndex;
+
+    if (direction === "first") nextIndex = 0;
+    else if (direction === "last") nextIndex = options.length - 1;
+    else nextIndex = Math.min(options.length - 1, Math.max(0, currentIndex + direction));
+
+    options.forEach((option) => option.classList.remove("is-active"));
+    options[nextIndex].classList.add("is-active");
+    options[nextIndex].focus({ preventScroll: true });
+    options[nextIndex].scrollIntoView({ block: "nearest" });
+  }
+
+  function setupUnitCombobox() {
+    const field = unitsSelect.closest(".slot-unit");
+    if (!field) return;
+
+    unitsSelect.classList.add("unit-native-select");
+    unitsSelect.tabIndex = -1;
+    unitsSelect.setAttribute("aria-hidden", "true");
+
+    const combobox = document.createElement("div");
+    combobox.className = "unit-combobox";
+    combobox.innerHTML = `
+      <button
+        id="unit-trigger"
+        class="unit-trigger"
+        type="button"
+        role="combobox"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+        aria-controls="unit-list"
+        aria-label="Selecionar unidade"
+      ><span class="unit-trigger-label">Selecione sua unidade</span></button>
+      <div id="unit-list" class="unit-list" role="listbox" aria-label="Unidades" hidden></div>
+    `;
+
+    unitsSelect.before(combobox);
+    unitTrigger = combobox.querySelector("#unit-trigger");
+    unitList = combobox.querySelector("#unit-list");
+
+    [...unitsSelect.options].filter((option) => option.value).forEach((option, index) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.id = `unit-option-${index}`;
+      item.className = "unit-option";
+      item.setAttribute("role", "option");
+      item.dataset.value = option.value;
+      item.textContent = option.textContent;
+      item.addEventListener("click", () => chooseUnit(option.value));
+      unitList.appendChild(item);
+    });
+
+    unitTrigger.addEventListener("click", () => {
+      if (unitList.hidden) openUnitList();
+      else closeUnitList();
+    });
+
+    unitTrigger.addEventListener("keydown", (event) => {
+      if (!["ArrowDown", "ArrowUp", "Home", "End", "Escape"].includes(event.key)) return;
+      event.preventDefault();
+
+      if (event.key === "Escape") {
+        closeUnitList();
+        return;
+      }
+
+      const wasHidden = unitList.hidden;
+      if (wasHidden) openUnitList();
+      if (wasHidden && event.key === "ArrowDown") {
+        moveUnitFocus(0);
+        return;
+      }
+      if (wasHidden && event.key === "ArrowUp") {
+        moveUnitFocus("last");
+        return;
+      }
+      if (event.key === "ArrowDown") moveUnitFocus(1);
+      if (event.key === "ArrowUp") moveUnitFocus(-1);
+      if (event.key === "Home") moveUnitFocus("first");
+      if (event.key === "End") moveUnitFocus("last");
+    });
+
+    unitList.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        moveUnitFocus(1);
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        moveUnitFocus(-1);
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        moveUnitFocus("first");
+      } else if (event.key === "End") {
+        event.preventDefault();
+        moveUnitFocus("last");
+      } else if (event.key === "Enter" || event.key === " ") {
+        const active = document.activeElement.closest?.(".unit-option");
+        if (active) {
+          event.preventDefault();
+          chooseUnit(active.dataset.value);
+        }
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        closeUnitList({ restoreFocus: true });
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!combobox.contains(event.target)) closeUnitList();
+    });
+
+    syncUnitCombobox();
   }
 
   function setupAccessCode() {
@@ -286,6 +448,7 @@
 
   function resetForm() {
     form.reset();
+    syncUnitCombobox();
     parcelChoiceTouched = false;
     clearErrors();
     updateParcelFields();
@@ -301,8 +464,9 @@
 
     if (!validateForm()) {
       const firstInvalid = form.querySelector('[aria-invalid="true"]');
-      firstInvalid?.focus({ preventScroll: true });
-      firstInvalid?.scrollIntoView({ behavior: "smooth", block: "center" });
+      const focusTarget = firstInvalid === unitsSelect ? unitTrigger : firstInvalid;
+      focusTarget?.focus({ preventScroll: true });
+      focusTarget?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
@@ -353,6 +517,7 @@
   document.querySelector("#new-request-button").addEventListener("click", resetForm);
 
   populateUnits();
+  setupUnitCombobox();
   setupAccessCode();
   updateParcelFields();
 })();
