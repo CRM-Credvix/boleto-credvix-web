@@ -18,7 +18,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
 
     runs-on: ubuntu-latest
 
@@ -36,7 +36,10 @@ jobs:
 
       - name: Publicar site
         id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@v4
-        with:
-          timeout: 1200000
-          error_count: 20
+
+      - name: Repetir publicacao se a fila expirar
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4
