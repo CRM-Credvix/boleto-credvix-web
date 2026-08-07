@@ -133,3 +133,5 @@ jobs:
 
           echo "O Pages nao publicou o commit dentro de 30 minutos."
           exit 1
+
+# Re-disparo manual apos incidente do GitHub Actions/Pages em 2026-08-06.
