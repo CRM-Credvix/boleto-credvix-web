@@ -657,7 +657,7 @@ button { color: inherit; }
  * central cresce horizontalmente de forma progressiva até o limite de 2:1.
  * Em 16:9, notebooks e celulares, a composição permanece inalterada.
  */
-@media (min-width: 1440px) and (min-aspect-ratio: 16 / 9) {
+@media (min-width: 901px) and (min-aspect-ratio: 16 / 9) {
   .visual-stage {
     width: min(100vw, 200vh);
   }
