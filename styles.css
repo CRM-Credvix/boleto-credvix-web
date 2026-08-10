@@ -652,6 +652,17 @@ button { color: inherit; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/*
+ * Palco amplo (Mock 3): em monitores mais largos que 16:9, o conjunto
+ * central cresce horizontalmente de forma progressiva até o limite de 2:1.
+ * Em 16:9, notebooks e celulares, a composição permanece inalterada.
+ */
+@media (min-width: 1440px) and (min-aspect-ratio: 16 / 9) {
+  .visual-stage {
+    width: min(100vw, 200vh);
+  }
+}
+
 @media (max-width: 900px) {
   body {
     overflow-x: hidden;
