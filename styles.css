@@ -54,7 +54,7 @@ button { color: inherit; }
   box-shadow: 0 0 5vw rgba(34, 63, 187, .18);
 }
 
-/* Estende as bordas reais da arte para preencher apenas as sobras laterais. */
+/* Estende somente o fundo das bordas; o conteúdo central nunca é duplicado. */
 .visual-stage::before,
 .visual-stage::after {
   content: "";
@@ -62,12 +62,17 @@ button { color: inherit; }
   top: 0;
   bottom: 0;
   z-index: 0;
-  width: 50vw;
+  width: max(1px, calc((100vw - 100%) / 2 + 2px));
   pointer-events: none;
   background-color: #01030d;
   background-image: url("assets/pixel-neon-whatsapp-desktop.webp");
   background-repeat: no-repeat;
-  background-size: auto 100%;
+  /*
+   * Amplia apenas os ~28 px externos da arte original (1/60 da largura).
+   * Essa faixa contém somente estrelas, névoa e circuitos — nunca textos,
+   * logotipo, botões ou formulário.
+   */
+  background-size: 6000% 100%;
 }
 
 .visual-stage::before {
