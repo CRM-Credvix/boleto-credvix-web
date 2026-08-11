@@ -1200,6 +1200,13 @@ button { color: inherit; }
 
   .field input::placeholder { color: #7f8da9; }
 
+  .slot-name > input::placeholder,
+  .slot-cpf > input::placeholder,
+  .slot-phone > input::placeholder,
+  .slot-contract > input::placeholder {
+    color: transparent;
+  }
+
   .field-error,
   .standalone-error,
   .parcel-fields .field-error,
