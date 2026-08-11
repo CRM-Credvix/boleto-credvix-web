@@ -884,10 +884,14 @@ button { color: inherit; }
       inset 0 0 0 1px rgba(244, 178, 35, .92);
   }
 
+  .parcel-choice {
+    min-width: 0;
+  }
+
   .parcel-option {
     display: flex;
     align-items: center;
-    padding: 0 5% 0 24%;
+    padding: 0 .55vw 0 2.65vw;
     border: 1px solid #71809d;
     border-radius: .48vw;
     color: #f8fbff;
@@ -933,9 +937,10 @@ button { color: inherit; }
     display: flex;
     align-items: center;
     gap: 3.4%;
-    padding: 0 1.2%;
+    padding: 0 .3vw;
     border-radius: .32vw;
     background: #030a18;
+    box-shadow: -.45vw 0 0 #030a18;
   }
 
   .checkbox-ui {
