@@ -17,6 +17,14 @@
 
   const digitsOnly = (value) => String(value || "").replace(/\D/g, "");
 
+  function normalizeUnitSearch(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLocaleLowerCase("pt-BR");
+  }
+
   function populateUnits() {
     const units = Array.isArray(config.UNIDADES) && config.UNIDADES.length
       ? config.UNIDADES
@@ -31,18 +39,56 @@
     });
   }
 
+  function officialUnitOptions() {
+    return [...unitsSelect.options].filter((option) => option.value && option.dataset.manual !== "true");
+  }
+
+  function setUnitSelectValue(value, { notify = true } = {}) {
+    const typedValue = String(value || "").trim();
+    const manualOption = unitsSelect.querySelector('option[data-manual="true"]');
+    if (manualOption) manualOption.remove();
+
+    if (!typedValue) {
+      unitsSelect.value = "";
+    } else {
+      const normalizedTyped = normalizeUnitSearch(typedValue);
+      const official = officialUnitOptions().find(
+        (option) => normalizeUnitSearch(option.value) === normalizedTyped
+      );
+
+      if (official) {
+        unitsSelect.value = official.value;
+      } else {
+        const option = document.createElement("option");
+        option.value = typedValue;
+        option.textContent = typedValue;
+        option.dataset.manual = "true";
+        unitsSelect.appendChild(option);
+        unitsSelect.value = typedValue;
+      }
+    }
+
+    if (notify) unitsSelect.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  function renderUnitOptions(query = "") {
+    if (!unitList) return;
+    const normalizedQuery = normalizeUnitSearch(query);
+
+    unitList.querySelectorAll(".unit-option").forEach((option) => {
+      const matches = !normalizedQuery || normalizeUnitSearch(option.dataset.value).includes(normalizedQuery);
+      option.hidden = !matches;
+      option.classList.remove("is-active");
+      option.setAttribute("aria-selected", String(option.dataset.value === unitsSelect.value));
+    });
+  }
+
   function syncUnitCombobox() {
     if (!unitTrigger || !unitList) return;
 
-    const selectedText = unitsSelect.value
-      ? unitsSelect.selectedOptions[0]?.textContent || unitsSelect.value
-      : "Selecione sua unidade";
-    unitTrigger.querySelector(".unit-trigger-label").textContent = selectedText;
+    unitTrigger.value = unitsSelect.value || "";
     unitTrigger.classList.toggle("has-value", Boolean(unitsSelect.value));
-
-    unitList.querySelectorAll(".unit-option").forEach((option) => {
-      option.setAttribute("aria-selected", String(option.dataset.value === unitsSelect.value));
-    });
+    renderUnitOptions(unitTrigger.value);
   }
 
   function closeUnitList({ restoreFocus = false } = {}) {
@@ -55,25 +101,25 @@
 
   function openUnitList() {
     if (!unitTrigger || !unitList) return;
+    renderUnitOptions(unitTrigger.value);
     unitList.hidden = false;
     unitTrigger.setAttribute("aria-expanded", "true");
 
-    const selected = unitList.querySelector('[aria-selected="true"]');
-    const first = unitList.querySelector(".unit-option");
-    const target = selected || first;
+    const visibleOptions = [...unitList.querySelectorAll(".unit-option")].filter((option) => !option.hidden);
+    const selected = visibleOptions.find((option) => option.getAttribute("aria-selected") === "true");
+    const target = selected || visibleOptions[0];
     target?.classList.add("is-active");
     target?.scrollIntoView({ block: "nearest" });
   }
 
   function chooseUnit(value) {
-    unitsSelect.value = value;
-    unitsSelect.dispatchEvent(new Event("change", { bubbles: true }));
+    setUnitSelectValue(value);
     syncUnitCombobox();
     closeUnitList({ restoreFocus: true });
   }
 
   function moveUnitFocus(direction) {
-    const options = [...unitList.querySelectorAll(".unit-option")];
+    const options = [...unitList.querySelectorAll(".unit-option")].filter((option) => !option.hidden);
     if (!options.length) return;
 
     const currentIndex = options.findIndex((option) => option.classList.contains("is-active"));
@@ -100,16 +146,19 @@
     const combobox = document.createElement("div");
     combobox.className = "unit-combobox";
     combobox.innerHTML = `
-      <button
+      <input
         id="unit-trigger"
         class="unit-trigger"
-        type="button"
+        type="text"
         role="combobox"
+        aria-autocomplete="list"
         aria-haspopup="listbox"
         aria-expanded="false"
         aria-controls="unit-list"
-        aria-label="Selecionar unidade"
-      ><span class="unit-trigger-label">Selecione sua unidade</span></button>
+        aria-label="Unidade"
+        autocomplete="off"
+        placeholder="Selecione ou digite sua unidade"
+      >
       <div id="unit-list" class="unit-list" role="listbox" aria-label="Unidades" hidden></div>
     `;
 
@@ -117,7 +166,7 @@
     unitTrigger = combobox.querySelector("#unit-trigger");
     unitList = combobox.querySelector("#unit-list");
 
-    [...unitsSelect.options].filter((option) => option.value).forEach((option, index) => {
+    officialUnitOptions().forEach((option, index) => {
       const item = document.createElement("button");
       item.type = "button";
       item.id = `unit-option-${index}`;
@@ -129,34 +178,46 @@
       unitList.appendChild(item);
     });
 
-    unitTrigger.addEventListener("click", () => {
+    unitTrigger.addEventListener("focus", openUnitList);
+    unitTrigger.addEventListener("click", openUnitList);
+
+    unitTrigger.addEventListener("input", () => {
+      const typedValue = unitTrigger.value;
+      setUnitSelectValue(typedValue, { notify: false });
+      unitTrigger.classList.toggle("has-value", Boolean(typedValue.trim()));
+      renderUnitOptions(typedValue);
       if (unitList.hidden) openUnitList();
-      else closeUnitList();
+      if (unitsSelect.getAttribute("aria-invalid") === "true") clearFieldError(unitsSelect);
     });
 
     unitTrigger.addEventListener("keydown", (event) => {
-      if (!["ArrowDown", "ArrowUp", "Home", "End", "Escape"].includes(event.key)) return;
-      event.preventDefault();
-
       if (event.key === "Escape") {
+        event.preventDefault();
         closeUnitList();
         return;
       }
 
+      if (event.key === "Enter") {
+        const active = unitList.querySelector(".unit-option.is-active:not([hidden])");
+        if (active) {
+          event.preventDefault();
+          chooseUnit(active.dataset.value);
+        } else if (unitTrigger.value.trim()) {
+          event.preventDefault();
+          setUnitSelectValue(unitTrigger.value);
+          syncUnitCombobox();
+          closeUnitList();
+        }
+        return;
+      }
+
+      if (!["ArrowDown", "ArrowUp"].includes(event.key)) return;
+      event.preventDefault();
+
       const wasHidden = unitList.hidden;
       if (wasHidden) openUnitList();
-      if (wasHidden && event.key === "ArrowDown") {
-        moveUnitFocus(0);
-        return;
-      }
-      if (wasHidden && event.key === "ArrowUp") {
-        moveUnitFocus("last");
-        return;
-      }
-      if (event.key === "ArrowDown") moveUnitFocus(1);
-      if (event.key === "ArrowUp") moveUnitFocus(-1);
-      if (event.key === "Home") moveUnitFocus("first");
-      if (event.key === "End") moveUnitFocus("last");
+      if (event.key === "ArrowDown") moveUnitFocus(wasHidden ? "first" : 1);
+      if (event.key === "ArrowUp") moveUnitFocus(wasHidden ? "last" : -1);
     });
 
     unitList.addEventListener("keydown", (event) => {
@@ -311,7 +372,7 @@
       valid = false;
     }
     if (!unit.value) {
-      setFieldError(unit, "Selecione a unidade.");
+      setFieldError(unit, "Selecione ou digite a unidade.");
       valid = false;
     }
     if (![10, 11].includes(digitsOnly(phone.value).length)) {
