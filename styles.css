@@ -717,6 +717,114 @@ button { color: inherit; }
   .primary-button:hover:not(:disabled) {
     box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .48), 0 0 1.2vw rgba(245, 130, 32, .42);
   }
+
+  /*
+   * Campos desktop 8.3.2: encobre somente a prévia estática gravada na
+   * arte e mantém a camada HTML como fonte única de ícones, rótulos e texto.
+   * A imagem Colmeia Solar permanece inalterada.
+   */
+  .slot-name { --field-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20fill%3D'none'%20stroke%3D'%23cbd5e1'%20stroke-width%3D'1.8'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'12'%20cy%3D'8'%20r%3D'4'%2F%3E%3Cpath%20d%3D'M4%2021a8%208%200%200%201%2016%200'%2F%3E%3C%2Fsvg%3E"); }
+  .slot-cpf { --field-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20fill%3D'none'%20stroke%3D'%23cbd5e1'%20stroke-width%3D'1.8'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Crect%20x%3D'3'%20y%3D'5'%20width%3D'18'%20height%3D'14'%20rx%3D'2'%2F%3E%3Ccircle%20cx%3D'8.5'%20cy%3D'11'%20r%3D'2'%2F%3E%3Cpath%20d%3D'M6%2016c.8-2%204.2-2%205%200M13%2010h5M13%2014h5'%2F%3E%3C%2Fsvg%3E"); }
+  .slot-phone { --field-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20fill%3D'none'%20stroke%3D'%23cbd5e1'%20stroke-width%3D'1.8'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Cpath%20d%3D'M22%2016.92v3a2%202%200%200%201-2.18%202%2019.79%2019.79%200%200%201-8.63-3.07%2019.5%2019.5%200%200%201-6-6A19.79%2019.79%200%200%201%202.12%204.18%202%202%200%200%201%204.11%202h3a2%202%200%200%201%202%201.72c.12.9.33%201.78.62%202.63a2%202%200%200%201-.45%202.11L8%209.73a16%2016%200%200%200%206%206l1.27-1.27a2%202%200%200%201%202.11-.45c.85.29%201.73.5%202.63.62A2%202%200%200%201%2022%2016.92z'%2F%3E%3C%2Fsvg%3E"); }
+  .slot-unit { --field-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20fill%3D'none'%20stroke%3D'%23cbd5e1'%20stroke-width%3D'1.8'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Cpath%20d%3D'M20%2010c0%205-8%2012-8%2012S4%2015%204%2010a8%208%200%201%201%2016%200z'%2F%3E%3Ccircle%20cx%3D'12'%20cy%3D'10'%20r%3D'2.5'%2F%3E%3C%2Fsvg%3E"); }
+  .slot-contract { --field-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20fill%3D'none'%20stroke%3D'%23cbd5e1'%20stroke-width%3D'1.8'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Cpath%20d%3D'M14%202H6a2%202%200%200%200-2%202v16a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2V8z'%2F%3E%3Cpath%20d%3D'M14%202v6h6M8%2013h8M8%2017h6'%2F%3E%3C%2Fsvg%3E"); }
+
+  .field input,
+  .field select,
+  .unit-trigger {
+    position: relative;
+    z-index: 2;
+    color: #f8fbff;
+    caret-color: var(--cyan);
+    background: linear-gradient(180deg, rgba(9, 29, 58, .995), rgba(5, 18, 40, .995));
+    box-shadow:
+      inset 0 0 0 1px rgba(244, 178, 35, .92),
+      inset 0 0 1vw rgba(28, 82, 145, .11),
+      0 0 .55vw rgba(245, 130, 32, .12);
+  }
+
+  .field::before {
+    content: "";
+    position: absolute;
+    left: 4.1%;
+    top: 50%;
+    z-index: 3;
+    width: 4.8%;
+    aspect-ratio: 1;
+    transform: translateY(-50%);
+    background-image: var(--field-icon);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    pointer-events: none;
+  }
+
+  .field-label {
+    left: 11.5%;
+    top: 50%;
+    z-index: 3;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    transform: translateY(-50%);
+    color: #cbd5e1;
+    font-size: clamp(.56rem, .94vw, 1rem);
+    font-weight: 400;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+    transition: opacity .12s ease;
+  }
+
+  .field-label em {
+    color: #8e9bb4;
+    font-style: normal;
+  }
+
+  .field:has(input:focus) .field-label,
+  .field:has(input:not(:placeholder-shown)) .field-label,
+  .slot-unit .field-label {
+    opacity: 0;
+  }
+
+  .unit-trigger {
+    padding-right: 12%;
+    color: #cbd5e1;
+  }
+
+  .unit-trigger::after {
+    content: "";
+    position: absolute;
+    right: 4.8%;
+    top: 39%;
+    width: 2.7%;
+    aspect-ratio: 1;
+    border-right: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    transform: rotate(45deg);
+    pointer-events: none;
+  }
+
+  .field input:focus,
+  .field input:not(:placeholder-shown),
+  .field select:focus,
+  .field select:valid,
+  .unit-trigger[aria-expanded="true"],
+  .unit-trigger.has-value,
+  .unit-trigger:focus-visible {
+    color: #f8fbff;
+    background: rgba(7, 27, 52, .995);
+  }
+
+  .field input[aria-invalid="true"],
+  .field select[aria-invalid="true"],
+  .slot-unit:has(.unit-native-select[aria-invalid="true"]) .unit-trigger {
+    color: #fff;
+    background: rgba(31, 5, 34, .985);
+    box-shadow: inset 0 0 0 1px var(--danger), 0 0 .8vw rgba(255, 74, 173, .24);
+  }
 }
 
 /*
