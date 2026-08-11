@@ -664,6 +664,45 @@ button { color: inherit; }
     --line: rgba(244, 178, 35, .72);
   }
 
+  /* Mantém os avisos de validação dentro da coluna do formulário. */
+  .field-error {
+    left: 0;
+    top: calc(100% + .18vw);
+    width: 100%;
+    max-width: none;
+    padding: 0 .2vw;
+    transform: none;
+    border: 0;
+    border-radius: 0;
+    color: #ffb3d6;
+    background: transparent;
+    box-shadow: none;
+    font-size: clamp(.46rem, .58vw, .66rem);
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .standalone-error {
+    left: 38.55%;
+    top: 78.15%;
+    width: 23.05%;
+    max-width: none;
+    padding: 0 .2vw;
+    transform: none;
+    border: 0;
+    border-radius: 0;
+    color: #ffb3d6;
+    background: transparent;
+    box-shadow: none;
+    font-size: clamp(.46rem, .58vw, .66rem);
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .field input:focus,
   .field input:not(:placeholder-shown),
   .field select:focus,
