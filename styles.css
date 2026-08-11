@@ -719,7 +719,7 @@ button { color: inherit; }
   }
 
   /*
-   * Campos desktop 8.3.2: encobre somente a prévia estática gravada na
+   * Campos desktop 8.3.3: encobre somente a prévia estática gravada na
    * arte e mantém a camada HTML como fonte única de ícones, rótulos e texto.
    * A imagem Colmeia Solar permanece inalterada.
    */
@@ -741,6 +741,7 @@ button { color: inherit; }
       inset 0 0 0 1px rgba(244, 178, 35, .92),
       inset 0 0 1vw rgba(28, 82, 145, .11),
       0 0 .55vw rgba(245, 130, 32, .12);
+    transition: box-shadow .12s ease, color .12s ease;
   }
 
   .field::before {
@@ -775,7 +776,7 @@ button { color: inherit; }
     line-height: 1;
     white-space: nowrap;
     pointer-events: none;
-    transition: opacity .12s ease;
+    transition: none;
   }
 
   .field-label em {
@@ -783,7 +784,6 @@ button { color: inherit; }
     font-style: normal;
   }
 
-  .field:has(input:focus) .field-label,
   .field:has(input:not(:placeholder-shown)) .field-label,
   .slot-unit .field-label {
     opacity: 0;
@@ -815,7 +815,29 @@ button { color: inherit; }
   .unit-trigger.has-value,
   .unit-trigger:focus-visible {
     color: #f8fbff;
-    background: rgba(7, 27, 52, .995);
+    background: linear-gradient(180deg, rgba(9, 29, 58, .995), rgba(5, 18, 40, .995));
+  }
+
+  /*
+   * Controles desktop 8.3.3: o anel e o ponto dos rádios compartilham
+   * exatamente o mesmo centro; o checkbox usa o centro vertical da linha.
+   */
+  .parcel-option {
+    --choice-center-x: 11.45%;
+  }
+
+  .parcel-option::before,
+  .parcel-option:has(input:checked)::after {
+    left: var(--choice-center-x);
+    top: 50%;
+    box-sizing: border-box;
+    transform: translate(-50%, -50%);
+  }
+
+  .checkbox-ui {
+    top: 50%;
+    box-sizing: border-box;
+    transform: translateY(-50%);
   }
 
   .field input[aria-invalid="true"],
