@@ -840,11 +840,140 @@ button { color: inherit; }
     transform: translateY(-50%);
   }
 
+  /*
+   * Desktop 8.3.4: uma única camada visual para texto e controles.
+   * Os fundos opacos abaixo encobrem apenas os elementos estáticos gravados
+   * dentro das caixas da arte, sem alterar o restante da Colmeia Solar.
+   */
+  .slot-name > .field-label,
+  .slot-cpf > .field-label,
+  .slot-phone > .field-label,
+  .slot-unit > .field-label,
+  .slot-contract > .field-label {
+    opacity: 0;
+  }
+
+  .field input,
+  .field select,
+  .unit-trigger {
+    background: linear-gradient(180deg, #091d3a, #051228);
+  }
+
+  .field input::placeholder {
+    color: #cbd5e1;
+    opacity: 1;
+  }
+
+  .field input:focus,
+  .field input:not(:placeholder-shown),
+  .field select:focus,
+  .field select:valid,
+  .unit-trigger[aria-expanded="true"],
+  .unit-trigger.has-value,
+  .unit-trigger:focus-visible {
+    background: linear-gradient(180deg, #091d3a, #051228);
+  }
+
+  .field input:-webkit-autofill,
+  .field input:-webkit-autofill:hover,
+  .field input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #f8fbff;
+    caret-color: var(--cyan);
+    -webkit-box-shadow:
+      inset 0 0 0 1000px #071b34,
+      inset 0 0 0 1px rgba(244, 178, 35, .92);
+  }
+
+  .parcel-option {
+    display: flex;
+    align-items: center;
+    padding: 0 5% 0 24%;
+    border: 1px solid #71809d;
+    border-radius: .48vw;
+    color: #f8fbff;
+    background: linear-gradient(180deg, #091d3a, #051228);
+  }
+
+  .parcel-option span {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    color: #f8fbff;
+    font-size: clamp(.5rem, .78vw, .88rem);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .parcel-option:has(input:checked) {
+    border-color: #f4b223;
+    box-shadow: inset 0 0 0 1px rgba(244, 178, 35, .18), 0 0 .55vw rgba(245, 130, 32, .2);
+  }
+
+  .parcel-option::before {
+    z-index: 2;
+    width: 10%;
+    background: #071229;
+  }
+
+  .parcel-option:has(input:checked)::before {
+    border-color: #f4b223;
+    box-shadow: 0 0 .55vw rgba(244, 178, 35, .55);
+  }
+
+  .parcel-option:has(input:checked)::after {
+    z-index: 3;
+    width: 4.5%;
+    background: #f4b223;
+    box-shadow: 0 0 .45vw rgba(244, 178, 35, .9);
+  }
+
+  .consent {
+    display: flex;
+    align-items: center;
+    gap: 3.4%;
+    padding: 0 1.2%;
+    border-radius: .32vw;
+    background: #030a18;
+  }
+
+  .checkbox-ui {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 5.65%;
+    flex: 0 0 5.65%;
+    transform: none;
+  }
+
+  .consent-copy {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    color: #f8fbff;
+    font-size: clamp(.56rem, .9vw, 1rem);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .consent input:checked + .checkbox-ui {
+    border-color: #f4b223;
+    background: #071b34;
+    box-shadow: 0 0 .55vw rgba(244, 178, 35, .55);
+  }
+
+  .consent input:checked + .checkbox-ui::after {
+    color: #f4b223;
+  }
+
   .field input[aria-invalid="true"],
   .field select[aria-invalid="true"],
   .slot-unit:has(.unit-native-select[aria-invalid="true"]) .unit-trigger {
     color: #fff;
-    background: rgba(31, 5, 34, .985);
+    background: #1f0522;
     box-shadow: inset 0 0 0 1px var(--danger), 0 0 .8vw rgba(255, 74, 173, .24);
   }
 }
