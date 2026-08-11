@@ -1,0 +1,28 @@
+.unit-trigger {
+  cursor: text;
+}
+
+.unit-combobox::after {
+  content: "";
+  position: absolute;
+  right: 4.8%;
+  top: 39%;
+  z-index: 4;
+  width: 2.7%;
+  aspect-ratio: 1;
+  border-right: 1px solid #cbd5e1;
+  border-bottom: 1px solid #cbd5e1;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .unit-combobox::after {
+    right: 15px;
+    top: 18px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #c8d8ff;
+    border-bottom: 2px solid #c8d8ff;
+  }
+}
