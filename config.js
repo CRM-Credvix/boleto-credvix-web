@@ -3,7 +3,10 @@ window.BOLETO_CREDVIX_CONFIG = Object.freeze({
   SUPABASE_URL: "https://rtrfpmuokkikdtuvzxkg.supabase.co",
   SUPABASE_PUBLISHABLE_KEY: "sb_publishable_RAjfgdAQhqu-HBviFOtuLQ_GoHeQ1Lu",
   AUTH_FUNCTION_NAME: "authorize-user",
-  AUTH_REQUIRED: true,
+
+  // Primeiro publicamos em modo de homologação: o login só aparece com ?auth-preview=1.
+  // Depois do teste aprovado, altere para true para exigir autenticação de todos.
+  AUTH_REQUIRED: false,
 
   // Cole aqui a URL /exec do Google Apps Script depois da publicação.
   APPS_SCRIPT_URL: "",
