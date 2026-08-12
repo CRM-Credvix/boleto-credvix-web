@@ -10,11 +10,47 @@
   <link rel="preload" href="assets/pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp" as="image" type="image/webp" media="(min-width: 901px)">
   <link rel="stylesheet" href="styles.css?v=8.3.5">
   <link rel="stylesheet" href="unit-combobox-v8.3.6.css">
+  <link rel="stylesheet" href="auth-v8.4.0.css">
   <script src="config.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" defer></script>
+  <script src="auth-v8.4.0.js" defer></script>
   <script src="app.js?v=8.3.6" defer></script>
 </head>
 <body>
-  <main id="inicio" class="visual-stage">
+  <section id="auth-gate" class="auth-gate" aria-labelledby="auth-title">
+    <div class="auth-card">
+      <div class="auth-brand" aria-label="Credvix">
+        <img src="assets/logo-pixel-c.svg" alt="">
+        <span>CREDVIX</span>
+      </div>
+
+      <h1 id="auth-title">ACESSO AO PORTAL</h1>
+      <p class="auth-subtitle">Entre com sua conta autorizada para acessar a solicitação de boletos.</p>
+
+      <form id="auth-form" class="auth-form" novalidate>
+        <label class="auth-field">
+          <span>E-mail</span>
+          <input id="auth-email" name="email" type="email" autocomplete="username" inputmode="email" placeholder="seuemail@credvix.com" maxlength="160" required>
+        </label>
+
+        <label class="auth-field">
+          <span>Senha</span>
+          <input id="auth-password" name="password" type="password" autocomplete="current-password" placeholder="Sua senha" maxlength="200" required>
+        </label>
+
+        <p id="auth-alert" class="auth-alert" role="alert" aria-live="polite"></p>
+
+        <button id="auth-submit" class="auth-submit" type="submit">ENTRAR</button>
+      </form>
+
+      <p class="auth-note">Acesso restrito a usuários previamente autorizados pela Credvix.</p>
+    </div>
+  </section>
+
+  <div id="auth-session-badge" class="auth-session-badge" hidden aria-live="polite"></div>
+  <button id="auth-logout" class="auth-logout" type="button" hidden>Sair</button>
+
+  <main id="inicio" class="visual-stage" hidden>
     <img
       class="desktop-mock"
       src="assets/pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp"

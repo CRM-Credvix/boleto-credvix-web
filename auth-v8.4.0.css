@@ -1,0 +1,198 @@
+.auth-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow: auto;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(25, 220, 255, .12), transparent 28%),
+    radial-gradient(circle at 84% 78%, rgba(232, 60, 255, .12), transparent 30%),
+    linear-gradient(180deg, #01030d 0%, #030819 58%, #01030d 100%);
+}
+
+.auth-card {
+  width: min(100%, 430px);
+  padding: 34px 32px 30px;
+  border: 1px solid rgba(116, 148, 214, .52);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(5, 15, 39, .97), rgba(2, 8, 28, .98));
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, .52),
+    0 0 42px rgba(49, 133, 255, .10),
+    inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  color: #fff;
+  letter-spacing: .18em;
+  font-weight: 800;
+}
+
+.auth-brand img {
+  width: 42px;
+  height: 42px;
+  image-rendering: pixelated;
+}
+
+.auth-card h1 {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: clamp(1.45rem, 4vw, 2rem);
+  line-height: 1.05;
+  letter-spacing: .04em;
+}
+
+.auth-subtitle {
+  margin: 0 auto 28px;
+  max-width: 34ch;
+  color: rgba(224, 235, 255, .72);
+  text-align: center;
+  line-height: 1.5;
+  font-size: .94rem;
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-field {
+  display: grid;
+  gap: 7px;
+}
+
+.auth-field span {
+  color: rgba(235, 242, 255, .86);
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.auth-field input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 15px;
+  color: #fff;
+  border: 1px solid rgba(116, 148, 214, .64);
+  border-radius: 12px;
+  outline: none;
+  background: rgba(1, 7, 24, .86);
+  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.auth-field input::placeholder {
+  color: rgba(177, 192, 222, .48);
+}
+
+.auth-field input:focus {
+  border-color: var(--cyan);
+  background: rgba(2, 11, 32, .98);
+  box-shadow: 0 0 0 3px rgba(25, 220, 255, .10), 0 0 22px rgba(25, 220, 255, .08);
+}
+
+.auth-submit {
+  position: relative;
+  min-height: 52px;
+  margin-top: 4px;
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #020817;
+  background: linear-gradient(90deg, var(--cyan), #66efff 45%, #9e82ff);
+  font-weight: 900;
+  letter-spacing: .08em;
+  box-shadow: 0 0 22px rgba(25, 220, 255, .20);
+  transition: transform .16s ease, filter .16s ease, opacity .16s ease;
+}
+
+.auth-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: .68;
+}
+
+.auth-alert {
+  min-height: 20px;
+  margin: 2px 0 0;
+  color: #ff8cc5;
+  text-align: center;
+  font-size: .86rem;
+  line-height: 1.4;
+}
+
+.auth-note {
+  margin: 22px 0 0;
+  color: rgba(184, 199, 228, .58);
+  text-align: center;
+  font-size: .76rem;
+  line-height: 1.45;
+}
+
+.auth-logout {
+  position: fixed;
+  z-index: 80;
+  top: 14px;
+  right: 16px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(116, 148, 214, .50);
+  border-radius: 999px;
+  color: rgba(240, 246, 255, .90);
+  background: rgba(2, 8, 28, .86);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .24);
+}
+
+.auth-logout:hover {
+  border-color: rgba(25, 220, 255, .76);
+}
+
+.auth-session-badge {
+  position: fixed;
+  z-index: 79;
+  top: 15px;
+  right: 78px;
+  max-width: min(48vw, 360px);
+  padding: 8px 12px;
+  overflow: hidden;
+  color: rgba(218, 231, 255, .72);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .72rem;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .auth-gate {
+    padding: 18px;
+  }
+
+  .auth-card {
+    padding: 28px 22px 24px;
+    border-radius: 18px;
+  }
+
+  .auth-session-badge {
+    display: none;
+  }
+
+  .auth-logout {
+    top: 10px;
+    right: 10px;
+  }
+}
