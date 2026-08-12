@@ -12,7 +12,19 @@
   const logoutButton = document.querySelector("#auth-logout");
   const sessionBadge = document.querySelector("#auth-session-badge");
 
-  if (!authGate || !authForm || !appStage) return;
+  if (!authGate || !authForm || !appStage || !logoutButton || !sessionBadge) return;
+
+  const previewRequested = new URLSearchParams(window.location.search).get("auth-preview") === "1";
+  const authEnabled = config.AUTH_REQUIRED === true || previewRequested;
+
+  // Homologação segura: enquanto AUTH_REQUIRED=false, o site normal continua igual.
+  if (!authEnabled) {
+    authGate.hidden = true;
+    appStage.hidden = false;
+    logoutButton.hidden = true;
+    sessionBadge.hidden = true;
+    return;
+  }
 
   function showFatal(message) {
     appStage.hidden = true;
