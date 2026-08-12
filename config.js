@@ -1,4 +1,10 @@
 window.BOLETO_CREDVIX_CONFIG = Object.freeze({
+  // Supabase: somente URL pública e publishable key ficam no navegador.
+  SUPABASE_URL: "https://rtrfpmuokkikdtuvzxkg.supabase.co",
+  SUPABASE_PUBLISHABLE_KEY: "sb_publishable_RAjfgdAQhqu-HBviFOtuLQ_GoHeQ1Lu",
+  AUTH_FUNCTION_NAME: "authorize-user",
+  AUTH_REQUIRED: true,
+
   // Cole aqui a URL /exec do Google Apps Script depois da publicação.
   APPS_SCRIPT_URL: "",
 
