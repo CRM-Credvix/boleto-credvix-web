@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1672 941" role="img" aria-label="Cenário industrial pixelado Credvix">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#080908"/>
+      <stop offset="0.58" stop-color="#0c0a07"/>
+      <stop offset="1" stop-color="#050505"/>
+    </linearGradient>
+    <linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#47255f"/>
+      <stop offset="0.42" stop-color="#c24c2a"/>
+      <stop offset="0.72" stop-color="#f39a22"/>
+      <stop offset="1" stop-color="#311718"/>
+    </linearGradient>
+    <radialGradient id="lamp" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fff2a0"/>
+      <stop offset="0.28" stop-color="#ffd046"/>
+      <stop offset="0.62" stop-color="#f28a00" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#f28a00" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tube" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8c14f" stop-opacity=".18"/>
+      <stop offset="0.42" stop-color="#ff9e12" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#a24700" stop-opacity=".12"/>
+    </linearGradient>
+    <pattern id="grid" width="22" height="22" patternUnits="userSpaceOnUse">
+      <path d="M22 0H0V22" fill="none" stroke="#2b2014" stroke-width="1" opacity=".55"/>
+    </pattern>
+    <pattern id="hex" width="48" height="42" patternUnits="userSpaceOnUse">
+      <path d="M12 1h24l11 20-11 20H12L1 21 12 1z" fill="none" stroke="#7b4a12" stroke-width="2" opacity=".34"/>
+    </pattern>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+  </defs>
+
+  <rect width="1672" height="941" fill="url(#bg)"/>
+  <rect width="1672" height="941" fill="url(#grid)" opacity=".42"/>
+
+  <!-- amber halo behind the real HTML login card -->
+  <ellipse cx="836" cy="448" rx="430" ry="390" fill="#ff9500" opacity=".055" filter="url(#soft)"/>
+
+  <!-- upper industrial pipes -->
+  <g fill="none" stroke-linecap="square" stroke-linejoin="miter" shape-rendering="crispEdges">
+    <path d="M0 52H165V94H345V42H595" stroke="#241d15" stroke-width="34"/>
+    <path d="M0 52H165V94H345V42H595" stroke="#4a351f" stroke-width="5"/>
+    <path d="M1078 44H1262V82H1454V40H1672" stroke="#241d15" stroke-width="34"/>
+    <path d="M1078 44H1262V82H1454V40H1672" stroke="#4a351f" stroke-width="5"/>
+    <path d="M128 0V162H250V236" stroke="#201a14" stroke-width="24"/>
+    <path d="M128 0V162H250V236" stroke="#62411c" stroke-width="4"/>
+    <path d="M1540 0V145H1430V234" stroke="#201a14" stroke-width="24"/>
+    <path d="M1540 0V145H1430V234" stroke="#62411c" stroke-width="4"/>
+  </g>
+
+  <!-- left sunset window -->
+  <g shape-rendering="crispEdges">
+    <rect x="0" y="158" width="122" height="370" fill="#11100e" stroke="#4d3217" stroke-width="5"/>
+    <rect x="14" y="174" width="94" height="340" fill="url(#sunset)"/>
+    <circle cx="60" cy="366" r="34" fill="#ffb431" opacity=".92"/>
+    <path d="M14 455l18-32 15 14 20-56 20 32 21-18v119H14z" fill="#15151d"/>
+    <g fill="#090c13">
+      <rect x="19" y="434" width="12" height="80"/><rect x="34" y="412" width="18" height="102"/>
+      <rect x="56" y="449" width="11" height="65"/><rect x="70" y="426" width="18" height="88"/>
+      <rect x="91" y="462" width="12" height="52"/>
+    </g>
+    <g fill="#ff8f18" opacity=".75">
+      <rect x="38" y="427" width="4" height="4"/><rect x="44" y="440" width="4" height="4"/>
+      <rect x="75" y="441" width="4" height="4"/><rect x="82" y="455" width="4" height="4"/>
+    </g>
+  </g>
+
+  <!-- left status panel -->
+  <g font-family="monospace" shape-rendering="crispEdges">
+    <rect x="156" y="188" width="142" height="178" rx="3" fill="#0c0c0b" stroke="#5a3818" stroke-width="5"/>
+    <rect x="166" y="198" width="122" height="158" fill="#11100d" stroke="#261b10" stroke-width="2"/>
+    <text x="227" y="235" fill="#ff9f18" font-size="18" text-anchor="middle">SISTEMA</text>
+    <text x="227" y="264" fill="#ff9f18" font-size="18" text-anchor="middle">SEGURO</text>
+    <text x="227" y="293" fill="#ff9f18" font-size="18" text-anchor="middle">CREDVIX</text>
+    <rect x="211" y="316" width="32" height="28" fill="#ff9b12" opacity=".17" stroke="#ff9b12" stroke-width="2"/>
+    <path d="M219 317v-7c0-12 17-12 17 0v7" fill="none" stroke="#ffb126" stroke-width="3"/>
+  </g>
+
+  <!-- left lamp -->
+  <g shape-rendering="crispEdges">
+    <rect x="334" y="119" width="78" height="92" fill="#17130f" stroke="#6f4317" stroke-width="5"/>
+    <rect x="345" y="130" width="56" height="70" fill="#25170b" stroke="#b3620c" stroke-width="3"/>
+    <ellipse cx="373" cy="165" rx="58" ry="58" fill="url(#lamp)" opacity=".7"/>
+    <rect x="366" y="144" width="14" height="37" fill="#ffd44f" filter="url(#glow)"/>
+    <path d="M351 136h44M351 194h44" stroke="#553111" stroke-width="3"/>
+  </g>
+
+  <!-- left honey reactor -->
+  <g shape-rendering="crispEdges">
+    <rect x="28" y="594" width="155" height="238" rx="4" fill="#0b0b0a" stroke="#42301c" stroke-width="5"/>
+    <rect x="45" y="616" width="121" height="190" fill="#120d08" stroke="#7a4817" stroke-width="3"/>
+    <rect x="53" y="625" width="105" height="172" fill="url(#tube)"/>
+    <g fill="none" stroke="#ff9c17" stroke-width="3" opacity=".78">
+      <path d="M82 668h30l15 26-15 26H82l-15-26z"/>
+      <path d="M111 694h30l15 26-15 26h-30l-15-26z"/>
+      <path d="M53 694h30l15 26-15 26H53l-15-26z"/>
+    </g>
+    <ellipse cx="106" cy="720" rx="62" ry="62" fill="url(#lamp)" opacity=".22"/>
+  </g>
+
+  <!-- energy card -->
+  <g font-family="monospace" shape-rendering="crispEdges">
+    <rect x="234" y="565" width="193" height="247" fill="#0d0d0c" stroke="#49301a" stroke-width="5"/>
+    <text x="330" y="620" fill="#ff9814" font-size="17" text-anchor="middle">ENERGIA</text>
+    <text x="330" y="648" fill="#ff9814" font-size="17" text-anchor="middle">QUE CONECTA</text>
+    <text x="330" y="676" fill="#ff9814" font-size="17" text-anchor="middle">RESULTADOS</text>
+    <text x="330" y="704" fill="#ff9814" font-size="17" text-anchor="middle">QUE MULTIPLICAM</text>
+    <g fill="#f68d0a"><rect x="280" y="735" width="12" height="12"/><rect x="298" y="735" width="12" height="12"/><rect x="316" y="735" width="12" height="12"/><rect x="334" y="735" width="12" height="12"/><rect x="352" y="735" width="12" height="12"/></g>
+  </g>
+
+  <!-- right lock panel -->
+  <g shape-rendering="crispEdges">
+    <rect x="1322" y="161" width="176" height="237" fill="#0b0b0a" stroke="#46301a" stroke-width="5"/>
+    <rect x="1340" y="182" width="140" height="194" fill="url(#hex)" stroke="#2f2114" stroke-width="2"/>
+    <ellipse cx="1410" cy="278" rx="88" ry="88" fill="url(#lamp)" opacity=".19"/>
+    <path d="M1380 274v-30c0-42 60-42 60 0v30" fill="none" stroke="#f49a0f" stroke-width="10"/>
+    <rect x="1374" y="267" width="72" height="72" rx="4" fill="#f29a10" stroke="#ffbd42" stroke-width="4"/>
+    <rect x="1404" y="293" width="12" height="25" fill="#2a1809"/>
+    <circle cx="1410" cy="293" r="9" fill="#2a1809"/>
+  </g>
+
+  <!-- right lamp -->
+  <g shape-rendering="crispEdges">
+    <rect x="1214" y="122" width="78" height="92" fill="#17130f" stroke="#6f4317" stroke-width="5"/>
+    <rect x="1225" y="133" width="56" height="70" fill="#25170b" stroke="#b3620c" stroke-width="3"/>
+    <ellipse cx="1253" cy="168" rx="58" ry="58" fill="url(#lamp)" opacity=".7"/>
+    <rect x="1246" y="147" width="14" height="37" fill="#ffd44f" filter="url(#glow)"/>
+  </g>
+
+  <!-- right reactor -->
+  <g shape-rendering="crispEdges">
+    <rect x="1510" y="383" width="126" height="357" fill="#0d0d0c" stroke="#4b3118" stroke-width="5"/>
+    <rect x="1526" y="405" width="94" height="309" fill="#17100a" stroke="#a45a10" stroke-width="3"/>
+    <rect x="1538" y="421" width="70" height="276" fill="url(#tube)"/>
+    <g fill="#e98507" opacity=".65">
+      <rect x="1547" y="477" width="13" height="13"/><rect x="1580" y="503" width="10" height="10"/>
+      <rect x="1558" y="539" width="16" height="16"/><rect x="1586" y="572" width="11" height="11"/>
+      <rect x="1548" y="626" width="12" height="12"/><rect x="1572" y="660" width="15" height="15"/>
+    </g>
+    <ellipse cx="1573" cy="577" rx="70" ry="125" fill="url(#lamp)" opacity=".14"/>
+  </g>
+
+  <!-- pixel bee -->
+  <g transform="translate(1210 445)" shape-rendering="crispEdges">
+    <rect x="0" y="28" width="84" height="64" rx="6" fill="#f7a313" stroke="#4d2b0e" stroke-width="5"/>
+    <rect x="18" y="40" width="16" height="16" fill="#2b1b0c"/>
+    <rect x="52" y="40" width="16" height="16" fill="#2b1b0c"/>
+    <rect x="23" y="68" width="38" height="8" fill="#2b1b0c"/>
+    <rect x="6" y="92" width="14" height="25" fill="#f4a014"/>
+    <rect x="64" y="92" width="14" height="25" fill="#f4a014"/>
+    <path d="M86 42h32v18H96zM86 68h36v18H98z" fill="#d4d0c8" opacity=".78" stroke="#6f6c68" stroke-width="3"/>
+  </g>
+
+  <!-- bottom floor panels -->
+  <g shape-rendering="crispEdges">
+    <rect x="0" y="844" width="1672" height="97" fill="#090a09"/>
+    <path d="M0 866h1672M0 902h1672" stroke="#2d2115" stroke-width="5"/>
+    <g stroke="#3c2b1a" stroke-width="4">
+      <path d="M70 844l28 97M210 844l22 97M360 844l-6 97M505 844l18 97M1168 844l-13 97M1312 844l19 97M1480 844l-20 97"/>
+    </g>
+    <rect x="684" y="850" width="304" height="61" fill="#0d0d0c" stroke="#4b3019" stroke-width="4"/>
+    <rect x="751" y="862" width="170" height="36" fill="#151009" stroke="#8c5115" stroke-width="3"/>
+    <path d="M810 873h52l17 13-17 2h-52l-17-2z" fill="#f3900b" opacity=".75"/>
+  </g>
+
+  <!-- honeycomb side details -->
+  <g fill="none" stroke="#f0960e" stroke-width="3" opacity=".38" shape-rendering="crispEdges">
+    <path d="M1137 330h28l14 24-14 24h-28l-14-24z"/>
+    <path d="M1166 354h28l14 24-14 24h-28l-14-24z"/>
+    <path d="M1110 354h28l14 24-14 24h-28l-14-24z"/>
+    <path d="M445 302h28l14 24-14 24h-28l-14-24z"/>
+    <path d="M474 326h28l14 24-14 24h-28l-14-24z"/>
+  </g>
+
+  <!-- vignette -->
+  <rect width="1672" height="941" fill="none" stroke="#000" stroke-width="70" opacity=".35"/>
+</svg>
