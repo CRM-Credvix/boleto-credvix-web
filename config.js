@@ -6,7 +6,7 @@ window.BOLETO_CREDVIX_CONFIG = Object.freeze({
 
   // Primeiro publicamos em modo de homologação: o login só aparece com ?auth-preview=1.
   // Depois do teste aprovado, altere para true para exigir autenticação de todos.
-  AUTH_REQUIRED: false,
+  AUTH_REQUIRED: true,
 
   // Cole aqui a URL /exec do Google Apps Script depois da publicação.
   APPS_SCRIPT_URL: "",
