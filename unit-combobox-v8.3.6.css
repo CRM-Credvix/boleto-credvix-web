@@ -16,7 +16,7 @@
   pointer-events: none;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 800px) {
   .unit-combobox::after {
     right: 15px;
     top: 18px;
