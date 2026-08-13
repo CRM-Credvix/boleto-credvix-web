@@ -2,7 +2,8 @@
   "use strict";
 
   const config = window.BOLETO_CREDVIX_CONFIG || {};
-  const authGate = document.querySelector(\
+  const authGate = document.querySelector("#auth-gate");
+  const authCard = document.querySelector(".auth-card");
   const authForm = document.querySelector("#auth-form");
   const emailInput = document.querySelector("#auth-email");
   const passwordInput = document.querySelector("#auth-password");
@@ -35,21 +36,14 @@
     passwordToggle.setAttribute("aria-pressed", isVisible ? "true" : "false");
   }
 
-  function showFatal(message) {
+  if (!config.SUPABASE_URL || !config.SUPABASE_PUBLISHABLE_KEY || !window.supabase?.createClient) {
     appStage.hidden = true;
     authGate.hidden = false;
-    authAlert.textContent = message;
+    authAlert.textContent = !config.SUPABASE_URL || !config.SUPABASE_PUBLISHABLE_KEY
+      ? "Autenticação indisponível. Configuração do Supabase ausente."
+      : "Não foi possível carregar o serviço de autenticação.";
     authSubmit.disabled = true;
     passwordToggle.disabled = true;
-  }
-
-  if (!config.SUPABASE_URL || !config.SUPABASE_PUBLISHABLE_KEY) {
-    showFatal("Autenticação indisponível. Configuração do Supabase ausente.");
-    return;
-  }
-
-  if (!window.supabase?.createClient) {
-    showFatal("Não foi possível carregar o serviço de autenticação.");
     return;
   }
 
@@ -66,6 +60,7 @@
   );
 
   const functionName = config.AUTH_FUNCTION_NAME || "authorize-user";
+  const recoveryRedirectUrl = `${window.location.origin}${window.location.pathname}`;
   let currentProfile = null;
   let recoveryMode = recoveryRequested;
   let recoveryPanel = null;
@@ -73,13 +68,112 @@
   let recoveryConfirm = null;
   let recoveryAlert = null;
   let recoverySubmit = null;
+  let forgotButton = null;
+  let forgotCoolingDown = false;
+  let loginLoading = false;
+
+  function syncForgotState() {
+    if (!forgotButton) return;
+    forgotButton.disabled = loginLoading || forgotCoolingDown;
+  }
 
   function setLoading(isLoading) {
+    loginLoading = isLoading;
     authSubmit.disabled = isLoading;
     authSubmit.textContent = isLoading ? "VALIDANDO..." : "ENTRAR";
     emailInput.disabled = isLoading;
     passwordInput.disabled = isLoading;
     passwordToggle.disabled = isLoading;
+    syncForgotState();
+  }
+
+  function startForgotCooldown() {
+    forgotCoolingDown = true;
+    if (forgotButton) forgotButton.textContent = "E-MAIL ENVIADO";
+    syncForgotState();
+
+    window.setTimeout(() => {
+      forgotCoolingDown = false;
+      if (forgotButton) forgotButton.textContent = "ESQUECI MINHA SENHA";
+      syncForgotState();
+    }, 60000);
+  }
+
+  function ensureForgotButton() {
+    if (forgotButton) return;
+
+    forgotButton = document.createElement("button");
+    forgotButton.id = "auth-forgot-password";
+    forgotButton.type = "button";
+    forgotButton.textContent = "ESQUECI MINHA SENHA";
+    forgotButton.setAttribute("aria-label", "Recuperar senha por e-mail");
+    forgotButton.setAttribute(
+      "style",
+      "position:absolute;z-index:4;left:51.35%;top:46.05%;width:8.75%;height:2.8%;box-sizing:border-box;margin:0;padding:0;border:0;appearance:none;background:transparent;color:#d8a44e;cursor:pointer;pointer-events:auto;text-align:right;font-family:'Courier New','Lucida Console',monospace;font-size:.58cqw;font-weight:700;line-height:1;text-decoration:underline;text-underline-offset:.12cqw;"
+    );
+
+    forgotButton.addEventListener("mouseenter", () => {
+      if (!forgotButton.disabled) forgotButton.style.color = "#ffc14a";
+    });
+    forgotButton.addEventListener("mouseleave", () => {
+      forgotButton.style.color = forgotButton.disabled ? "#8b744e" : "#d8a44e";
+    });
+    forgotButton.addEventListener("focus", () => {
+      if (!forgotButton.disabled) forgotButton.style.color = "#ffc14a";
+    });
+    forgotButton.addEventListener("blur", () => {
+      forgotButton.style.color = forgotButton.disabled ? "#8b744e" : "#d8a44e";
+    });
+
+    forgotButton.addEventListener("click", async () => {
+      if (forgotButton.disabled) return;
+
+      authAlert.textContent = "";
+      const email = emailInput.value.trim().toLowerCase();
+
+      if (!email) {
+        authAlert.textContent = "Informe seu e-mail para recuperar a senha.";
+        emailInput.focus({ preventScroll: true });
+        return;
+      }
+
+      emailInput.value = email;
+      if (!emailInput.checkValidity()) {
+        authAlert.textContent = "Informe um e-mail válido.";
+        emailInput.focus({ preventScroll: true });
+        return;
+      }
+
+      forgotCoolingDown = true;
+      forgotButton.textContent = "ENVIANDO...";
+      syncForgotState();
+
+      try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+          redirectTo: recoveryRedirectUrl,
+        });
+
+        if (error) {
+          if (error.code === "over_email_send_rate_limit" || /rate limit/i.test(error.message || "")) {
+            authAlert.textContent = "Muitas solicitações de recuperação. Aguarde alguns minutos e tente novamente.";
+            startForgotCooldown();
+            return;
+          }
+          throw error;
+        }
+
+        authAlert.textContent = "Se o e-mail estiver cadastrado, enviaremos as instruções de recuperação.";
+        startForgotCooldown();
+      } catch (_error) {
+        forgotCoolingDown = false;
+        forgotButton.textContent = "ESQUECI MINHA SENHA";
+        syncForgotState();
+        authAlert.textContent = "Não foi possível solicitar a recuperação agora. Tente novamente.";
+      }
+    });
+
+    authForm.appendChild(forgotButton);
+    syncForgotState();
   }
 
   function showLogin(message = "") {
@@ -95,6 +189,7 @@
     passwordInput.value = "";
     setPasswordVisibility(false);
     setLoading(false);
+    ensureForgotButton();
     emailInput.focus({ preventScroll: true });
   }
 
@@ -118,6 +213,7 @@
     recoveryPanel.id = "auth-recovery-form";
     recoveryPanel.className = "auth-recovery-form";
     recoveryPanel.noValidate = true;
+    recoveryPanel.hidden = true;
     recoveryPanel.innerHTML = `
       <h1 class="auth-recovery-title">NOVA SENHA</h1>
       <p class="auth-recovery-copy">Defina uma nova senha para sua conta.</p>
@@ -151,7 +247,7 @@
         return;
       }
       if (password !== confirmPassword) {
-        recoveryAlert.textContent = "As senhas nao coincidem.";
+        recoveryAlert.textContent = "As senhas não coincidem.";
         return;
       }
 
@@ -166,10 +262,10 @@
 
         await supabaseClient.auth.signOut();
         recoveryMode = false;
-        history.replaceState(null, "", window.location.pathname + window.location.search.replace(/([?&])type=recovery(&|$)/, "$1").replace(/[?&]$/, ""));
+        history.replaceState(null, "", window.location.pathname);
         showLogin("Senha alterada com sucesso. Entre com a nova senha.");
       } catch (_error) {
-        recoveryAlert.textContent = "Nao foi possivel alterar a senha. Solicite um novo link e tente novamente.";
+        recoveryAlert.textContent = "Não foi possível alterar a senha. Solicite um novo link e tente novamente.";
       } finally {
         recoverySubmit.disabled = false;
         recoverySubmit.textContent = "ALTERAR SENHA";
@@ -194,6 +290,7 @@
     recoveryConfirm.value = "";
     recoveryPassword.focus({ preventScroll: true });
   }
+
   async function authorizeCurrentSession() {
     const {
       data: { session },
@@ -227,7 +324,7 @@
       if (error || !session) {
         if (recoveryMode) {
           recoveryMode = false;
-          showLogin("Link de recuperacao invalido ou expirado. Solicite um novo.");
+          showLogin("Link de recuperação inválido ou expirado. Solicite um novo.");
         } else {
           showLogin();
         }
@@ -326,5 +423,6 @@
   });
 
   setPasswordVisibility(false);
+  ensureForgotButton();
   boot();
 })();
