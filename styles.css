@@ -653,7 +653,7 @@ button { color: inherit; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* Colmeia Solar: acentos interativos alinhados à arte aprovada no desktop. */
-@media (min-width: 901px) {
+@media (min-width: 801px) {
   .visual-stage {
     --cyan: #f4b223;
     --blue: #f58220;
@@ -988,13 +988,13 @@ button { color: inherit; }
  * central cresce horizontalmente de forma progressiva até o limite de 2:1.
  * Em 16:9, notebooks e celulares, a composição permanece inalterada.
  */
-@media (min-width: 901px) and (min-aspect-ratio: 16 / 9) {
+@media (min-width: 801px) and (min-aspect-ratio: 16 / 9) {
   .visual-stage {
     width: min(100vw, 200vh);
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 800px) {
   body {
     overflow-x: hidden;
     overflow-y: auto;
