@@ -3,7 +3,7 @@
   --auth-gold:#ff9d12;
   --auth-gold-light:#ffc14a;
   --auth-cream:#f4dfbb;
-  --auth-field-fill:rgba(12,13,4,.96);
+  --auth-field-fill:rgba(10,11,5,.965);
 }
 
 .auth-gate{
@@ -15,7 +15,6 @@
 }
 .auth-gate[hidden]{display:none!important}
 
-/* Replica exatamente a geometria do background-size: cover para manter os hotspots alinhados. */
 .auth-stage{
   position:absolute;
   left:50%;
@@ -27,11 +26,6 @@
   container-type:inline-size;
 }
 
-/*
- * A arte possui três opções que ainda não fazem parte do fluxo real:
- * "Lembrar de mim", "Esqueci minha senha" e "Entrar com Google".
- * As máscaras apenas cobrem essas áreas decorativas com o mesmo tom do painel.
- */
 .auth-stage::before,
 .auth-stage::after{
   content:"";
@@ -53,7 +47,6 @@
 
 .auth-scene{display:none!important}
 
-/* O card é apenas uma camada de coordenadas; não redesenha a interface. */
 .auth-card{
   position:absolute;
   z-index:2;
@@ -95,7 +88,6 @@
   overflow:visible;
 }
 
-/* Campo E-mail da própria arte: x=850..1140 / y=264..306. */
 .auth-field:nth-of-type(1){
   left:44.3633%;
   top:32.1559%;
@@ -103,7 +95,6 @@
   height:5.1157%;
 }
 
-/* Campo Senha: o input termina antes do olho desenhado para preservá-lo. */
 .auth-field:nth-of-type(2){
   left:44.3633%;
   top:39.4641%;
@@ -123,15 +114,19 @@
   border:0;
 }
 
+/* O HTML cobre somente o miolo da caixa desenhada; a moldura original fica intacta. */
 .auth-field input{
+  position:absolute;
+  left:0;
+  top:11%;
   display:block;
   width:100%;
-  height:100%;
+  height:78%;
   box-sizing:border-box;
   margin:0;
   padding:0 .32cqw;
   border:0;
-  border-radius:0;
+  border-radius:.12cqw;
   outline:0;
   appearance:none;
   color:#ead8b7;
@@ -141,32 +136,28 @@
   font-family:Arial,Helvetica,sans-serif;
   font-size:1.02cqw;
   line-height:1;
-  transition:background-color .1s ease,box-shadow .1s ease;
+  transition:background-color .1s ease;
 }
 
-/* O placeholder pertence à arte. O HTML só assume o visual durante a interação. */
 .auth-field input::placeholder{color:transparent!important;opacity:0!important}
 .auth-field input:focus,
 .auth-field input:not(:placeholder-shown){
   background:var(--auth-field-fill);
 }
 .auth-field input:focus-visible{
-  box-shadow:inset 0 0 0 .08cqw rgba(255,177,44,.75);
+  outline:0;
+  box-shadow:none;
 }
 
-/* Evita o amarelo/azul do autofill do navegador estragar a arte. */
 .auth-field input:-webkit-autofill,
 .auth-field input:-webkit-autofill:hover,
 .auth-field input:-webkit-autofill:focus{
   -webkit-text-fill-color:#ead8b7;
-  -webkit-box-shadow:0 0 0 1000px rgb(12,13,4) inset;
+  -webkit-box-shadow:0 0 0 1000px rgb(10,11,5) inset;
   transition:background-color 9999s ease-out 0s;
 }
 
-/*
- * Hotspot transparente sobre o olho que já existe na própria arte.
- * A área começa exatamente onde termina o input real da senha.
- */
+/* Hotspot transparente exatamente sobre o olho desenhado na arte. */
 .auth-password-toggle{
   position:absolute;
   z-index:4;
@@ -185,9 +176,7 @@
   cursor:pointer;
   pointer-events:auto;
 }
-.auth-password-toggle:hover:not(:disabled){
-  background:rgba(255,190,60,.055);
-}
+.auth-password-toggle:hover:not(:disabled){background:rgba(255,190,60,.045)}
 .auth-password-toggle:focus-visible{
   outline:.08cqw solid rgba(255,215,145,.72);
   outline-offset:-.08cqw;
@@ -197,7 +186,6 @@
   pointer-events:none;
 }
 
-/* Botão real exatamente sobre o ENTRAR desenhado na imagem. */
 .auth-submit{
   position:absolute;
   left:42.5887%;
@@ -227,21 +215,14 @@
   outline:.10cqw solid rgba(255,245,210,.8);
   outline-offset:-.18cqw;
 }
-
-/* Durante a validação, cobre só o botão desenhado e fornece feedback real. */
 .auth-submit:disabled{
   cursor:wait;
   color:#1b1002;
   background:rgba(255,163,22,.94);
 }
 
-/*
- * Mensagens de validação aparecem dentro da antiga área do Google,
- * já mascarada na v8.6.1. Assim o aviso fica dentro do esquadro do painel.
- */
-.auth-alert{
-  display:none;
-}
+/* O alerta usa a área interna abaixo do ENTRAR, sem ultrapassar a moldura do painel. */
+.auth-alert{display:none}
 .auth-alert:not(:empty){
   position:absolute;
   z-index:3;

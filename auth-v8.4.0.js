@@ -6,18 +6,18 @@
   const authForm = document.querySelector("#auth-form");
   const emailInput = document.querySelector("#auth-email");
   const passwordInput = document.querySelector("#auth-password");
+  const passwordToggle = document.querySelector("#auth-password-toggle");
   const authAlert = document.querySelector("#auth-alert");
   const authSubmit = document.querySelector("#auth-submit");
   const appStage = document.querySelector("#inicio");
   const logoutButton = document.querySelector("#auth-logout");
   const sessionBadge = document.querySelector("#auth-session-badge");
 
-  if (!authGate || !authForm || !appStage || !logoutButton || !sessionBadge) return;
+  if (!authGate || !authForm || !emailInput || !passwordInput || !passwordToggle || !authAlert || !authSubmit || !appStage || !logoutButton || !sessionBadge) return;
 
   const previewRequested = new URLSearchParams(window.location.search).get("auth-preview") === "1";
   const authEnabled = config.AUTH_REQUIRED === true || previewRequested;
 
-  // Homologação segura: enquanto AUTH_REQUIRED=false, o site normal continua igual.
   if (!authEnabled) {
     authGate.hidden = true;
     appStage.hidden = false;
@@ -26,11 +26,18 @@
     return;
   }
 
+  function setPasswordVisibility(isVisible) {
+    passwordInput.type = isVisible ? "text" : "password";
+    passwordToggle.setAttribute("aria-label", isVisible ? "Ocultar senha" : "Mostrar senha");
+    passwordToggle.setAttribute("aria-pressed", isVisible ? "true" : "false");
+  }
+
   function showFatal(message) {
     appStage.hidden = true;
     authGate.hidden = false;
     authAlert.textContent = message;
     authSubmit.disabled = true;
+    passwordToggle.disabled = true;
   }
 
   if (!config.SUPABASE_URL || !config.SUPABASE_PUBLISHABLE_KEY) {
@@ -63,6 +70,7 @@
     authSubmit.textContent = isLoading ? "VALIDANDO..." : "ENTRAR";
     emailInput.disabled = isLoading;
     passwordInput.disabled = isLoading;
+    passwordToggle.disabled = isLoading;
   }
 
   function showLogin(message = "") {
@@ -74,6 +82,7 @@
     sessionBadge.textContent = "";
     authAlert.textContent = message;
     passwordInput.value = "";
+    setPasswordVisibility(false);
     setLoading(false);
     emailInput.focus({ preventScroll: true });
   }
@@ -130,6 +139,21 @@
       showLogin("Sua sessão expirou ou seu acesso não está liberado.");
     }
   }
+
+  passwordToggle.addEventListener("click", () => {
+    if (passwordInput.disabled) return;
+
+    const shouldShow = passwordInput.type === "password";
+    setPasswordVisibility(shouldShow);
+    passwordInput.focus({ preventScroll: true });
+
+    const end = passwordInput.value.length;
+    try {
+      passwordInput.setSelectionRange(end, end);
+    } catch (_error) {
+      // Alguns navegadores podem não permitir reposicionar o cursor neste momento.
+    }
+  });
 
   authForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -189,5 +213,6 @@
     getProfile: () => currentProfile,
   });
 
+  setPasswordVisibility(false);
   boot();
 })();
