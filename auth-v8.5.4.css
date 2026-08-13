@@ -1,4 +1,4 @@
-/* v8.6.1 - interface definitiva: arte original + hotspots, ocultando opcoes ainda nao implementadas. */
+/* v8.6.2 - arte original + hotspots funcionais + visualizar senha + alerta alinhado. */
 :root{
   --auth-gold:#ff9d12;
   --auth-gold-light:#ffc14a;
@@ -30,8 +30,7 @@
 /*
  * A arte possui três opções que ainda não fazem parte do fluxo real:
  * "Lembrar de mim", "Esqueci minha senha" e "Entrar com Google".
- * As duas máscaras abaixo apenas cobrem essas áreas decorativas com o
- * mesmo tom escuro do painel. Não interferem nos hotspots funcionais.
+ * As máscaras apenas cobrem essas áreas decorativas com o mesmo tom do painel.
  */
 .auth-stage::before,
 .auth-stage::after{
@@ -54,7 +53,7 @@
 
 .auth-scene{display:none!important}
 
-/* O card deixa de desenhar uma segunda interface. Ele vira apenas uma camada de coordenadas. */
+/* O card é apenas uma camada de coordenadas; não redesenha a interface. */
 .auth-card{
   position:absolute;
   z-index:2;
@@ -93,6 +92,7 @@
   margin:0;
   padding:0;
   pointer-events:auto;
+  overflow:visible;
 }
 
 /* Campo E-mail da própria arte: x=850..1140 / y=264..306. */
@@ -103,7 +103,7 @@
   height:5.1157%;
 }
 
-/* Campo Senha da própria arte, preservando o ícone do olho desenhado. */
+/* Campo Senha: o input termina antes do olho desenhado para preservá-lo. */
 .auth-field:nth-of-type(2){
   left:44.3633%;
   top:39.4641%;
@@ -144,7 +144,7 @@
   transition:background-color .1s ease,box-shadow .1s ease;
 }
 
-/* O placeholder pertence à arte. O HTML só assume visual quando o usuário interage/digita. */
+/* O placeholder pertence à arte. O HTML só assume o visual durante a interação. */
 .auth-field input::placeholder{color:transparent!important;opacity:0!important}
 .auth-field input:focus,
 .auth-field input:not(:placeholder-shown){
@@ -161,6 +161,40 @@
   -webkit-text-fill-color:#ead8b7;
   -webkit-box-shadow:0 0 0 1000px rgb(12,13,4) inset;
   transition:background-color 9999s ease-out 0s;
+}
+
+/*
+ * Hotspot transparente sobre o olho que já existe na própria arte.
+ * A área começa exatamente onde termina o input real da senha.
+ */
+.auth-password-toggle{
+  position:absolute;
+  z-index:4;
+  left:100%;
+  top:0;
+  width:1.1482cqw;
+  height:100%;
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  appearance:none;
+  background:transparent;
+  box-shadow:none;
+  cursor:pointer;
+  pointer-events:auto;
+}
+.auth-password-toggle:hover:not(:disabled){
+  background:rgba(255,190,60,.055);
+}
+.auth-password-toggle:focus-visible{
+  outline:.08cqw solid rgba(255,215,145,.72);
+  outline-offset:-.08cqw;
+}
+.auth-password-toggle:disabled{
+  cursor:wait;
+  pointer-events:none;
 }
 
 /* Botão real exatamente sobre o ENTRAR desenhado na imagem. */
@@ -194,36 +228,40 @@
   outline-offset:-.18cqw;
 }
 
-/* Durante a validação, cobre só o botão desenhado e fornece feedback real ao usuário. */
+/* Durante a validação, cobre só o botão desenhado e fornece feedback real. */
 .auth-submit:disabled{
   cursor:wait;
   color:#1b1002;
   background:rgba(255,163,22,.94);
 }
 
-/* Mensagens só aparecem quando realmente há erro; o estado normal permanece 100% fiel à arte. */
+/*
+ * Mensagens de validação aparecem dentro da antiga área do Google,
+ * já mascarada na v8.6.1. Assim o aviso fica dentro do esquadro do painel.
+ */
 .auth-alert{
   display:none;
 }
 .auth-alert:not(:empty){
   position:absolute;
-  left:50%;
-  top:70.2%;
+  z-index:3;
+  left:51.46135%;
+  top:59.25%;
   transform:translateX(-50%);
   display:block;
-  width:20.5%;
+  width:17.7453%;
   box-sizing:border-box;
   margin:0;
-  padding:.38cqw .55cqw;
+  padding:.28cqw .42cqw;
   pointer-events:none;
   color:#ffd29a;
-  background:rgba(7,7,4,.94);
+  background:rgba(8,9,4,.97);
   border:.055cqw solid rgba(255,157,18,.72);
   border-radius:.18cqw;
   text-align:center;
   font-family:Arial,Helvetica,sans-serif;
-  font-size:.73cqw;
-  line-height:1.25;
+  font-size:.63cqw;
+  line-height:1.2;
 }
 
 .auth-logout{
