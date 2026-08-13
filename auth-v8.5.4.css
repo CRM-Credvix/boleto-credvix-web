@@ -1,4 +1,4 @@
-/* v8.6.0 - interface definitiva: arte original intacta + controles HTML funcionais sobrepostos. */
+/* v8.6.1 - interface definitiva: arte original + hotspots, ocultando opcoes ainda nao implementadas. */
 :root{
   --auth-gold:#ff9d12;
   --auth-gold-light:#ffc14a;
@@ -27,11 +27,37 @@
   container-type:inline-size;
 }
 
+/*
+ * A arte possui três opções que ainda não fazem parte do fluxo real:
+ * "Lembrar de mim", "Esqueci minha senha" e "Entrar com Google".
+ * As duas máscaras abaixo apenas cobrem essas áreas decorativas com o
+ * mesmo tom escuro do painel. Não interferem nos hotspots funcionais.
+ */
+.auth-stage::before,
+.auth-stage::after{
+  content:"";
+  position:absolute;
+  z-index:1;
+  left:42.38%;
+  width:18.06%;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(14,15,7,.995),rgba(8,9,4,.995));
+}
+.auth-stage::before{
+  top:45.07%;
+  height:5.36%;
+}
+.auth-stage::after{
+  top:57.73%;
+  height:7.31%;
+}
+
 .auth-scene{display:none!important}
 
 /* O card deixa de desenhar uma segunda interface. Ele vira apenas uma camada de coordenadas. */
 .auth-card{
   position:absolute;
+  z-index:2;
   inset:0;
   width:100%;
   height:100%;
