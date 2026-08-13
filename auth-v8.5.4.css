@@ -1,4 +1,4 @@
-/* v8.5.7 - nova arte fullscreen 1916x821, sem blur, espelhamento ou faixas laterais. */
+/* v8.5.8 - ajuste fino do card sobre a arte fullscreen 1916x821. */
 :root{
   --auth-gold:#ff9d12;
   --auth-gold-light:#ffc14a;
@@ -31,11 +31,11 @@
 /* Cobre integralmente os controles desenhados na arte e recebe os controles HTML reais. */
 .auth-card{
   position:absolute;
-  left:50.6%;
-  top:45.6%;
+  left:51.55%;
+  top:45.34%;
   transform:translate(-50%,-50%);
-  width:18.7%;
-  height:38.3%;
+  width:21%;
+  height:40.8%;
   box-sizing:border-box;
   display:flex;
   flex-direction:column;
