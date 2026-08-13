@@ -1,20 +1,200 @@
-/* v8.5.4 - login fiel a arte de referencia. */
-:root{--auth-gold:#ff9d12;--auth-gold-light:#ffc14a;--auth-cream:#f4dfbb}
-.auth-gate{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#020202}.auth-gate[hidden]{display:none!important}
-.auth-stage{position:relative;flex:0 0 auto;width:min(100vw,calc(100vh * 1.7768332));width:min(100vw,calc(100dvh * 1.7768332));aspect-ratio:1672/941;overflow:hidden}.auth-scene{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
-.auth-card{position:absolute;left:52.33%;top:50.37%;transform:translate(-50%,-50%);width:29.9%;height:44.6%;min-width:0;padding:4.2% 4.4% 3.4%;border:2px solid #6f4412;border-radius:4px;color:var(--auth-cream);background:linear-gradient(180deg,#100e0a,#090806);box-shadow:inset 0 0 0 1px rgba(255,177,50,.04),0 10px 26px rgba(0,0,0,.32);container-type:inline-size;font-family:"Courier New","Lucida Console",monospace}
-.auth-brand,.auth-subtitle{display:none}.auth-card h1{margin:0 0 5cqw;color:#f6a31b;text-align:center;font-size:6.3cqw;font-weight:900;line-height:1;letter-spacing:.045em;text-shadow:.3cqw .3cqw 0 #4c2705}.auth-form{display:grid;gap:3.7cqw}.auth-field{position:relative;display:block}.auth-field>span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.auth-field input{display:block;width:100%;height:12.1cqw;padding:0 4.1cqw;border:.42cqw solid #755015;border-radius:.65cqw;outline:none;color:#efd8b0;caret-color:var(--auth-gold-light);background:#15130f;box-shadow:inset 0 0 0 .18cqw rgba(255,186,63,.035);font-family:Arial,Helvetica,sans-serif;font-size:4.15cqw;line-height:1;transition:border-color .12s ease,box-shadow .12s ease,background .12s ease}.auth-field input::placeholder{color:#cdb383;opacity:.9}.auth-field input:hover{border-color:#966516}.auth-field input:focus{border-color:#f0a21d;background:#17140f;box-shadow:0 0 0 .55cqw rgba(240,162,29,.11),inset 0 0 0 .18cqw rgba(255,205,113,.06)}
-.auth-alert{min-height:3.2cqw;margin:-1.8cqw 0 -1.6cqw;color:#ff8752;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:2.65cqw;line-height:1.15}.auth-submit{height:12.5cqw;margin-top:.3cqw;border:.45cqw solid #b26709;border-radius:.55cqw;cursor:pointer;color:#1c1104;background:linear-gradient(180deg,#ffba3a 0%,#ff9f17 58%,#e87905 100%);box-shadow:inset 0 0 0 .35cqw rgba(255,233,171,.24),inset 0 -1.2cqw 0 rgba(122,51,0,.25),0 .85cqw 0 #592704;font-family:"Courier New","Lucida Console",monospace;font-size:5cqw;font-weight:900;line-height:1;letter-spacing:.05em;text-shadow:.22cqw .22cqw 0 rgba(255,235,185,.45);transition:transform .11s ease,filter .11s ease,box-shadow .11s ease}.auth-submit:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.05)}.auth-submit:active:not(:disabled){transform:translateY(2px)}.auth-submit:disabled{cursor:wait;opacity:.68}
-.auth-note{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.auth-logout{position:fixed;z-index:1100;top:14px;right:16px;min-height:38px;padding:0 15px;border:1px solid #9a5a13;border-radius:2px;color:#ffd080;background:rgba(10,8,5,.94);cursor:pointer;font-family:"Courier New",monospace;font-size:.78rem;font-weight:900;letter-spacing:.06em}.auth-session-badge{position:fixed;z-index:1099;top:15px;right:82px;max-width:min(48vw,390px);padding:8px 12px;overflow:hidden;color:rgba(245,205,137,.76);text-overflow:ellipsis;white-space:nowrap;font-family:"Courier New",monospace;font-size:.72rem;pointer-events:none}
-@media(max-width:760px){.auth-stage{width:min(calc(100vh * 1.7768332),calc(100vw * 3.05));width:min(calc(100dvh * 1.7768332),calc(100vw * 3.05))}.auth-session-badge{display:none}.auth-logout{top:10px;right:10px}}
-@media(prefers-reduced-motion:reduce){.auth-field input,.auth-submit{transition:none}}
+/* v8.5.7 - nova arte fullscreen 1916x821, sem blur, espelhamento ou faixas laterais. */
+:root{
+  --auth-gold:#ff9d12;
+  --auth-gold-light:#ffc14a;
+  --auth-cream:#f4dfbb;
+}
 
-/* v8.5.6 - extensao lateral nitida, sem blur, preservando a cena e o card originais. */
-@media (min-aspect-ratio:1672/941){
-  .auth-gate{--auth-stage-w:calc(100dvh * 1.7768332);isolation:isolate}
-  .auth-gate::before,.auth-gate::after{content:"";position:absolute;top:0;bottom:0;z-index:0;pointer-events:none;background-image:url("assets/login-reference-v8.5.3.webp?v=full");background-repeat:no-repeat;background-size:auto 100%;}
-  .auth-gate::before{left:0;right:calc(50% + (var(--auth-stage-w) * .5));background-position:left center;transform:scaleX(-1);transform-origin:right center}
-  .auth-gate::after{left:calc(50% + (var(--auth-stage-w) * .5));right:0;background-position:right center;transform:scaleX(-1);transform-origin:left center}
-  .auth-stage{z-index:1}
+.auth-gate{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  overflow:hidden;
+  background:#020202 url("assets/login-portal-full-v8.5.7.webp") center center/cover no-repeat;
+}
+.auth-gate[hidden]{display:none!important}
+
+/* O palco replica exatamente a geometria usada por background-size: cover. */
+.auth-stage{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:max(100vw,calc(100dvh * 2.3337393423));
+  aspect-ratio:1916/821;
+  pointer-events:none;
+}
+
+/* A imagem antiga permanece inofensiva caso algum HTML antigo ainda esteja em cache. */
+.auth-scene{display:none!important}
+
+/* Cobre integralmente os controles desenhados na arte e recebe os controles HTML reais. */
+.auth-card{
+  position:absolute;
+  left:50.6%;
+  top:45.6%;
+  transform:translate(-50%,-50%);
+  width:18.7%;
+  height:38.3%;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:clamp(12px,2.2dvh,24px) clamp(14px,1.6dvw,24px);
+  pointer-events:auto;
+  border:1px solid #785018;
+  border-radius:3px;
+  color:var(--auth-cream);
+  background:linear-gradient(180deg,#100e0a 0%,#090806 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,177,50,.04),0 8px 24px rgba(0,0,0,.22);
+  font-family:"Courier New","Lucida Console",monospace;
+}
+
+/* A própria arte já possui a marca e a frase de acesso restrito. */
+.auth-brand,.auth-subtitle{display:none}
+.auth-note{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+.auth-card h1{
+  margin:0 0 clamp(12px,1.8dvh,18px);
+  color:#f6a31b;
+  text-align:center;
+  font-size:clamp(13px,1.7dvh,20px);
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.055em;
+  text-shadow:1px 1px 0 #4c2705;
+}
+
+.auth-form{
+  display:grid;
+  gap:clamp(8px,1.2dvh,13px);
+}
+.auth-field{position:relative;display:block}
+.auth-field>span{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+.auth-field input{
+  display:block;
+  width:100%;
+  height:clamp(36px,5.4dvh,50px);
+  box-sizing:border-box;
+  padding:0 clamp(10px,1.4dvh,16px);
+  border:1px solid #755015;
+  border-radius:2px;
+  outline:none;
+  color:#efd8b0;
+  caret-color:var(--auth-gold-light);
+  background:#15130f;
+  box-shadow:inset 0 0 0 1px rgba(255,186,63,.03);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:clamp(11px,1.35dvh,15px);
+  transition:border-color .12s ease,box-shadow .12s ease,background .12s ease;
+}
+.auth-field input::placeholder{color:#cdb383;opacity:.9}
+.auth-field input:hover{border-color:#966516}
+.auth-field input:focus{
+  border-color:#f0a21d;
+  background:#17140f;
+  box-shadow:0 0 0 3px rgba(240,162,29,.10),inset 0 0 0 1px rgba(255,205,113,.06);
+}
+
+.auth-alert{
+  min-height:clamp(10px,1.4dvh,14px);
+  margin:-3px 0;
+  color:#ff8752;
+  text-align:center;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:clamp(9px,1.15dvh,12px);
+  line-height:1.15;
+}
+
+.auth-submit{
+  width:100%;
+  height:clamp(39px,5.6dvh,52px);
+  margin-top:2px;
+  border:1px solid #b26709;
+  border-radius:2px;
+  cursor:pointer;
+  color:#1c1104;
+  background:linear-gradient(180deg,#ffba3a 0%,#ff9f17 58%,#e87905 100%);
+  box-shadow:inset 0 0 0 2px rgba(255,233,171,.22),inset 0 -5px 0 rgba(122,51,0,.22),0 3px 0 #592704;
+  font-family:"Courier New","Lucida Console",monospace;
+  font-size:clamp(12px,1.5dvh,17px);
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.06em;
+  text-shadow:1px 1px 0 rgba(255,235,185,.45);
+  transition:transform .11s ease,filter .11s ease,box-shadow .11s ease;
+}
+.auth-submit:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+.auth-submit:active:not(:disabled){transform:translateY(2px)}
+.auth-submit:disabled{cursor:wait;opacity:.68}
+
+.auth-logout{
+  position:fixed;
+  z-index:1100;
+  top:14px;
+  right:16px;
+  min-height:38px;
+  padding:0 15px;
+  border:1px solid #9a5a13;
+  border-radius:2px;
+  color:#ffd080;
+  background:rgba(10,8,5,.94);
+  cursor:pointer;
+  font-family:"Courier New",monospace;
+  font-size:.78rem;
+  font-weight:900;
+  letter-spacing:.06em;
+}
+.auth-session-badge{
+  position:fixed;
+  z-index:1099;
+  top:15px;
+  right:82px;
+  max-width:min(48vw,390px);
+  padding:8px 12px;
+  overflow:hidden;
+  color:rgba(245,205,137,.76);
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-family:"Courier New",monospace;
+  font-size:.72rem;
+  pointer-events:none;
+}
+
+@media(max-width:760px){
+  .auth-session-badge{display:none}
+  .auth-logout{top:10px;right:10px}
+}
+
+@media(max-height:520px){
+  .auth-card{padding:10px 12px}
+  .auth-card h1{font-size:12px;margin-bottom:8px}
+  .auth-form{gap:6px}
+  .auth-field input{height:32px;font-size:11px}
+  .auth-alert{min-height:8px;font-size:9px}
+  .auth-submit{height:36px;font-size:12px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .auth-field input,.auth-submit{transition:none}
 }
