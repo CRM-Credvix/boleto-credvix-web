@@ -1,8 +1,9 @@
-/* v8.5.9 - remove moldura extra do card; preserva encaixe v8.5.8. */
+/* v8.6.0 - interface definitiva: arte original intacta + controles HTML funcionais sobrepostos. */
 :root{
   --auth-gold:#ff9d12;
   --auth-gold-light:#ffc14a;
   --auth-cream:#f4dfbb;
+  --auth-field-fill:rgba(12,13,4,.96);
 }
 
 .auth-gate{
@@ -14,7 +15,7 @@
 }
 .auth-gate[hidden]{display:none!important}
 
-/* O palco replica exatamente a geometria usada por background-size: cover. */
+/* Replica exatamente a geometria do background-size: cover para manter os hotspots alinhados. */
 .auth-stage{
   position:absolute;
   left:50%;
@@ -23,63 +24,67 @@
   width:max(100vw,calc(100dvh * 2.3337393423));
   aspect-ratio:1916/821;
   pointer-events:none;
+  container-type:inline-size;
 }
 
-/* A imagem antiga permanece inofensiva caso algum HTML antigo ainda esteja em cache. */
 .auth-scene{display:none!important}
 
-/* Cobre integralmente os controles desenhados na arte e recebe os controles HTML reais. */
+/* O card deixa de desenhar uma segunda interface. Ele vira apenas uma camada de coordenadas. */
 .auth-card{
   position:absolute;
-  left:51.55%;
-  top:45.34%;
-  transform:translate(-50%,-50%);
-  width:21%;
-  height:40.8%;
-  box-sizing:border-box;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  padding:clamp(12px,2.2dvh,24px) clamp(14px,1.6dvw,24px);
-  pointer-events:auto;
+  inset:0;
+  width:100%;
+  height:100%;
+  transform:none;
+  padding:0;
+  margin:0;
   border:0;
   border-radius:0;
-  color:var(--auth-cream);
-  background:linear-gradient(180deg,#100e0a 0%,#090806 100%);
+  background:transparent;
   box-shadow:none;
+  color:var(--auth-cream);
+  pointer-events:none;
   font-family:"Courier New","Lucida Console",monospace;
 }
 
-/* A própria arte já possui a marca e a frase de acesso restrito. */
-.auth-brand,.auth-subtitle{display:none}
-.auth-note{
-  position:absolute;
-  width:1px;
-  height:1px;
-  padding:0;
-  margin:-1px;
-  overflow:hidden;
-  clip:rect(0,0,0,0);
-  white-space:nowrap;
-  border:0;
-}
-
+.auth-brand,
+.auth-subtitle,
+.auth-note,
 .auth-card h1{
-  margin:0 0 clamp(12px,1.8dvh,18px);
-  color:#f6a31b;
-  text-align:center;
-  font-size:clamp(13px,1.7dvh,20px);
-  font-weight:900;
-  line-height:1;
-  letter-spacing:.055em;
-  text-shadow:1px 1px 0 #4c2705;
+  display:none!important;
 }
 
 .auth-form{
-  display:grid;
-  gap:clamp(8px,1.2dvh,13px);
+  position:absolute;
+  inset:0;
+  display:block;
+  pointer-events:none;
 }
-.auth-field{position:relative;display:block}
+
+.auth-field{
+  position:absolute;
+  display:block;
+  margin:0;
+  padding:0;
+  pointer-events:auto;
+}
+
+/* Campo E-mail da própria arte: x=850..1140 / y=264..306. */
+.auth-field:nth-of-type(1){
+  left:44.3633%;
+  top:32.1559%;
+  width:15.1357%;
+  height:5.1157%;
+}
+
+/* Campo Senha da própria arte, preservando o ícone do olho desenhado. */
+.auth-field:nth-of-type(2){
+  left:44.3633%;
+  top:39.4641%;
+  width:13.9875%;
+  height:5.1157%;
+}
+
 .auth-field>span{
   position:absolute;
   width:1px;
@@ -91,62 +96,109 @@
   white-space:nowrap;
   border:0;
 }
+
 .auth-field input{
   display:block;
   width:100%;
-  height:clamp(36px,5.4dvh,50px);
+  height:100%;
   box-sizing:border-box;
-  padding:0 clamp(10px,1.4dvh,16px);
-  border:1px solid #755015;
-  border-radius:2px;
-  outline:none;
-  color:#efd8b0;
+  margin:0;
+  padding:0 .32cqw;
+  border:0;
+  border-radius:0;
+  outline:0;
+  appearance:none;
+  color:#ead8b7;
   caret-color:var(--auth-gold-light);
-  background:#15130f;
-  box-shadow:inset 0 0 0 1px rgba(255,186,63,.03);
+  background:transparent;
+  box-shadow:none;
   font-family:Arial,Helvetica,sans-serif;
-  font-size:clamp(11px,1.35dvh,15px);
-  transition:border-color .12s ease,box-shadow .12s ease,background .12s ease;
-}
-.auth-field input::placeholder{color:#cdb383;opacity:.9}
-.auth-field input:hover{border-color:#966516}
-.auth-field input:focus{
-  border-color:#f0a21d;
-  background:#17140f;
-  box-shadow:0 0 0 3px rgba(240,162,29,.10),inset 0 0 0 1px rgba(255,205,113,.06);
+  font-size:1.02cqw;
+  line-height:1;
+  transition:background-color .1s ease,box-shadow .1s ease;
 }
 
-.auth-alert{
-  min-height:clamp(10px,1.4dvh,14px);
-  margin:-3px 0;
-  color:#ff8752;
-  text-align:center;
-  font-family:Arial,Helvetica,sans-serif;
-  font-size:clamp(9px,1.15dvh,12px);
-  line-height:1.15;
+/* O placeholder pertence à arte. O HTML só assume visual quando o usuário interage/digita. */
+.auth-field input::placeholder{color:transparent!important;opacity:0!important}
+.auth-field input:focus,
+.auth-field input:not(:placeholder-shown){
+  background:var(--auth-field-fill);
+}
+.auth-field input:focus-visible{
+  box-shadow:inset 0 0 0 .08cqw rgba(255,177,44,.75);
 }
 
+/* Evita o amarelo/azul do autofill do navegador estragar a arte. */
+.auth-field input:-webkit-autofill,
+.auth-field input:-webkit-autofill:hover,
+.auth-field input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#ead8b7;
+  -webkit-box-shadow:0 0 0 1000px rgb(12,13,4) inset;
+  transition:background-color 9999s ease-out 0s;
+}
+
+/* Botão real exatamente sobre o ENTRAR desenhado na imagem. */
 .auth-submit{
-  width:100%;
-  height:clamp(39px,5.6dvh,52px);
-  margin-top:2px;
-  border:1px solid #b26709;
-  border-radius:2px;
+  position:absolute;
+  left:42.5887%;
+  top:51.7661%;
+  width:17.7453%;
+  height:5.2375%;
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  appearance:none;
   cursor:pointer;
-  color:#1c1104;
-  background:linear-gradient(180deg,#ffba3a 0%,#ff9f17 58%,#e87905 100%);
-  box-shadow:inset 0 0 0 2px rgba(255,233,171,.22),inset 0 -5px 0 rgba(122,51,0,.22),0 3px 0 #592704;
+  pointer-events:auto;
+  color:transparent;
+  background:transparent;
+  box-shadow:none;
+  text-shadow:none;
   font-family:"Courier New","Lucida Console",monospace;
-  font-size:clamp(12px,1.5dvh,17px);
+  font-size:1.05cqw;
   font-weight:900;
   line-height:1;
-  letter-spacing:.06em;
-  text-shadow:1px 1px 0 rgba(255,235,185,.45);
-  transition:transform .11s ease,filter .11s ease,box-shadow .11s ease;
 }
-.auth-submit:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
-.auth-submit:active:not(:disabled){transform:translateY(2px)}
-.auth-submit:disabled{cursor:wait;opacity:.68}
+.auth-submit:hover:not(:disabled){background:rgba(255,190,60,.055)}
+.auth-submit:active:not(:disabled){background:rgba(70,30,0,.12)}
+.auth-submit:focus-visible{
+  outline:.10cqw solid rgba(255,245,210,.8);
+  outline-offset:-.18cqw;
+}
+
+/* Durante a validação, cobre só o botão desenhado e fornece feedback real ao usuário. */
+.auth-submit:disabled{
+  cursor:wait;
+  color:#1b1002;
+  background:rgba(255,163,22,.94);
+}
+
+/* Mensagens só aparecem quando realmente há erro; o estado normal permanece 100% fiel à arte. */
+.auth-alert{
+  display:none;
+}
+.auth-alert:not(:empty){
+  position:absolute;
+  left:50%;
+  top:70.2%;
+  transform:translateX(-50%);
+  display:block;
+  width:20.5%;
+  box-sizing:border-box;
+  margin:0;
+  padding:.38cqw .55cqw;
+  pointer-events:none;
+  color:#ffd29a;
+  background:rgba(7,7,4,.94);
+  border:.055cqw solid rgba(255,157,18,.72);
+  border-radius:.18cqw;
+  text-align:center;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:.73cqw;
+  line-height:1.25;
+}
 
 .auth-logout{
   position:fixed;
@@ -186,15 +238,6 @@
   .auth-logout{top:10px;right:10px}
 }
 
-@media(max-height:520px){
-  .auth-card{padding:10px 12px}
-  .auth-card h1{font-size:12px;margin-bottom:8px}
-  .auth-form{gap:6px}
-  .auth-field input{height:32px;font-size:11px}
-  .auth-alert{min-height:8px;font-size:9px}
-  .auth-submit{height:36px;font-size:12px}
-}
-
 @media(prefers-reduced-motion:reduce){
-  .auth-field input,.auth-submit{transition:none}
+  .auth-field input{transition:none}
 }
