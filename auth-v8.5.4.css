@@ -1,4 +1,4 @@
-/* v8.5.8 - ajuste fino do card sobre a arte fullscreen 1916x821. */
+/* v8.5.9 - remove moldura extra do card; preserva encaixe v8.5.8. */
 :root{
   --auth-gold:#ff9d12;
   --auth-gold-light:#ffc14a;
@@ -42,11 +42,11 @@
   justify-content:center;
   padding:clamp(12px,2.2dvh,24px) clamp(14px,1.6dvw,24px);
   pointer-events:auto;
-  border:1px solid #785018;
-  border-radius:3px;
+  border:0;
+  border-radius:0;
   color:var(--auth-cream);
   background:linear-gradient(180deg,#100e0a 0%,#090806 100%);
-  box-shadow:inset 0 0 0 1px rgba(255,177,50,.04),0 8px 24px rgba(0,0,0,.22);
+  box-shadow:none;
   font-family:"Courier New","Lucida Console",monospace;
 }
 
