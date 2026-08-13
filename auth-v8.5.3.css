@@ -1,0 +1,22 @@
+/* v8.5.3 - corrige o cenário do login usando WebP direto.
+ * Mantém a autenticação e o CSS v8.5.2 intactos; este arquivo contém apenas overrides visuais.
+ */
+.auth-gate {
+  background-image: url("assets/login-reference-v8.5.3.webp");
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* Ajuste fino para encaixar os controles reais no painel ilustrado. */
+.auth-card {
+  top: 54.6%;
+  width: clamp(318px, calc(var(--auth-scene-w) * .278), 466px);
+}
+
+@media (max-width: 900px) {
+  .auth-card {
+    top: 55%;
+    width: min(88vw, 430px);
+  }
+}
