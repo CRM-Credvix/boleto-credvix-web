@@ -286,3 +286,93 @@
 @media(prefers-reduced-motion:reduce){
   .auth-field input{transition:none}
 }
+
+/* v8.6.3 - tela temporaria de recuperacao de senha. */
+.auth-recovery-form{
+  position:absolute;
+  z-index:8;
+  left:41.95%;
+  top:27.2%;
+  width:19.1%;
+  min-height:34.8%;
+  box-sizing:border-box;
+  padding:1.15cqw 1.05cqw 1.05cqw;
+  border:.07cqw solid rgba(255,157,18,.62);
+  border-radius:.28cqw;
+  background:linear-gradient(180deg,rgba(10,10,5,.985),rgba(6,7,3,.985));
+  box-shadow:0 0 1.1cqw rgba(255,133,0,.11), inset 0 0 0 .04cqw rgba(255,190,60,.12);
+  color:#f4dfbb;
+  pointer-events:auto;
+  font-family:"Courier New","Lucida Console",monospace;
+}
+.auth-recovery-form[hidden]{display:none!important}
+.auth-recovery-title{
+  margin:0 0 .32cqw;
+  color:#ffae29;
+  text-align:center;
+  font-size:1.02cqw;
+  line-height:1.1;
+  letter-spacing:.04em;
+}
+.auth-recovery-copy{
+  margin:0 0 .9cqw;
+  color:#d7bd8f;
+  text-align:center;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:.62cqw;
+  line-height:1.3;
+}
+.auth-recovery-field{
+  display:block;
+  margin:0 0 .72cqw;
+  color:#eacb91;
+  font-size:.61cqw;
+  font-weight:700;
+}
+.auth-recovery-field span{
+  display:block;
+  margin:0 0 .22cqw;
+}
+.auth-recovery-field input{
+  display:block;
+  width:100%;
+  height:2.25cqw;
+  box-sizing:border-box;
+  padding:0 .62cqw;
+  border:.055cqw solid rgba(255,157,18,.62);
+  border-radius:.14cqw;
+  outline:0;
+  color:#f2dfbd;
+  caret-color:#ffc14a;
+  background:rgba(8,9,4,.97);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:.72cqw;
+}
+.auth-recovery-field input:focus{
+  border-color:#ffc14a;
+  box-shadow:0 0 .38cqw rgba(255,157,18,.13);
+}
+.auth-recovery-submit{
+  display:block;
+  width:100%;
+  height:2.45cqw;
+  margin:.22cqw 0 0;
+  border:.055cqw solid #ffc04a;
+  border-radius:.14cqw;
+  color:#1c1002;
+  background:linear-gradient(180deg,#ffbf48,#ff9510);
+  cursor:pointer;
+  font-family:"Courier New","Lucida Console",monospace;
+  font-size:.77cqw;
+  font-weight:900;
+}
+.auth-recovery-submit:disabled{cursor:wait;opacity:.78}
+.auth-recovery-alert{
+  min-height:.92cqw;
+  margin:.05cqw 0 .35cqw;
+  color:#ffd29a;
+  text-align:center;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:.58cqw;
+  line-height:1.2;
+}
