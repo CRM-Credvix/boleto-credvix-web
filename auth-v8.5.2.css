@@ -1,0 +1,412 @@
+:root {
+  --auth-gold: #ff9d12;
+  --auth-gold-light: #ffc14a;
+  --auth-gold-deep: #8d4700;
+  --auth-cream: #f4dfbb;
+  --auth-ink: #080705;
+  --auth-scene-w: min(100vw, calc(100dvh * 1.7777778));
+  --auth-scene-h: min(100dvh, calc(100vw / 1.7777778));
+}
+
+.auth-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  min-height: 100dvh;
+  overflow: auto;
+  isolation: isolate;
+  background-color: #020202;
+  background-image: url("assets/login-reference-v8.5.2.svg");
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+.auth-gate::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center, transparent 0 44%, rgba(0, 0, 0, .08) 70%, rgba(0, 0, 0, .42) 100%);
+}
+
+/*
+ * Desktop: a arte fornece marca, titulo e toda a maquina industrial.
+ * Este bloco opaco cobre apenas os controles desenhados na imagem e
+ * recebe os controles HTML reais usados pelo Supabase.
+ */
+.auth-card {
+  position: absolute;
+  left: 50%;
+  top: 55.5%;
+  transform: translate(-50%, -50%);
+  width: clamp(330px, calc(var(--auth-scene-w) * .292), 490px);
+  padding: 20px 22px 18px;
+  color: var(--auth-cream);
+  border: 2px solid #8f500d;
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 151, 15, .018) 0 1px, transparent 1px 14px),
+    linear-gradient(180deg, rgba(14, 12, 8, .995), rgba(8, 7, 5, .995));
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 189, 71, .055),
+    inset 0 -18px 34px rgba(0, 0, 0, .28),
+    0 0 0 4px rgba(36, 22, 10, .78),
+    0 12px 28px rgba(0, 0, 0, .56),
+    0 0 24px rgba(255, 142, 0, .11);
+  font-family: "Courier New", "Lucida Console", monospace;
+}
+
+.auth-card::before,
+.auth-card::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border: 1px solid #71400d;
+  background: #d87a0b;
+  box-shadow: inset 0 0 0 1px #ffbf45;
+  pointer-events: none;
+}
+
+.auth-card::before {
+  top: 8px;
+  left: 8px;
+}
+
+.auth-card::after {
+  top: 8px;
+  right: 8px;
+}
+
+.auth-brand,
+.auth-card h1,
+.auth-subtitle {
+  display: none;
+}
+
+.auth-form {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 12px;
+}
+
+.auth-field {
+  display: grid;
+  gap: 6px;
+}
+
+.auth-field span {
+  color: #e7a84a;
+  font-size: .76rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 #3a1d05;
+}
+
+.auth-field input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 15px;
+  border: 2px solid #8d500d;
+  border-radius: 2px;
+  outline: none;
+  color: #f7e5c6;
+  caret-color: var(--auth-gold-light);
+  background:
+    linear-gradient(180deg, rgba(15, 13, 9, .995), rgba(8, 7, 5, .995));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 183, 60, .05),
+    inset 0 -7px 12px rgba(0, 0, 0, .30),
+    0 2px 0 rgba(30, 17, 6, .88);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: .95rem;
+  transition: border-color .12s ease, box-shadow .12s ease, background .12s ease;
+}
+
+.auth-field input::placeholder {
+  color: rgba(220, 186, 132, .43);
+}
+
+.auth-field input:hover {
+  border-color: #b26810;
+}
+
+.auth-field input:focus {
+  border-color: #ff9d12;
+  background: #0c0a07;
+  box-shadow:
+    0 0 0 2px rgba(255, 157, 18, .14),
+    0 0 16px rgba(255, 145, 0, .14),
+    inset 0 0 0 1px rgba(255, 200, 100, .08);
+}
+
+.auth-alert {
+  min-height: 18px;
+  margin: -2px 0 0;
+  color: #ff8a55;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: .79rem;
+  line-height: 1.3;
+}
+
+.auth-submit {
+  position: relative;
+  min-height: 56px;
+  margin-top: 0;
+  overflow: hidden;
+  border: 2px solid #d47705;
+  border-radius: 2px;
+  cursor: pointer;
+  color: #241300;
+  background:
+    linear-gradient(180deg, #ffc34e 0%, #ffa31c 45%, #ee7f04 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 231, 166, .32),
+    inset 0 -5px 0 rgba(137, 57, 0, .30),
+    0 4px 0 #5b2a04,
+    0 0 20px rgba(255, 145, 0, .15);
+  font-family: "Courier New", "Lucida Console", monospace;
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-shadow: 1px 1px 0 rgba(255, 230, 166, .52);
+  transition: transform .11s ease, filter .11s ease, box-shadow .11s ease;
+}
+
+.auth-submit::before,
+.auth-submit::after {
+  content: "";
+  position: absolute;
+  top: 7px;
+  width: 4px;
+  height: 4px;
+  border: 1px solid rgba(100, 44, 0, .72);
+  background: rgba(255, 225, 144, .42);
+}
+
+.auth-submit::before { left: 8px; }
+.auth-submit::after { right: 8px; }
+
+.auth-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.06) saturate(1.04);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 238, 191, .38),
+    inset 0 -5px 0 rgba(137, 57, 0, .28),
+    0 5px 0 #5b2a04,
+    0 0 28px rgba(255, 145, 0, .22);
+}
+
+.auth-submit:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: inset 0 0 0 2px rgba(255, 236, 184, .30), 0 1px 0 #5b2a04;
+}
+
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: .68;
+}
+
+.auth-note {
+  position: relative;
+  z-index: 1;
+  margin: 17px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(150, 85, 16, .50);
+  color: rgba(230, 194, 137, .69);
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: .72rem;
+  line-height: 1.4;
+}
+
+.auth-note::before {
+  content: "▣";
+  margin-right: 6px;
+  color: #eb8d0b;
+  font-family: monospace;
+}
+
+.auth-logout {
+  position: fixed;
+  z-index: 1100;
+  top: 14px;
+  right: 16px;
+  min-height: 38px;
+  padding: 0 15px;
+  border: 1px solid #9a5a13;
+  border-radius: 2px;
+  color: #ffd080;
+  background: rgba(10, 8, 5, .94);
+  cursor: pointer;
+  font-family: "Courier New", monospace;
+  font-size: .78rem;
+  font-weight: 900;
+  letter-spacing: .06em;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, .38), inset 0 0 0 1px rgba(255, 157, 18, .07);
+}
+
+.auth-logout:hover {
+  color: #fff0ca;
+  border-color: #ff9d12;
+}
+
+.auth-session-badge {
+  position: fixed;
+  z-index: 1099;
+  top: 15px;
+  right: 82px;
+  max-width: min(48vw, 390px);
+  padding: 8px 12px;
+  overflow: hidden;
+  color: rgba(245, 205, 137, .76);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: "Courier New", monospace;
+  font-size: .72rem;
+  pointer-events: none;
+}
+
+/* Em telas muito largas, mantém o formulário preso ao painel da arte. */
+@media (min-aspect-ratio: 16/9) {
+  .auth-card {
+    width: clamp(330px, calc(var(--auth-scene-h) * .520), 490px);
+  }
+}
+
+/*
+ * Em telas estreitas a arte vira atmosfera. O formulário recupera a
+ * identidade textual para não depender de partes da imagem que podem cortar.
+ */
+@media (max-width: 760px) {
+  .auth-gate {
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .auth-gate::before {
+    z-index: 0;
+    background: rgba(0, 0, 0, .48);
+  }
+
+  .auth-card {
+    position: relative;
+    z-index: 1;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: min(100%, 450px);
+    margin: auto;
+    padding: 27px 22px 22px;
+    background:
+      repeating-linear-gradient(0deg, rgba(255, 151, 15, .02) 0 1px, transparent 1px 14px),
+      linear-gradient(180deg, rgba(14, 12, 8, .985), rgba(7, 6, 4, .99));
+    box-shadow:
+      inset 0 0 0 2px rgba(255, 189, 71, .055),
+      0 18px 38px rgba(0, 0, 0, .64),
+      0 0 26px rgba(255, 142, 0, .13);
+  }
+
+  .auth-brand {
+    display: grid;
+    grid-template-columns: 48px auto;
+    grid-template-rows: auto auto;
+    column-gap: 11px;
+    align-items: center;
+    justify-content: center;
+    width: max-content;
+    max-width: 100%;
+    margin: 0 auto 20px;
+    color: #fff0d2;
+    letter-spacing: .11em;
+    font-family: "Courier New", monospace;
+    font-weight: 900;
+  }
+
+  .auth-brand img {
+    grid-row: 1 / span 2;
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+    image-rendering: pixelated;
+  }
+
+  .auth-brand span {
+    align-self: end;
+    font-size: 1.42rem;
+    line-height: 1;
+  }
+
+  .auth-brand::after {
+    content: "PORTAL DE BOLETOS";
+    grid-column: 2;
+    align-self: start;
+    margin-top: 6px;
+    color: var(--auth-gold);
+    font-size: .64rem;
+    letter-spacing: .14em;
+  }
+
+  .auth-card h1 {
+    display: block;
+    margin: 0 0 8px;
+    color: var(--auth-gold-light);
+    text-align: center;
+    font-family: "Courier New", monospace;
+    font-size: 1.45rem;
+    letter-spacing: .055em;
+    text-shadow: 2px 2px 0 #4a2506;
+  }
+
+  .auth-subtitle {
+    display: block;
+    margin: 0 auto 21px;
+    max-width: 39ch;
+    color: rgba(239, 214, 177, .72);
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: .78rem;
+    line-height: 1.4;
+  }
+
+  .auth-session-badge {
+    display: none;
+  }
+
+  .auth-logout {
+    top: 10px;
+    right: 10px;
+  }
+}
+
+@media (max-width: 390px) {
+  .auth-card {
+    padding-inline: 17px;
+  }
+
+  .auth-field input {
+    min-height: 48px;
+  }
+
+  .auth-submit {
+    min-height: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-field input,
+  .auth-submit {
+    transition: none;
+  }
+}
