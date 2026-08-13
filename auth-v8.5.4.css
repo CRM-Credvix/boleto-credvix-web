@@ -10,10 +10,11 @@
 @media(max-width:760px){.auth-stage{width:min(calc(100vh * 1.7768332),calc(100vw * 3.05));width:min(calc(100dvh * 1.7768332),calc(100vw * 3.05))}.auth-session-badge{display:none}.auth-logout{top:10px;right:10px}}
 @media(prefers-reduced-motion:reduce){.auth-field input,.auth-submit{transition:none}}
 
-/* v8.5.5 - preenche as bordas com a propria arte sem deformar a cena principal e centraliza o card. */
-.auth-gate{isolation:isolate}
-.auth-gate::before{content:"";position:absolute;inset:-4vmax;z-index:0;pointer-events:none;background-image:url("assets/login-reference-v8.5.3.webp?v=full");background-position:center;background-repeat:no-repeat;background-size:cover;filter:blur(18px) brightness(.48) saturate(.92);transform:scale(1.05)}
-.auth-gate::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(2,2,2,.26),rgba(2,2,2,0) 18%,rgba(2,2,2,0) 82%,rgba(2,2,2,.26)),linear-gradient(180deg,rgba(2,2,2,.12),rgba(2,2,2,0) 18%,rgba(2,2,2,0) 82%,rgba(2,2,2,.18))}
-.auth-stage{z-index:2}
-.auth-card{left:50%;top:50%}
-@media(max-width:760px){.auth-gate::before{inset:-7vmax;filter:blur(14px) brightness(.42) saturate(.9);transform:scale(1.08)}}
+/* v8.5.6 - extensao lateral nitida, sem blur, preservando a cena e o card originais. */
+@media (min-aspect-ratio:1672/941){
+  .auth-gate{--auth-stage-w:calc(100dvh * 1.7768332);isolation:isolate}
+  .auth-gate::before,.auth-gate::after{content:"";position:absolute;top:0;bottom:0;z-index:0;pointer-events:none;background-image:url("assets/login-reference-v8.5.3.webp?v=full");background-repeat:no-repeat;background-size:auto 100%;}
+  .auth-gate::before{left:0;right:calc(50% + (var(--auth-stage-w) * .5));background-position:left center;transform:scaleX(-1);transform-origin:right center}
+  .auth-gate::after{left:calc(50% + (var(--auth-stage-w) * .5));right:0;background-position:right center;transform:scaleX(-1);transform-origin:left center}
+  .auth-stage{z-index:1}
+}
