@@ -274,3 +274,11 @@
     transform-origin: 50% 0 !important;
   }
 }
+
+/* v8.6.18 - sobe mais o painel em telas largas sem alterar os campos. */
+@media (min-width: 801px) and (min-aspect-ratio: 1672/941) {
+  .visual-stage {
+    top: min(0px, calc((100vh - (100vw / 1.7768331562)) * .46)) !important;
+    top: min(0px, calc((100dvh - (100vw / 1.7768331562)) * .46)) !important;
+  }
+}
