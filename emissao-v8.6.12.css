@@ -42,3 +42,38 @@
     left: 67.80%;
   }
 }
+
+/* v8.6.13 - Tipografia levemente maior e caixa de parcelas mais a direita. */
+@media (min-width: 801px) {
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    font-size: clamp(.53rem, .70vw, .80rem);
+    line-height: 1.08;
+  }
+
+  .parcel-fields {
+    left: 69.10%;
+  }
+
+  .parcel-fields::before {
+    font-size: clamp(.47rem, .56vw, .64rem);
+  }
+
+  .parcel-fields .field-label {
+    font-size: clamp(.44rem, .52vw, .60rem);
+  }
+
+  .parcel-fields .field input {
+    font-size: clamp(.50rem, .60vw, .68rem);
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1120px) {
+  .parcel-fields {
+    left: 68.25%;
+  }
+}
