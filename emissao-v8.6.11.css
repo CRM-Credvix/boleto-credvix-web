@@ -1,0 +1,190 @@
+/* v8.6.11 - Refinamento final dos campos e da caixa de parcelas no desktop. */
+@media (min-width: 801px) {
+  /*
+   * Mantem a moldura 100% pertencente a arte e reduz mais um pouco a faixa HTML.
+   * O texto fica centralizado no miolo, com respiro acima/abaixo e nas laterais.
+   */
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit .unit-trigger {
+    left: 1.25%;
+    top: 18%;
+    width: 97.50%;
+    height: 64%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: .10vw .50vw 0;
+    border: 0;
+    border-radius: .045vw;
+    outline: 0;
+    appearance: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(.50rem, .66vw, .74rem);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.08;
+    text-shadow: none;
+    box-shadow: none;
+  }
+
+  .slot-name > input:focus,
+  .slot-name > input:not(:placeholder-shown),
+  .slot-cpf > input:focus,
+  .slot-cpf > input:not(:placeholder-shown),
+  .slot-phone > input:focus,
+  .slot-phone > input:not(:placeholder-shown),
+  .slot-contract > input:focus,
+  .slot-contract > input:not(:placeholder-shown) {
+    color: #ead8b7;
+    caret-color: #ffc14a;
+    background: rgb(8, 9, 5);
+    outline: 0;
+    box-shadow: none;
+  }
+
+  .slot-unit .unit-trigger {
+    padding-right: 2.05vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger.has-value,
+  .slot-unit .unit-trigger[aria-expanded="true"] {
+    color: #ead8b7;
+    caret-color: #ffc14a;
+    background: linear-gradient(
+      90deg,
+      rgb(8, 9, 5) 0%,
+      rgb(8, 9, 5) 88.8%,
+      rgba(8, 9, 5, 0) 88.8%,
+      rgba(8, 9, 5, 0) 100%
+    );
+    outline: 0;
+    box-shadow: none;
+  }
+
+  .slot-name > input:-webkit-autofill,
+  .slot-name > input:-webkit-autofill:hover,
+  .slot-name > input:-webkit-autofill:focus,
+  .slot-cpf > input:-webkit-autofill,
+  .slot-cpf > input:-webkit-autofill:hover,
+  .slot-cpf > input:-webkit-autofill:focus,
+  .slot-phone > input:-webkit-autofill,
+  .slot-phone > input:-webkit-autofill:hover,
+  .slot-phone > input:-webkit-autofill:focus,
+  .slot-contract > input:-webkit-autofill,
+  .slot-contract > input:-webkit-autofill:hover,
+  .slot-contract > input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ead8b7;
+    caret-color: #ffc14a;
+    -webkit-box-shadow: 0 0 0 1000px rgb(8, 9, 5) inset;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(.50rem, .66vw, .74rem);
+    line-height: 1.08;
+  }
+
+  /* Parcelas usa exatamente a mesma tipografia/altura visual dos inputs. */
+  .parcel-mode-select {
+    left: 42.405%;
+    top: 63.190%;
+    width: 25.350%;
+    height: 2.390%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: .10vw 2.02vw 0 .50vw;
+    border: 0;
+    border-radius: .045vw;
+    outline: 0;
+    appearance: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(.50rem, .66vw, .74rem);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.08;
+    text-shadow: none;
+    box-shadow: none;
+  }
+
+  .parcel-mode-select:focus,
+  .parcel-mode-select:valid {
+    color: #ead8b7;
+    background: linear-gradient(
+      90deg,
+      rgb(8, 9, 5) 0%,
+      rgb(8, 9, 5) 88.8%,
+      rgba(8, 9, 5, 0) 88.8%,
+      rgba(8, 9, 5, 0) 100%
+    );
+    outline: 0;
+    box-shadow: none;
+  }
+
+  /*
+   * A caixa condicional fica mais estreita e recua para dentro do viewport.
+   * No intervalo, os dois campos ficam empilhados para nunca escapar pela direita.
+   */
+  .parcel-fields {
+    left: 68.35%;
+    top: 55.95%;
+    width: 12.75%;
+    padding: .34vw .42vw .40vw;
+    border-radius: .25vw;
+    box-sizing: border-box;
+    overflow: visible;
+  }
+
+  .parcel-fields::before {
+    margin-bottom: .18vw;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(.45rem, .54vw, .61rem);
+    line-height: 1.02;
+  }
+
+  .parcel-fields .parcel-range {
+    grid-template-columns: 1fr;
+    gap: .26vw;
+  }
+
+  .parcel-fields .field-label {
+    margin-bottom: .14vw;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(.42rem, .48vw, .55rem);
+    line-height: 1.02;
+  }
+
+  .parcel-fields .field input {
+    width: 100%;
+    height: 1.62vw;
+    max-height: 28px;
+    min-height: 22px;
+    box-sizing: border-box;
+    padding: .05vw .38vw 0;
+    border-radius: .14vw;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(.47rem, .56vw, .64rem);
+    line-height: 1.05;
+  }
+
+  .parcel-fields .field input:focus {
+    outline: 0;
+    box-shadow: inset 0 0 0 1px rgba(255, 181, 39, .16);
+  }
+
+  /* Um pouco mais de respiro na autorizacao sem mover o botao principal. */
+  .consent {
+    top: 67.82%;
+    height: 3.05%;
+  }
+}
+
+/* Em desktops mais estreitos, recua mais a caixa lateral para ela permanecer inteira. */
+@media (min-width: 801px) and (max-width: 1120px) {
+  .parcel-fields {
+    left: 67.55%;
+    width: 12.85%;
+  }
+}
