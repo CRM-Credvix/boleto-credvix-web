@@ -77,3 +77,45 @@
     left: 68.25%;
   }
 }
+
+/* v8.6.14 - Ajuste moderado: mais recuo interno e texto ativo maior. */
+@media (min-width: 801px) {
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit .unit-trigger {
+    left: 3.00%;
+    width: 95.45%;
+    padding-left: .66vw;
+    padding-right: .62vw;
+    font-size: clamp(.57rem, .76vw, .86rem);
+    line-height: 1.08;
+  }
+
+  .slot-unit .unit-trigger {
+    padding-right: 2.06vw;
+  }
+
+  .parcel-mode-select {
+    left: 42.72%;
+    width: 24.97%;
+    padding-left: .68vw;
+    font-size: clamp(.57rem, .76vw, .86rem);
+    line-height: 1.08;
+  }
+
+  .parcel-fields {
+    left: 69.40%;
+  }
+
+  .parcel-fields .field input {
+    font-size: clamp(.54rem, .64vw, .72rem);
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1120px) {
+  .parcel-fields {
+    left: 68.55%;
+  }
+}
