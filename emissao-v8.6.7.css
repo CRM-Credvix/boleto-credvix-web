@@ -1,0 +1,468 @@
+/* v8.6.7 - Emissao desktop alinhada ao design system aprovado do login. */
+@media (min-width: 801px) {
+  /* A nova arte nao possui os hotspots antigos do topo. */
+  .desktop-hotspot {
+    display: none !important;
+  }
+
+  /* O badge e o botao legado de logout nao competem com o SAIR desenhado na arte. */
+  .auth-session-badge,
+  body > .auth-logout {
+    display: none !important;
+  }
+
+  /* Hotspot real sobre o SAIR que pertence a arte. */
+  .emissao-logout {
+    position: absolute;
+    z-index: 90;
+    left: 63.10%;
+    top: 21.47%;
+    width: 4.79%;
+    height: 3.83%;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: .18vw;
+    appearance: none;
+    color: transparent;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .emissao-logout:hover {
+    background: rgba(255, 181, 39, .055);
+  }
+
+  .emissao-logout:focus-visible {
+    outline: .09vw solid rgba(255, 213, 128, .82);
+    outline-offset: -.14vw;
+  }
+
+  /*
+   * As caixas, rotulos, icones e placeholders ja fazem parte da arte.
+   * O HTML ocupa apenas as faixas de digitacao para manter a imagem como fonte visual unica.
+   */
+  .slot-name,
+  .slot-cpf,
+  .slot-phone,
+  .slot-unit,
+  .slot-contract {
+    left: 42.1053%;
+    width: 25.9569%;
+    height: 3.6132%;
+  }
+
+  .slot-name { top: 28.7991%; }
+  .slot-cpf { top: 35.6004%; }
+  .slot-phone { top: 42.4017%; }
+  .slot-unit { top: 49.2030%; }
+  .slot-contract { top: 55.8980%; }
+
+  .slot-name::before,
+  .slot-cpf::before,
+  .slot-phone::before,
+  .slot-unit::before,
+  .slot-contract::before,
+  .slot-name > .field-label,
+  .slot-cpf > .field-label,
+  .slot-phone > .field-label,
+  .slot-unit > .field-label,
+  .slot-contract > .field-label {
+    display: none !important;
+  }
+
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit .unit-trigger {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 .42vw;
+    border: 0;
+    border-radius: .12vw;
+    outline: 0;
+    appearance: none;
+    color: transparent;
+    caret-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(.58rem, .91vw, .98rem);
+    line-height: 1;
+    transition: background-color .1s ease, color .1s ease;
+  }
+
+  .slot-name > input::placeholder,
+  .slot-cpf > input::placeholder,
+  .slot-phone > input::placeholder,
+  .slot-contract > input::placeholder,
+  .slot-unit .unit-trigger::placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+  }
+
+  .slot-name > input:focus,
+  .slot-name > input:not(:placeholder-shown),
+  .slot-cpf > input:focus,
+  .slot-cpf > input:not(:placeholder-shown),
+  .slot-phone > input:focus,
+  .slot-phone > input:not(:placeholder-shown),
+  .slot-contract > input:focus,
+  .slot-contract > input:not(:placeholder-shown) {
+    color: #ead8b7;
+    caret-color: #ffc14a;
+    background: rgba(8, 9, 5, .975);
+    box-shadow: none;
+  }
+
+  .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger.has-value,
+  .slot-unit .unit-trigger[aria-expanded="true"] {
+    color: #ead8b7;
+    caret-color: #ffc14a;
+    background: linear-gradient(90deg, rgba(8, 9, 5, .975) 0 89%, rgba(8, 9, 5, 0) 89% 100%);
+    box-shadow: none;
+  }
+
+  .slot-name > input:-webkit-autofill,
+  .slot-cpf > input:-webkit-autofill,
+  .slot-phone > input:-webkit-autofill,
+  .slot-contract > input:-webkit-autofill {
+    -webkit-text-fill-color: #ead8b7;
+    caret-color: #ffc14a;
+    -webkit-box-shadow: 0 0 0 1000px rgb(8, 9, 5) inset;
+  }
+
+  .unit-trigger::after,
+  .unit-combobox::after {
+    display: none !important;
+  }
+
+  .unit-list {
+    left: 0;
+    top: calc(100% + .28vw);
+    width: 100%;
+    max-width: none;
+    max-height: 34vh;
+    padding: .28vw;
+    border-color: rgba(255, 164, 28, .7);
+    border-radius: .28vw;
+    background: rgba(8, 9, 5, .99);
+    box-shadow: 0 0 1vw rgba(255, 145, 18, .25);
+  }
+
+  .unit-option {
+    min-height: 2vw;
+    padding: .42vw .5vw;
+    border-radius: .22vw;
+    color: #ead8b7;
+    font-size: clamp(.58rem, .78vw, .88rem);
+  }
+
+  .unit-option:hover,
+  .unit-option:focus-visible,
+  .unit-option.is-active,
+  .unit-option[aria-selected="true"] {
+    color: #fff2d1;
+    background: rgba(172, 86, 4, .7);
+    box-shadow: inset 0 0 0 1px rgba(255, 181, 39, .55);
+  }
+
+  /*
+   * A arte apresenta um unico campo Parcelas. O seletor abaixo e apenas uma ponte
+   * visual: ele aciona os radios ja existentes, preservando toda a regra do app.js.
+   */
+  .parcel-choice {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    pointer-events: none;
+  }
+
+  .parcel-choice > .parcel-option,
+  .parcel-choice > .mobile-only-label {
+    display: none !important;
+  }
+
+  .parcel-mode-select {
+    position: absolute;
+    left: 42.1053%;
+    top: 62.5930%;
+    width: 25.9569%;
+    height: 3.6132%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 2.15vw 0 .42vw;
+    border: 0;
+    border-radius: .12vw;
+    outline: 0;
+    appearance: none;
+    color: transparent;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+    pointer-events: auto;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(.58rem, .91vw, .98rem);
+    line-height: 1;
+  }
+
+  .parcel-mode-select:focus,
+  .parcel-mode-select:valid {
+    color: #ead8b7;
+    background: linear-gradient(90deg, rgba(8, 9, 5, .975) 0 89%, rgba(8, 9, 5, 0) 89% 100%);
+  }
+
+  .parcel-mode-select:focus-visible {
+    outline: .07vw solid rgba(255, 193, 74, .75);
+    outline-offset: -.08vw;
+  }
+
+  .parcel-mode-select option {
+    color: #ead8b7;
+    background: #0a0b07;
+  }
+
+  /* Checkbox: a moldura vazia esta na arte; o HTML desenha somente o estado marcado. */
+  .consent {
+    position: absolute;
+    left: 40.6100%;
+    top: 67.6939%;
+    z-index: 8;
+    width: 27.4522%;
+    height: 3.4006%;
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .consent-copy {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+  }
+
+  .checkbox-ui {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 4.35%;
+    aspect-ratio: 1;
+    box-sizing: border-box;
+    transform: translateY(-50%);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .consent input:checked + .checkbox-ui {
+    border: 0;
+    background: rgba(8, 9, 5, .92);
+    box-shadow: none;
+  }
+
+  .consent input:checked + .checkbox-ui::after {
+    content: "✓";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #7bd23b;
+    font-size: clamp(.55rem, .9vw, 1rem);
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  /* O botao laranja pertence integralmente a arte. */
+  .primary-button {
+    position: absolute;
+    left: 40.6100%;
+    top: 72.5824%;
+    z-index: 8;
+    width: 27.4522%;
+    height: 4.9947%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: .22vw;
+    outline: 0;
+    appearance: none;
+    color: transparent;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .primary-button:hover:not(:disabled) {
+    background: rgba(255, 218, 133, .045);
+    box-shadow: inset 0 0 0 1px rgba(255, 238, 193, .32);
+  }
+
+  .primary-button:focus-visible {
+    outline: .09vw solid rgba(255, 244, 211, .82);
+    outline-offset: -.16vw;
+    box-shadow: none;
+  }
+
+  .primary-button.loading {
+    background: rgba(40, 20, 3, .33);
+  }
+
+  .button-label {
+    color: transparent !important;
+  }
+
+  .spinner {
+    width: 1.25vw;
+    height: 1.25vw;
+    margin: -.625vw 0 0 -.625vw;
+    border-color: rgba(20, 12, 2, .25);
+    border-top-color: #2b1603;
+  }
+
+  /* Erros aparecem como pequenas etiquetas sem alterar a geometria da arte. */
+  .field-error {
+    left: calc(100% + .35vw);
+    top: 50%;
+    width: max-content;
+    max-width: 12vw;
+    padding: .25vw .4vw;
+    transform: translateY(-50%);
+    border: 1px solid rgba(255, 142, 75, .65);
+    border-radius: .22vw;
+    color: #ffd2ae;
+    background: rgba(28, 9, 2, .96);
+    box-shadow: 0 0 .6vw rgba(255, 112, 26, .15);
+    font-size: clamp(.46rem, .62vw, .7rem);
+    line-height: 1.2;
+    white-space: normal;
+  }
+
+  .standalone-error {
+    left: 68.5%;
+    top: 68.1%;
+    width: max-content;
+    max-width: 13vw;
+    padding: .25vw .4vw;
+    transform: none;
+    border: 1px solid rgba(255, 142, 75, .65);
+    border-radius: .22vw;
+    color: #ffd2ae;
+    background: rgba(28, 9, 2, .96);
+    box-shadow: none;
+    font-size: clamp(.46rem, .62vw, .7rem);
+  }
+
+  /* Campos condicionais continuam reais e surgem fora do painel principal. */
+  .parcel-fields,
+  .access-code-field:not([hidden]) {
+    left: 69.1%;
+    top: 55.5%;
+    width: 17.5%;
+    padding: .72vw;
+    border: 1px solid rgba(255, 164, 28, .72);
+    border-radius: .42vw;
+    background: rgba(8, 9, 5, .97);
+    box-shadow: 0 0 1vw rgba(255, 145, 18, .2);
+  }
+
+  .access-code-field:not([hidden]) {
+    top: 48.2%;
+  }
+
+  .parcel-fields::before {
+    color: #ffb52d;
+  }
+
+  .parcel-fields .field-label,
+  .access-code-field:not([hidden]) .field-label {
+    color: #ead8b7;
+  }
+
+  .parcel-fields .field input,
+  .access-code-field:not([hidden]) input {
+    color: #f6e5c7;
+    caret-color: #ffc14a;
+    border-color: rgba(255, 164, 28, .55);
+    background: #0b0c08;
+    box-shadow: none;
+  }
+
+  .form-alert {
+    left: 69.1%;
+    top: 70.2%;
+    width: 17.5%;
+    padding: .6vw;
+    border-color: rgba(255, 142, 75, .68);
+    color: #ffd2ae;
+    background: rgba(28, 9, 2, .96);
+    box-shadow: none;
+  }
+
+  /* Mantem o sucesso funcional, agora no mesmo vocabulario visual da tela. */
+  .success-panel {
+    left: 37.7%;
+    top: 18.8%;
+    width: 32.6%;
+    min-height: 62%;
+    padding: 8% 2.2% 3%;
+    border-color: rgba(255, 164, 28, .72);
+    border-radius: .55vw;
+    background: rgba(8, 9, 5, .985);
+    box-shadow: 0 0 1.5vw rgba(255, 145, 18, .22);
+  }
+
+  .success-icon {
+    color: #1c1002;
+    background: #ffab22;
+    box-shadow: 0 0 1.2vw rgba(255, 161, 25, .35);
+  }
+
+  .success-panel h2,
+  .protocol-box strong {
+    color: #ffb52d;
+  }
+
+  .protocol-box {
+    border-color: rgba(255, 164, 28, .5);
+    background: rgba(36, 18, 3, .72);
+  }
+
+  .secondary-button {
+    border-color: rgba(255, 164, 28, .6);
+    color: #f7dfb8;
+    background: #141006;
+  }
+}
+
+@media (max-width: 800px) {
+  .parcel-mode-select,
+  .emissao-logout {
+    display: none !important;
+  }
+}
