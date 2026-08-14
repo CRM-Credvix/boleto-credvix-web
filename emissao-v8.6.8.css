@@ -264,3 +264,13 @@
     box-shadow: none;
   }
 }
+
+/* v8.6.17 - ajuste final do enquadramento em telas mais altas/estreitas. */
+@media (min-width: 801px) and (max-aspect-ratio: 1672/941) {
+  .visual-stage {
+    top: 0 !important;
+    transform: translate(-50%, -1.35vh) scale(1.015) !important;
+    transform: translate(-50%, -1.35dvh) scale(1.015) !important;
+    transform-origin: 50% 0 !important;
+  }
+}
