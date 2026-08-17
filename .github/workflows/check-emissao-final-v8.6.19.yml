@@ -1,0 +1,34 @@
+name: Checar arte final emissao v8.6.19
+
+on:
+  push:
+    branches:
+      - agent/emissao-final-v8-6-19-clean
+    paths:
+      - '.github/workflows/check-emissao-final-v8.6.19.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/emissao-final-v8-6-19-clean
+      - name: Comparar SHA da arte aprovada
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXPECTED='5668bef6a6d370597b643d5740b594ef2b1c603d95b5dbb05398643b7ca45ea5'
+          for f in assets/mock-aprovado.png assets/mock-exato.png; do
+            ACTUAL="$(sha256sum "$f" | awk '{print $1}')"
+            echo "$f=$ACTUAL"
+            if [ "$ACTUAL" = "$EXPECTED" ]; then
+              echo "MATCH=$f"
+              exit 0
+            fi
+          done
+          echo 'Nenhum asset existente corresponde ao PNG final aprovado.'
+          exit 1
