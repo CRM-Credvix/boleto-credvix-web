@@ -1,0 +1,55 @@
+name: Materializar arte emissao v8.6.19
+
+on:
+  push:
+    branches:
+      - agent/emissao-arte-final-v8-6-19
+    paths:
+      - '.github/workflows/materialize-emissao-v8.6.19.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/emissao-arte-final-v8-6-19
+          fetch-depth: 0
+
+      - name: Recriar PNG aprovado
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets
+          cat assets/emissao-v8.6.19/part-*.b64 | base64 --decode > assets/emissao-portal-final-v8.6.19.png
+          test -s assets/emissao-portal-final-v8.6.19.png
+          file assets/emissao-portal-final-v8.6.19.png
+          python3 - <<'PY'
+          from PIL import Image
+          p = 'assets/emissao-portal-final-v8.6.19.png'
+          with Image.open(p) as im:
+              assert im.size == (1662, 946), f'Dimensao inesperada: {im.size}'
+              assert im.format == 'PNG', f'Formato inesperado: {im.format}'
+              print('PNG validado:', im.size, im.mode)
+          PY
+
+      - name: Limpar fragmentos e workflow temporario
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf assets/emissao-v8.6.19
+          rm -f .github/workflows/materialize-emissao-v8.6.19.yml
+
+      - name: Gravar asset binario unico
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'CRM-Credvix'
+          git config user.email 'crm@credvix.com'
+          git add -A
+          git commit -m 'Adicionar arte final unica da emissao v8.6.19'
+          git push origin HEAD:agent/emissao-arte-final-v8-6-19
