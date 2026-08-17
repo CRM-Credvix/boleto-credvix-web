@@ -1,0 +1,275 @@
+name: Publicar arte final emissao v8.6.19
+
+on:
+  push:
+    branches:
+      - agent/emissao-final-v8-6-19-clean
+    paths:
+      - '.github/workflows/publish-final-emissao-v8.6.19.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar branch de transporte
+        uses: actions/checkout@v4
+        with:
+          ref: agent/emissao-final-v8-6-19-clean
+          fetch-depth: 0
+
+      - name: Reconstruir e validar arte final
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          : > /tmp/emissao-final.b64
+          for sha in \
+            6c014afa353974a2baa99c4dc24cc23f625b8c3f \
+            369d76f12f22aa15e1360a4305a959947fe2ccf7 \
+            ce2cf762c5554e1165918ac8426143e974864ea8 \
+            6873bf2574fd443c9d2478bcfb2da1da7694bcef \
+            8e441d1382efdc94cab1987bbaf825c9137237ca \
+            40de9441872d90d560266d4c53731e37cb6ebc7d \
+            bc158d40cf11bfb7887a87292090213461b8225a \
+            0e4108208bd44342fd4d75e36963ee4bfda159bd \
+            6ac735a2362f51fd69b605ba14e7b6ee1784fc51 \
+            5e4a257f1b5b70a41041257a45ad268916b8a29d \
+            461db959f7ec50ace2d618083630ebdd61bcc6a2 \
+            1e9b4971c5ecbfb68fa5c922aa03d6239afce969 \
+            963290ce4bd58d23f9dfe78a9aa52e9387b6ba4f \
+            522487d5199625696468079a760ac0a8d94c2531 \
+            10e3d85508f481c9f25ac303815d1083f37cc09b \
+            6d17240ba95e72468c56436261192b84032f92de \
+            3655b42e64f211621506479152d3068452f1e49b
+          do
+            curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/CRM-Credvix/boleto-credvix-web/git/blobs/${sha}" \
+              | jq -r '.content' \
+              | base64 --decode >> /tmp/emissao-final.b64
+          done
+          base64 --decode /tmp/emissao-final.b64 > /tmp/emissao-portal-final-v8.6.19.avif
+          ACTUAL="$(sha256sum /tmp/emissao-portal-final-v8.6.19.avif | awk '{print $1}')"
+          EXPECTED='207eef1862c2f7c7fff195cbc76cc2cb3fd5fb4784d959e2c90c4b8ce32eb824'
+          echo "SHA256=${ACTUAL}"
+          test "${ACTUAL}" = "${EXPECTED}"
+
+      - name: Preparar arvore limpa baseada na main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B publish-v8-6-19 origin/main
+          cp /tmp/emissao-portal-final-v8.6.19.avif assets/emissao-portal-final-v8.6.19.avif
+
+      - name: Criar CSS final da emissao
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > emissao-v8.6.19.css <<'CSS'
+          /* v8.6.19 - arte final aprovada da emissao como fonte visual unica. */
+          @media (min-width: 801px) {
+            html,
+            body {
+              background: #050402 !important;
+            }
+
+            .visual-stage {
+              position: fixed;
+              z-index: 1;
+              left: 50%;
+              top: 50% !important;
+              width: max(100vw, calc(100vh * 1.7568710359)) !important;
+              width: max(100vw, calc(100dvh * 1.7568710359)) !important;
+              height: auto !important;
+              aspect-ratio: 1662 / 946 !important;
+              overflow: hidden !important;
+              transform: translate(-50%, -50%) !important;
+              isolation: isolate;
+              background: #050402 !important;
+              box-shadow: none !important;
+            }
+
+            .visual-stage::before,
+            .visual-stage::after {
+              content: none !important;
+              display: none !important;
+            }
+
+            .desktop-mock {
+              position: absolute;
+              inset: 0;
+              z-index: 1;
+              display: block;
+              width: 100% !important;
+              height: 100% !important;
+              aspect-ratio: 1662 / 946 !important;
+              object-fit: fill !important;
+              object-position: center !important;
+              filter: none !important;
+              transform: none !important;
+              image-rendering: auto !important;
+              opacity: 1;
+            }
+
+            .emissao-logout {
+              left: 62.15% !important;
+              top: 22.09% !important;
+              width: 5.17% !important;
+              height: 4.02% !important;
+            }
+
+            .slot-name,
+            .slot-cpf,
+            .slot-phone,
+            .slot-unit,
+            .slot-contract {
+              left: 38.57% !important;
+              width: 28.58% !important;
+            }
+
+            .slot-name { top: 30.23% !important; height: 3.81% !important; }
+            .slot-cpf { top: 37.74% !important; height: 3.70% !important; }
+            .slot-phone { top: 45.24% !important; height: 3.70% !important; }
+            .slot-unit { top: 52.64% !important; height: 3.91% !important; }
+            .slot-contract { top: 60.04% !important; height: 3.81% !important; }
+
+            .slot-name > input,
+            .slot-cpf > input,
+            .slot-phone > input,
+            .slot-contract > input,
+            .slot-unit .unit-trigger {
+              left: 1% !important;
+              top: 10% !important;
+              width: 98% !important;
+              height: 80% !important;
+              padding: .08vw .55vw 0 !important;
+              font-family: Arial, Helvetica, sans-serif !important;
+              font-size: clamp(.57rem, .76vw, .86rem) !important;
+              line-height: 1.08 !important;
+            }
+
+            .slot-unit .unit-trigger {
+              padding-right: 2.10vw !important;
+            }
+
+            .parcel-mode-select {
+              left: 38.57% !important;
+              top: 67.44% !important;
+              width: 28.58% !important;
+              height: 3.91% !important;
+              padding: .08vw 2.10vw 0 .55vw !important;
+              font-family: Arial, Helvetica, sans-serif !important;
+              font-size: clamp(.57rem, .76vw, .86rem) !important;
+              line-height: 1.08 !important;
+            }
+
+            .consent {
+              left: 36.10% !important;
+              top: 73.47% !important;
+              width: 31.05% !important;
+              height: 3.49% !important;
+            }
+
+            .primary-button {
+              left: 36.04% !important;
+              top: 78.65% !important;
+              width: 30.99% !important;
+              height: 5.50% !important;
+            }
+
+            .parcel-fields {
+              left: 68.80% !important;
+              top: 62.00% !important;
+            }
+          }
+          CSS
+          sed -i 's/^          //' emissao-v8.6.19.css
+
+      - name: Atualizar HTML e carregador da arte
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          index_path = Path('index.html')
+          html = index_path.read_text(encoding='utf-8')
+          css_anchor = '  <link rel="stylesheet" href="emissao-v8.6.12.css?v=1">'
+          css_line = '  <link rel="stylesheet" href="emissao-v8.6.19.css?v=1">'
+          if css_line not in html:
+              if css_anchor not in html:
+                  raise SystemExit('Anchor CSS nao encontrado')
+              html = html.replace(css_anchor, css_anchor + '\n' + css_line, 1)
+          html = html.replace('emissao-v8.6.7.js?v=1', 'emissao-v8.6.7.js?v=2', 1)
+          html = html.replace(
+              'src="assets/pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp"\n      width="1672"\n      height="941"',
+              'src="assets/emissao-portal-final-v8.6.19.avif?v=1"\n      width="1662"\n      height="946"',
+              1,
+          )
+          html = html.replace('      style="opacity:0"\n', '', 1)
+          index_path.write_text(html, encoding='utf-8')
+
+          js_path = Path('emissao-v8.6.7.js')
+          js = js_path.read_text(encoding='utf-8')
+          pattern = re.compile(
+              r'  const oldDesktopArt = "assets/pixel-neon-whatsapp-desktop-colmeia-solar-v8\.3\.0\.webp";.*?\n  const modeSelect =',
+              re.S,
+          )
+          replacement = '''  const finalDesktopArt = "assets/emissao-portal-final-v8.6.19.avif?v=1";
+          const oldDesktopArt = "assets/pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp";
+
+          function showDesktopArt() {
+            if (!desktopMock) return;
+            desktopMock.dataset.emissaoArt = "ready";
+            desktopMock.style.opacity = "1";
+          }
+
+          function useFallbackArt() {
+            if (!desktopMock) return;
+            desktopMock.onerror = null;
+            desktopMock.onload = showDesktopArt;
+            desktopMock.src = oldDesktopArt;
+            if (desktopMock.complete && desktopMock.naturalWidth) showDesktopArt();
+          }
+
+          function ensureEmissionArt() {
+            if (!desktopMock || !desktopMedia.matches || desktopMock.dataset.emissaoArt === "ready") return;
+            desktopMock.style.opacity = "0";
+            desktopMock.onerror = useFallbackArt;
+            desktopMock.onload = showDesktopArt;
+            desktopMock.src = finalDesktopArt;
+            if (desktopMock.complete && desktopMock.naturalWidth) showDesktopArt();
+          }
+
+          const modeSelect ='''
+          replacement = '\n'.join(line[8:] if line.startswith('        ') else line for line in replacement.splitlines())
+          js, count = pattern.subn(replacement, js, count=1)
+          if count != 1:
+              raise SystemExit(f'Loader antigo nao localizado de forma unica: {count}')
+          js_path.write_text(js, encoding='utf-8')
+          PY
+
+      - name: Validar escopo e publicar main
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXPECTED=$'assets/emissao-portal-final-v8.6.19.avif\nemissao-v8.6.19.css\nemissao-v8.6.7.js\nindex.html'
+          ACTUAL="$(git diff --name-only | sort)"
+          printf 'Arquivos alterados:\n%s\n' "$ACTUAL"
+          test "$ACTUAL" = "$EXPECTED"
+          test "$(sha256sum assets/emissao-portal-final-v8.6.19.avif | awk '{print $1}')" = '207eef1862c2f7c7fff195cbc76cc2cb3fd5fb4784d959e2c90c4b8ce32eb824'
+          grep -q 'emissao-portal-final-v8.6.19.avif' index.html
+          grep -q 'emissao-v8.6.19.css?v=1' index.html
+          grep -q 'finalDesktopArt' emissao-v8.6.7.js
+          git config user.name 'CRM-Credvix'
+          git config user.email 'crm@credvix.com'
+          git add assets/emissao-portal-final-v8.6.19.avif emissao-v8.6.19.css emissao-v8.6.7.js index.html
+          git commit -m 'Finalizar tela de emissao v8.6.19'
+          git push origin HEAD:main
