@@ -1,0 +1,83 @@
+name: Materializar arte final emissao v8.6.19
+
+on:
+  push:
+    branches:
+      - agent/emissao-final-v8-6-19-clean
+    paths:
+      - '.github/workflows/materialize-final-emissao-v8.6.19.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/emissao-final-v8-6-19-clean
+          fetch-depth: 0
+
+      - name: Reconstruir AVIF a partir dos blobs internos do GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          : > /tmp/emissao-final.b64
+          for sha in \
+            6c014afa353974a2baa99c4dc24cc23f625b8c3f \
+            369d76f12f22aa15e1360a4305a959947fe2ccf7 \
+            ce2cf762c5554e1165918ac8426143e974864ea8 \
+            6873bf2574fd443c9d2478bcfb2da1da7694bcef \
+            8e441d1382efdc94cab1987bbaf825c9137237ca \
+            40de9441872d90d560266d4c53731e37cb6ebc7d \
+            bc158d40cf11bfb7887a87292090213461b8225a \
+            0e4108208bd44342fd4d75e36963ee4bfda159bd \
+            6ac735a2362f51fd69b605ba14e7b6ee1784fc51 \
+            5e4a257f1b5b70a41041257a45ad268916b8a29d \
+            461db959f7ec50ace2d618083630ebdd61bcc6a2 \
+            1e9b4971c5ecbfb68fa5c922aa03d6239afce969 \
+            963290ce4bd58d23f9dfe78a9aa52e9387b6ba4f \
+            522487d5199625696468079a760ac0a8d94c2531 \
+            10e3d85508f481c9f25ac303815d1083f37cc09b \
+            6d17240ba95e72468c56436261192b84032f92de \
+            3655b42e64f211621506479152d3068452f1e49b
+          do
+            curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/CRM-Credvix/boleto-credvix-web/git/blobs/${sha}" \
+              | jq -r '.content' \
+              | base64 --decode >> /tmp/emissao-final.b64
+          done
+
+          mkdir -p assets
+          base64 --decode /tmp/emissao-final.b64 > assets/emissao-portal-final-v8.6.19.avif
+          test -s assets/emissao-portal-final-v8.6.19.avif
+          ACTUAL="$(sha256sum assets/emissao-portal-final-v8.6.19.avif | awk '{print $1}')"
+          EXPECTED='207eef1862c2f7c7fff195cbc76cc2cb3fd5fb4784d959e2c90c4b8ce32eb824'
+          echo "SHA256=${ACTUAL}"
+          test "${ACTUAL}" = "${EXPECTED}"
+          file assets/emissao-portal-final-v8.6.19.avif
+
+      - name: Limpar arquivos temporarios
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf assets/emissao-v8.6.19-src
+          rm -rf assets/emissao-v8.6.19-avif-src
+          rm -f .github/workflows/check-emissao-final-v8.6.19.yml
+          rm -f .github/workflows/materialize-final-emissao-v8.6.19.yml
+
+      - name: Gravar asset binario unico
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'CRM-Credvix'
+          git config user.email 'crm@credvix.com'
+          git add -A
+          git commit -m 'Adicionar arte final unica da emissao v8.6.19'
+          git push origin HEAD:agent/emissao-final-v8-6-19-clean
