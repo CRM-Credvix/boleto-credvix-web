@@ -1,0 +1,63 @@
+name: Verificar publicacao final emissao v8.6.19
+
+on:
+  push:
+    branches:
+      - agent/emissao-final-v8-6-19-clean
+    paths:
+      - '.github/workflows/verify-final-emissao-v8.6.19.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar main publicada
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Validar arquivos finais
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f assets/emissao-portal-final-v8.6.19.avif
+          test -f emissao-v8.6.19.css
+          test "$(sha256sum assets/emissao-portal-final-v8.6.19.avif | awk '{print $1}')" = '207eef1862c2f7c7fff195cbc76cc2cb3fd5fb4784d959e2c90c4b8ce32eb824'
+          grep -q 'emissao-portal-final-v8.6.19.avif' index.html
+          grep -q 'emissao-v8.6.19.css?v=1' index.html
+          grep -q 'emissao-v8.6.7.js?v=2' index.html
+          grep -q 'finalDesktopArt' emissao-v8.6.7.js
+
+      - name: Aguardar GitHub Pages desta main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          HEAD_SHA="$(git rev-parse HEAD)"
+          for attempt in $(seq 1 60); do
+            JSON="$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' "https://api.github.com/repos/CRM-Credvix/boleto-credvix-web/actions/runs?head_sha=${HEAD_SHA}&per_page=20")"
+            STATUS="$(printf '%s' "$JSON" | jq -r '[.workflow_runs[] | select(.name=="Publicar Boleto Credvix")][0].status // "missing"')"
+            CONCLUSION="$(printf '%s' "$JSON" | jq -r '[.workflow_runs[] | select(.name=="Publicar Boleto Credvix")][0].conclusion // ""')"
+            echo "Pages: status=${STATUS} conclusion=${CONCLUSION}"
+            if [ "$STATUS" = 'completed' ] && [ "$CONCLUSION" = 'success' ]; then
+              exit 0
+            fi
+            if [ "$STATUS" = 'completed' ] && [ -n "$CONCLUSION" ] && [ "$CONCLUSION" != 'success' ]; then
+              exit 1
+            fi
+            sleep 5
+          done
+          exit 1
+
+      - name: Marcar versao pronta sem alterar main
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA="$(git rev-parse HEAD)"
+          git push --force origin "${SHA}:refs/heads/release/v8.6.19-ready"
