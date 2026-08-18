@@ -7,131 +7,43 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: "pages"
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: https://crm-credvix.github.io/boleto-credvix-web/
-
+  build:
+    name: Preparar site
     runs-on: ubuntu-latest
-    timeout-minutes: 40
 
     steps:
-      - name: Baixar arquivos do repositorio
+      - name: Baixar repositorio
         uses: actions/checkout@v6
 
-      - name: Conferir se o site ja esta atualizado
-        id: published
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          BASE_URL="https://crm-credvix.github.io/boleto-credvix-web"
-          MATCHES=true
-          FILE_LIST="${RUNNER_TEMP}/site-files"
-          REMOTE_FILE="${RUNNER_TEMP}/published-file"
-
-          find . -type f \
-            ! -path './.git/*' \
-            ! -path './.github/*' \
-            ! -path './.*' \
-            -print0 > "${FILE_LIST}"
-
-          while IFS= read -r -d '' FILE; do
-            RELATIVE_PATH="${FILE#./}"
-
-            if ! curl -fsS --retry 4 --retry-delay 3 \
-              "${BASE_URL}/${RELATIVE_PATH}?commit=${GITHUB_SHA}" \
-              -o "${REMOTE_FILE}"; then
-              MATCHES=false
-              break
-            fi
-
-            if ! cmp -s "${FILE}" "${REMOTE_FILE}"; then
-              MATCHES=false
-              break
-            fi
-          done < "${FILE_LIST}"
-
-          echo "matches=${MATCHES}" >> "${GITHUB_OUTPUT}"
-
       - name: Configurar GitHub Pages
-        if: steps.published.outputs.matches != 'true'
         uses: actions/configure-pages@v5
 
-      - name: Registrar versao do deploy
-        if: steps.published.outputs.matches != 'true'
-        shell: bash
-        run: echo "${GITHUB_SHA}" > deploy-version.txt
-
-      - name: Preparar arquivos do site
-        id: artifact
-        if: steps.published.outputs.matches != 'true'
+      - name: Empacotar site
         uses: actions/upload-pages-artifact@v4
         with:
           path: "."
 
-      - name: Publicar e aguardar GitHub Pages
-        if: steps.published.outputs.matches != 'true'
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          ARTIFACT_ID: ${{ steps.artifact.outputs.artifact_id }}
-        run: |
-          set -euo pipefail
+  deploy:
+    name: Publicar site
+    needs: build
+    runs-on: ubuntu-latest
 
-          OIDC_TOKEN="$(curl -fsS \
-            -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}" | jq -r '.value')"
+    permissions:
+      pages: write
+      id-token: write
+      actions: read
 
-          PAYLOAD="$(jq -nc \
-            --argjson artifact_id "${ARTIFACT_ID}" \
-            --arg pages_build_version "${GITHUB_SHA}" \
-            --arg oidc_token "${OIDC_TOKEN}" \
-            '{artifact_id: $artifact_id, pages_build_version: $pages_build_version, oidc_token: $oidc_token}')"
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
-          RESPONSE="$(curl -fsS -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages/deployments" \
-            -d "${PAYLOAD}")"
-
-          STATUS_URL="$(jq -r '.status_url' <<<"${RESPONSE}")"
-          PAGE_URL="$(jq -r '.page_url // empty' <<<"${RESPONSE}")"
-
-          if [[ -z "${STATUS_URL}" || "${STATUS_URL}" == "null" || -z "${PAGE_URL}" ]]; then
-            echo "A API do Pages nao retornou os dados de acompanhamento."
-            exit 1
-          fi
-
-          for ATTEMPT in $(seq 1 180); do
-            PUBLISHED_SHA="$(curl -fsS --retry 2 --retry-delay 2 \
-              "${PAGE_URL}deploy-version.txt?commit=${GITHUB_SHA}&attempt=${ATTEMPT}" 2>/dev/null || true)"
-
-            if [[ "${PUBLISHED_SHA}" == "${GITHUB_SHA}" ]]; then
-              echo "GitHub Pages publicado e confirmado: ${PAGE_URL}"
-              exit 0
-            fi
-
-            STATUS="$(curl -fsS \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "${STATUS_URL}" | jq -r '.status')"
-
-            echo "Status do Pages: ${STATUS} (consulta ${ATTEMPT}/180)"
-            sleep 10
-          done
-
-          echo "O Pages nao publicou o commit dentro de 30 minutos."
-          exit 1
-
-# Re-disparo manual apos incidente do GitHub Actions/Pages em 2026-08-06.
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
