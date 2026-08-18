@@ -7,53 +7,144 @@
 
   if (!stage || !mock) return;
 
-  let fill = document.querySelector(".emissao-bg-fill");
-
-  function ensureFill() {
-    if (fill) return fill;
-
-    fill = document.createElement("img");
-    fill.className = "emissao-bg-fill";
-    fill.alt = "";
-    fill.setAttribute("aria-hidden", "true");
-    fill.decoding = "async";
-    fill.hidden = true;
-
-    document.body.insertBefore(fill, stage);
-    return fill;
+  /* Carrega a correcao visual sem depender de nova alteracao no index.html. */
+  if (!document.querySelector('link[data-emissao-v871]')) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "emissao-v8.7.1.css?v=1";
+    link.dataset.emissaoV871 = "true";
+    document.head.appendChild(link);
   }
 
-  function syncFill() {
-    const background = ensureFill();
-    const shouldShow = desktopMedia.matches && !stage.hidden && Boolean(mock.src);
+  const CROP_X = 0.1015;
+  const SAMPLE_X = 0.085;
+  const CROP_Y = 0.007;
+  let leftCanvas = null;
+  let rightCanvas = null;
 
-    if (!shouldShow) {
-      background.hidden = true;
+  function removeOldFill() {
+    document.querySelectorAll(".emissao-bg-fill").forEach((node) => node.remove());
+  }
+
+  function ensureCanvases() {
+    if (!leftCanvas) {
+      leftCanvas = document.createElement("canvas");
+      leftCanvas.className = "emissao-edge-fill emissao-edge-fill-left";
+      leftCanvas.setAttribute("aria-hidden", "true");
+      leftCanvas.hidden = true;
+      document.body.insertBefore(leftCanvas, stage);
+    }
+
+    if (!rightCanvas) {
+      rightCanvas = document.createElement("canvas");
+      rightCanvas.className = "emissao-edge-fill emissao-edge-fill-right";
+      rightCanvas.setAttribute("aria-hidden", "true");
+      rightCanvas.hidden = true;
+      document.body.insertBefore(rightCanvas, stage);
+    }
+  }
+
+  function hideCanvases() {
+    if (leftCanvas) leftCanvas.hidden = true;
+    if (rightCanvas) rightCanvas.hidden = true;
+  }
+
+  function paintExtension(canvas, side, gap, stageRect) {
+    if (!canvas || gap <= 1 || !mock.naturalWidth || !mock.naturalHeight) {
+      if (canvas) canvas.hidden = true;
       return;
     }
 
-    const source = mock.currentSrc || mock.src;
-    if (source && background.src !== source) {
-      background.src = source;
-    }
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cssWidth = Math.max(1, gap);
+    const cssHeight = Math.max(1, stageRect.height);
 
-    background.hidden = false;
+    canvas.hidden = false;
+    canvas.style.top = `${stageRect.top}px`;
+    canvas.style.left = side === "left" ? "0px" : `${window.innerWidth - cssWidth}px`;
+    canvas.style.width = `${cssWidth}px`;
+    canvas.style.height = `${cssHeight}px`;
+    canvas.width = Math.max(1, Math.round(cssWidth * dpr));
+    canvas.height = Math.max(1, Math.round(cssHeight * dpr));
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    const sourceW = mock.naturalWidth;
+    const sourceH = mock.naturalHeight;
+    const cropX = sourceW * CROP_X;
+    const sampleW = sourceW * SAMPLE_X;
+    const sourceY = sourceH * CROP_Y;
+    const sourceHVisible = sourceH * (1 - CROP_Y * 2);
+    const sourceX = side === "left" ? cropX : sourceW - cropX - sampleW;
+
+    /*
+     * Usa somente uma faixa estreita encostada na borda util e a reflete para fora.
+     * Isso prolonga o ambiente sem duplicar a janela, a abelha ou o painel inteiro.
+     */
+    ctx.save();
+    ctx.translate(cssWidth, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(
+      mock,
+      sourceX,
+      sourceY,
+      sampleW,
+      sourceHVisible,
+      0,
+      0,
+      cssWidth,
+      cssHeight,
+    );
+    ctx.restore();
+
+    const gradient = ctx.createLinearGradient(0, 0, cssWidth, 0);
+    if (side === "left") {
+      gradient.addColorStop(0, "rgba(5,4,2,.28)");
+      gradient.addColorStop(.55, "rgba(5,4,2,.06)");
+      gradient.addColorStop(1, "rgba(5,4,2,0)");
+    } else {
+      gradient.addColorStop(0, "rgba(5,4,2,0)");
+      gradient.addColorStop(.45, "rgba(5,4,2,.06)");
+      gradient.addColorStop(1, "rgba(5,4,2,.28)");
+    }
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, cssWidth, cssHeight);
   }
 
-  mock.addEventListener("load", syncFill);
+  function syncViewport() {
+    removeOldFill();
+    ensureCanvases();
 
-  const mockObserver = new MutationObserver(syncFill);
-  mockObserver.observe(mock, {
-    attributes: true,
-    attributeFilter: ["src", "style"],
-  });
+    if (!desktopMedia.matches || stage.hidden || !mock.complete || !mock.naturalWidth) {
+      hideCanvases();
+      return;
+    }
 
-  const stageObserver = new MutationObserver(syncFill);
-  stageObserver.observe(stage, {
-    attributes: true,
-    attributeFilter: ["hidden"],
-  });
+    const stageRect = stage.getBoundingClientRect();
+    const visibleLeft = stageRect.left + stageRect.width * CROP_X;
+    const visibleRight = stageRect.right - stageRect.width * CROP_X;
+    const leftGap = Math.max(0, visibleLeft);
+    const rightGap = Math.max(0, window.innerWidth - visibleRight);
 
-  desktopMedia.addEventListener?.("change", syncFill);
-  syncFill();
+    paintExtension(leftCanvas, "left", leftGap, stageRect);
+    paintExtension(rightCanvas, "right", rightGap, stageRect);
+  }
+
+  mock.addEventListener("load", () => requestAnimationFrame(syncViewport));
+  window.addEventListener("resize", () => requestAnimationFrame(syncViewport), { passive: true });
+
+  const stageObserver = new MutationObserver(() => requestAnimationFrame(syncViewport));
+  stageObserver.observe(stage, { attributes: true, attributeFilter: ["hidden", "style"] });
+
+  const mockObserver = new MutationObserver(() => requestAnimationFrame(syncViewport));
+  mockObserver.observe(mock, { attributes: true, attributeFilter: ["src", "style"] });
+
+  desktopMedia.addEventListener?.("change", () => requestAnimationFrame(syncViewport));
+  requestAnimationFrame(syncViewport);
 })();
