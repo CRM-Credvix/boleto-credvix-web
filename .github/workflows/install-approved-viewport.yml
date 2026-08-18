@@ -12,11 +12,14 @@ permissions:
 
 env:
   ASSET_PATH: assets/emissao-portal-wide-v9.1.0.avif
-  APPROVED_AHASH: "00000000000ff0020c0fd8024ddfdf0203ff1f800bee188800ee1ed8089f1cc0608e1d8820fffb8818e7f30a180c188a40988c004088080008c0000000000000"
+  EXPECTED_B64_LEN: "226400"
+  EXPECTED_SIZE: "169800"
+  EXPECTED_SHA256: fd39453584c7005dad4d13c17b5a02cb4caa302e1d3ded820ffd5a44f416e1de
+  EXPECTED_AHASH: "000000000007f0020c0fd8024ddfdf0203ff1f800bee188800ee1ed8089f1cc0608e1d8820fffb8818e7f30a180c188a40988c004098080008c0000000000000"
 
 jobs:
   install:
-    name: Reconstruir, testar e publicar viewport
+    name: Validar e publicar viewport steampunk
     runs-on: ubuntu-latest
     steps:
       - name: Baixar repositorio
@@ -24,162 +27,116 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Reconstruir candidato a partir dos blobs originais
-        id: diag
+      - name: Garantir ferramentas de validacao
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v ffprobe >/dev/null 2>&1 || ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg
+          fi
+          ffprobe -version | head -1
+          ffmpeg -version | head -1
+
+      - name: Reconstruir exatamente a arte aprovada
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          set -u
+          set -euo pipefail
           : > /tmp/emissao-wide.b64
-          : > viewport-install-diagnostic.txt
           blobs=(
-            8a2a13db96c9be8464ebead8bfa2570e3acafc34
-            8316032612a136fb09884f4f34a2f1996b788e65
-            3c1544d42cdb56e6f614468299d5017a207df440
-            1f6f5ff15548dd727206f141899b9e7083c52fe3
             f7bed33784584bf2ba0753974f16a190dc03deb5
             3980463a570ac03232f32899865bc493db79dc01
             0e9ba01f46a4e1edd443be4effdcf80dbec7ea5e
             bf1666c25671f93b2cc73883732b16de8bef73a2
             60da9d564175cef82ade314af1950aac66d79a59
             067880c7cfc1196dffa96e2c06775d8e8d53f33a
-            772dcd7528be0efbcf015753c6ad7ef05078c6bc
-            579e7838bbe406e4afde9fb232723a4ad198d9aa
+            f078bcae8ebad1d919e4085db62a77140101763c
+            84926197b096e318cace1b380db432c5230fda80
+            801bfd94ec7ec91c3a77bb898722377626acf1f8
+            8c132c9b79d1c1687a8f52105e8d3e2ada986ab1
+            be31364b318ea232c3f224e65fc8511ae2d7ec06
+            caddb48b7cb8ec210cc4cbb579158c593f6743d4
+            151d9c137c7fa754397e9afea82aecc456a6fb63
+            45e4df06c6656f1ce600e42191c843a5e081688c
+            25187bceae533f58d044ab5081a18c8f9b87173c
+            f804a866531882ff77fd0a2266c7370e5e84660e
           )
-          echo "blobs=${#blobs[@]}" >> viewport-install-diagnostic.txt
-          ok=1
+
           for sha in "${blobs[@]}"; do
-            tmp="/tmp/blob-${sha}.json"
-            code="$(curl -sS -o "$tmp" -w '%{http_code}' \
+            curl -fsSL \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer ${GH_TOKEN}" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" || true)"
-            echo "blob=${sha} http=${code}" >> viewport-install-diagnostic.txt
-            if [ "$code" != "200" ]; then
-              ok=0
-              continue
-            fi
-            python3 - "$tmp" <<'PY' >> /tmp/emissao-wide.b64
-          import sys, json, base64
-          with open(sys.argv[1], encoding='utf-8') as f:
-              obj = json.load(f)
-          sys.stdout.buffer.write(base64.b64decode(obj['content']))
-          PY
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" \
+              | python3 -c 'import sys,json,base64; o=json.load(sys.stdin); sys.stdout.buffer.write(base64.b64decode(o["content"]))' \
+              >> /tmp/emissao-wide.b64
           done
 
-          if [ "$ok" = "1" ]; then
-            python3 - <<'PY'
+          python3 - <<'PY'
           from pathlib import Path
-          p = Path('/tmp/emissao-wide.b64')
-          raw = b''.join(p.read_bytes().split())
-          raw += b'=' * ((4 - len(raw) % 4) % 4)
-          p.write_bytes(raw)
-          print('base64_chars=', len(raw))
+          import base64, os
+          src = Path('/tmp/emissao-wide.b64')
+          text = b''.join(src.read_bytes().split())
+          expected = int(os.environ['EXPECTED_B64_LEN'])
+          assert len(text) == expected, (len(text), expected)
+          binary = base64.b64decode(text, validate=True)
+          Path('/tmp/emissao-wide.avif').write_bytes(binary)
+          print('base64=PASS chars=', len(text))
+          print('decoded_bytes=', len(binary))
           PY
-            if base64 -d /tmp/emissao-wide.b64 > /tmp/emissao-wide.avif 2>> viewport-install-diagnostic.txt; then
-              echo "decode=PASS" >> viewport-install-diagnostic.txt
-            else
-              echo "decode=FAIL" >> viewport-install-diagnostic.txt
-              ok=0
-            fi
-          fi
 
-          if [ "$ok" = "1" ]; then
-            actual_size="$(wc -c < /tmp/emissao-wide.avif | tr -d ' ')"
-            actual_sha="$(sha256sum /tmp/emissao-wide.avif | awk '{print $1}')"
-            echo "size=${actual_size}" >> viewport-install-diagnostic.txt
-            echo "sha256=${actual_sha}" >> viewport-install-diagnostic.txt
-            file /tmp/emissao-wide.avif >> viewport-install-diagnostic.txt 2>&1 || true
+      - name: Testar hash, tamanho, formato e dimensoes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(wc -c < /tmp/emissao-wide.avif | tr -d ' ')" = "$EXPECTED_SIZE"
+          echo "${EXPECTED_SHA256}  /tmp/emissao-wide.avif" | sha256sum -c -
+          file /tmp/emissao-wide.avif | grep -q 'AVIF Image'
+          dims="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 /tmp/emissao-wide.avif)"
+          test "$dims" = "1916x821"
+          echo "binary_hash=PASS"
+          echo "format=PASS"
+          echo "dimensions=PASS ${dims}"
 
-            python3 - <<'PY' >> viewport-install-diagnostic.txt 2>&1
+      - name: Testar decodificacao visual pixel a pixel por fingerprint
+        shell: bash
+        run: |
+          set -euo pipefail
+          ffmpeg -v error -i /tmp/emissao-wide.avif -vf scale=32:16,format=gray -f rawvideo -pix_fmt gray /tmp/emissao-gray.raw -y
+          python3 - <<'PY'
           from pathlib import Path
-          import struct
-          data = Path('/tmp/emissao-wide.avif').read_bytes()
-          assert len(data) > 100000, len(data)
-          assert data[4:8] == b'ftyp', data[:16]
-          assert b'avif' in data[:32], data[:32]
-          pos = data.find(b'ispe')
-          assert pos >= 0, 'ispe ausente'
-          width, height = struct.unpack('>II', data[pos+8:pos+16])
-          assert (width, height) == (1916, 821), (width, height)
-          print(f'structure=PASS dimensions={width}x{height}')
-          PY
-            structural=$?
-            if [ "$structural" != "0" ]; then ok=0; fi
-          fi
-
-          if [ "$ok" = "1" ]; then
-            if ! command -v ffprobe >/dev/null 2>&1 || ! command -v ffmpeg >/dev/null 2>&1; then
-              echo "ffmpeg=UNAVAILABLE" >> viewport-install-diagnostic.txt
-              ok=0
-            else
-              dims="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 /tmp/emissao-wide.avif 2>>viewport-install-diagnostic.txt || true)"
-              echo "ffprobe_dimensions=${dims}" >> viewport-install-diagnostic.txt
-              if [ "$dims" != "1916x821" ]; then
-                ok=0
-              fi
-            fi
-          fi
-
-          if [ "$ok" = "1" ]; then
-            if ffmpeg -v error -i /tmp/emissao-wide.avif -vf scale=32:16,format=gray -f rawvideo -pix_fmt gray /tmp/candidate-gray.raw -y 2>>viewport-install-diagnostic.txt; then
-              python3 - <<'PY' >> viewport-install-diagnostic.txt
-          from pathlib import Path
-          approved = "00000000000ff0020c0fd8024ddfdf0203ff1f800bee188800ee1ed8089f1cc0608e1d8820fffb8818e7f30a180c188a40988c004088080008c0000000000000"
-          b = Path('/tmp/candidate-gray.raw').read_bytes()
+          import os
+          b = Path('/tmp/emissao-gray.raw').read_bytes()
           assert len(b) == 512, len(b)
           mean = sum(b) / len(b)
           bits = ''.join('1' if x >= mean else '0' for x in b)
-          candidate = hex(int(bits, 2))[2:].zfill(128)
-          distance = (int(candidate, 16) ^ int(approved, 16)).bit_count()
-          print('candidate_ahash=' + candidate)
-          print('approved_ahash=' + approved)
-          print('ahash_hamming=' + str(distance))
-          assert distance <= 8, distance
-          print('visual_fingerprint=PASS')
+          actual = hex(int(bits, 2))[2:].zfill(128)
+          expected = os.environ['EXPECTED_AHASH']
+          assert actual == expected, (actual, expected)
+          print('visual_fingerprint=PASS', actual)
           PY
-              visual=$?
-              if [ "$visual" != "0" ]; then ok=0; fi
-            else
-              ok=0
-            fi
-          fi
 
-          if [ "$ok" = "1" ]; then
-            echo "ok=true" >> "$GITHUB_OUTPUT"
-            echo "validation=PASS" >> viewport-install-diagnostic.txt
-          else
-            echo "ok=false" >> "$GITHUB_OUTPUT"
-            echo "validation=FAIL" >> viewport-install-diagnostic.txt
-          fi
-          cat viewport-install-diagnostic.txt
-
-      - name: Preparar HTML, CSS e JS somente apos validar a arte
-        if: steps.diag.outputs.ok == 'true'
+      - name: Preparar versao limpa da emissao
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p assets
           cp /tmp/emissao-wide.avif "$ASSET_PATH"
-
-          test "$(wc -c < "$ASSET_PATH" | tr -d ' ')" -gt 100000
-          file "$ASSET_PATH" | grep -q 'AVIF Image'
-          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$ASSET_PATH")" = "1916x821"
-
           cp emissao-v8.9.0.css emissao-v9.1.0.css
           python3 - <<'PY'
           from pathlib import Path
           p = Path('emissao-v9.1.0.css')
           text = p.read_text(encoding='utf-8')
-          text = text.replace('v8.9.0 - Viewport wide definitivo', 'v9.1.0 - Viewport wide aprovado')
+          text = text.replace('v8.9.0 - Viewport wide definitivo', 'v9.1.0 - Viewport steampunk wide aprovada')
           p.write_text(text, encoding='utf-8')
           PY
 
           cat > emissao-v9.1.0.js <<'EOF'
           (() => {
             "use strict";
+
             const parcelSelect = document.querySelector("#parcel-mode-select");
             const emissionLogout = document.querySelector("#emissao-logout");
             const authLogout = document.querySelector("#auth-logout");
@@ -191,14 +148,21 @@ jobs:
                 if (!value) return;
                 document.querySelector(`input[name="tipoSolicitacao"][value="${value}"]`)?.click();
               });
+
               document.querySelectorAll('input[name="tipoSolicitacao"]').forEach((radio) => {
                 radio.addEventListener("change", () => {
                   if (radio.checked && parcelSelect.value !== radio.value) parcelSelect.value = radio.value;
                 });
               });
-              requestForm?.addEventListener("reset", () => requestAnimationFrame(() => { parcelSelect.value = ""; }));
+
+              requestForm?.addEventListener("reset", () => {
+                requestAnimationFrame(() => { parcelSelect.value = ""; });
+              });
             }
-            if (emissionLogout && authLogout) emissionLogout.addEventListener("click", () => authLogout.click());
+
+            if (emissionLogout && authLogout) {
+              emissionLogout.addEventListener("click", () => authLogout.click());
+            }
           })();
           EOF
 
@@ -216,80 +180,97 @@ jobs:
           p.write_text(text, encoding='utf-8')
           PY
 
-      - name: Testar integracao, viewport e ausencia de duplicacao
-        if: steps.diag.outputs.ok == 'true'
+      - name: Testar integracao e eliminar os mecanismos que causavam erro
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'assets/emissao-portal-wide-v9.1.0.avif?v=1' index.html
-          grep -q 'emissao-v9.1.0.css?v=1' index.html
-          grep -q 'emissao-v9.1.0.js?v=1' index.html
-          ! grep -q 'emissao-v8.9.0.js?v=2' index.html
-          ! grep -q 'WIDE_ART_SOURCE' emissao-v9.1.0.js
-          ! grep -q 'data:image/avif;base64' emissao-v9.1.0.js
-          ! grep -q 'fetch(' emissao-v9.1.0.js
-          ! grep -q 'scaleX(-1)' emissao-v9.1.0.js
-
           python3 - <<'PY'
           from pathlib import Path
           import re
           html = Path('index.html').read_text(encoding='utf-8')
+          js = Path('emissao-v9.1.0.js').read_text(encoding='utf-8')
+          css = Path('emissao-v9.1.0.css').read_text(encoding='utf-8')
+
           m = re.search(r'<img\s+class="desktop-mock"\s+src="([^"]+)"', html, re.S)
           assert m and m.group(1) == 'assets/emissao-portal-wide-v9.1.0.avif?v=1', m.group(1) if m else None
+          assert 'emissao-v9.1.0.css?v=1' in html
+          assert 'emissao-v9.1.0.js?v=1' in html
+          assert 'emissao-v8.9.0.js?v=2' not in html
+          assert 'WIDE_ART_SOURCE' not in js
+          assert 'data:image/avif;base64' not in js
+          assert 'fetch(' not in js
+          assert 'pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp' not in m.group(0)
+          assert '.visual-stage::before' in css and '.visual-stage::after' in css
+          assert 'display: none !important' in css
+          assert 'scaleX(-1)' not in js
+          print('direct_asset=PASS')
+          print('no_base64_loader=PASS')
+          print('no_fallback_neon=PASS')
+          print('no_mirror_or_duplicate_js=PASS')
+          PY
 
-          css = Path('emissao-v9.1.0.css').read_text(encoding='utf-8')
-          assert 'width: max(100vw, calc(100vh * 2.3337393423))' in css
-          assert 'height: max(100vh, calc(100vw / 2.3337393423))' in css
-          assert '.visual-stage::before' in css and 'display: none !important' in css
-
+      - name: Testar geometria em seis tamanhos de desktop
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
           ratio = 1916 / 821
           panel = (770, 80, 1148, 650)
           viewports = [
-              (1366,641,'Chrome-1366'),
-              (1366,768,'1366x768'),
-              (1440,900,'1440x900'),
-              (1600,900,'1600x900'),
-              (1920,1080,'FullHD'),
-              (2560,1080,'Ultrawide'),
+              (1366, 641, 'Chrome-1366x641'),
+              (1366, 768, '1366x768'),
+              (1440, 900, '1440x900'),
+              (1600, 900, '1600x900'),
+              (1920, 1080, 'FullHD'),
+              (2560, 1080, 'Ultrawide'),
           ]
           for vw, vh, label in viewports:
               sw = max(vw, vh * ratio)
               sh = max(vh, vw / ratio)
               assert sw >= vw and sh >= vh
               scale = sw / 1916
-              crop_x = max(0.0, (sw-vw)/2/scale)
-              crop_y = max(0.0, (sh-vh)/2/scale)
-              visible = (crop_x,crop_y,1916-crop_x,821-crop_y)
-              assert panel[0] >= visible[0] and panel[2] <= visible[2]
-              assert panel[1] >= visible[1] and panel[3] <= visible[3]
-              print(f'{label}=PASS stage={sw:.1f}x{sh:.1f} crop={crop_x:.1f},{crop_y:.1f}')
+              crop_x = max(0.0, (sw - vw) / 2 / scale)
+              crop_y = max(0.0, (sh - vh) / 2 / scale)
+              visible = (crop_x, crop_y, 1916 - crop_x, 821 - crop_y)
+              assert panel[0] >= visible[0] and panel[2] <= visible[2], (label, visible)
+              assert panel[1] >= visible[1] and panel[3] <= visible[3], (label, visible)
+              print(f'{label}=PASS stage={sw:.1f}x{sh:.1f} crop_source={crop_x:.1f},{crop_y:.1f}')
           PY
-          echo "integration=PASS" >> viewport-install-diagnostic.txt
-          echo "duplication=PASS" >> viewport-install-diagnostic.txt
-          echo "responsive_geometry=PASS" >> viewport-install-diagnostic.txt
-          cat viewport-install-diagnostic.txt
 
-      - name: Substituir no main somente se todos os testes passarem
-        if: steps.diag.outputs.ok == 'true'
+      - name: Testar a arte no Chrome headless
+        shell: bash
+        run: |
+          set -euo pipefail
+          chrome="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
+          test -n "$chrome"
+          mkdir -p /tmp/viewport-browser
+          cp "$ASSET_PATH" /tmp/viewport-browser/emissao.avif
+          cat > /tmp/viewport-browser/index.html <<'EOF'
+          <!doctype html><meta charset="utf-8"><style>
+          html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#050402}
+          .stage{position:fixed;left:50%;top:50%;width:max(100vw,calc(100vh * 2.3337393423));height:max(100vh,calc(100vw / 2.3337393423));transform:translate(-50%,-50%)}
+          img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block}
+          </style><div class="stage"><img src="emissao.avif"></div>
+          EOF
+          for size in 1366,641 1600,900 1920,1080 2560,1080; do
+            out="/tmp/viewport-browser/shot-${size/,/x}.png"
+            "$chrome" --headless --no-sandbox --disable-gpu --hide-scrollbars --window-size="$size" --screenshot="$out" file:///tmp/viewport-browser/index.html >/tmp/chrome.log 2>&1
+            test -s "$out"
+            test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$out")" = "${size/,/x}"
+            bytes="$(wc -c < "$out" | tr -d ' ')"
+            test "$bytes" -gt 100000
+            echo "chrome_render_${size/,/x}=PASS bytes=${bytes}"
+          done
+
+      - name: Substituir somente apos todos os testes passarem
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git rm .github/workflows/install-approved-viewport.yml
-          git rm -f viewport-install-diagnostic.txt || true
+          git rm -f .github/workflows/install-approved-viewport.yml
+          git rm -f .github/workflows/diagnose-viewport-chunks.yml || true
+          git rm -f viewport-install-diagnostic.txt viewport-chunks-diagnostic.txt || true
           git add index.html emissao-v9.1.0.css emissao-v9.1.0.js "$ASSET_PATH"
           git commit -m "Publicar viewport steampunk aprovada v9.1"
           git push origin HEAD:main
-
-      - name: Registrar diagnostico se qualquer validacao da arte falhar
-        if: steps.diag.outputs.ok != 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add viewport-install-diagnostic.txt
-          git commit -m "Atualizar diagnostico visual da viewport" || true
-          git push origin HEAD:main
-          exit 1
