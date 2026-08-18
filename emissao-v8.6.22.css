@@ -1,0 +1,69 @@
+/* ============================================================
+   v8.6.22 - VIEWPORT DESKTOP EM COVER REAL
+   - elimina cantos/faixas pretas
+   - preserva a proporcao nativa 1672x941
+   - palco, imagem e hotspots continuam na mesma escala
+   - renderizacao normal para manter a melhor nitidez no Chrome
+   ============================================================ */
+
+@media (min-width: 801px) {
+  html,
+  body {
+    margin: 0 !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    overflow: hidden !important;
+    background: #050402 !important;
+  }
+
+  .visual-stage {
+    position: fixed !important;
+    z-index: 1 !important;
+    left: 50% !important;
+    top: 50% !important;
+
+    /* Cover matematico mantendo exatamente a proporcao da arte. */
+    width: max(100vw, calc(100vh * 1.7768331562)) !important;
+    width: max(100vw, calc(100dvh * 1.7768331562)) !important;
+    height: max(100vh, calc(100vw / 1.7768331562)) !important;
+    height: max(100dvh, calc(100vw / 1.7768331562)) !important;
+    aspect-ratio: auto !important;
+
+    margin: 0 !important;
+    overflow: hidden !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: 50% 50% !important;
+    isolation: isolate !important;
+    background: #050402 !important;
+    box-shadow: none !important;
+  }
+
+  .visual-stage::before,
+  .visual-stage::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .desktop-mock {
+    position: absolute !important;
+    z-index: 1 !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    object-fit: fill !important;
+    object-position: center center !important;
+    transform: none !important;
+    filter: none !important;
+    image-rendering: auto !important;
+    user-select: none !important;
+    pointer-events: none !important;
+    backface-visibility: visible !important;
+  }
+}
