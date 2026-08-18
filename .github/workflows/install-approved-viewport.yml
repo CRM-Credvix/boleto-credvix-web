@@ -25,14 +25,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Reconstruir arte e registrar diagnostico
+      - name: Reconstruir binario aprovado e registrar diagnostico
         id: diag
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -u
-          : > /tmp/emissao-wide.b64
+          : > /tmp/emissao-wide.avif
           : > viewport-install-diagnostic.txt
           blobs=(
             8a2a13db96c9be8464ebead8bfa2570e3acafc34
@@ -62,7 +62,7 @@ jobs:
               ok=0
               continue
             fi
-            python3 - "$tmp" <<'PY' >> /tmp/emissao-wide.b64
+            python3 - "$tmp" <<'PY' >> /tmp/emissao-wide.avif
           import sys, json, base64
           with open(sys.argv[1], encoding='utf-8') as f:
               o = json.load(f)
@@ -70,7 +70,7 @@ jobs:
           PY
           done
 
-          if [ "$ok" = "1" ] && base64 -d /tmp/emissao-wide.b64 > /tmp/emissao-wide.avif 2>> viewport-install-diagnostic.txt; then
+          if [ "$ok" = "1" ]; then
             actual_size="$(wc -c < /tmp/emissao-wide.avif | tr -d ' ')"
             actual_sha="$(sha256sum /tmp/emissao-wide.avif | awk '{print $1}')"
             echo "size=${actual_size}" >> viewport-install-diagnostic.txt
@@ -96,7 +96,7 @@ jobs:
             fi
           else
             echo "ok=false" >> "$GITHUB_OUTPUT"
-            echo "validation=FAIL_RECONSTRUCTION" >> viewport-install-diagnostic.txt
+            echo "validation=FAIL_DOWNLOAD" >> viewport-install-diagnostic.txt
           fi
           cat viewport-install-diagnostic.txt
 
@@ -107,6 +107,10 @@ jobs:
           set -euo pipefail
           mkdir -p assets
           cp /tmp/emissao-wide.avif "$ASSET_PATH"
+
+          test "$(wc -c < "$ASSET_PATH" | tr -d ' ')" = "$EXPECTED_SIZE"
+          echo "${EXPECTED_SHA256}  ${ASSET_PATH}" | sha256sum -c -
+          file "$ASSET_PATH" | grep -q 'AVIF Image'
 
           if command -v ffprobe >/dev/null 2>&1; then
             dims="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$ASSET_PATH")"
@@ -172,6 +176,12 @@ jobs:
           ! grep -q 'fetch(' emissao-v9.1.0.js
 
           python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('index.html').read_text(encoding='utf-8')
+          m = re.search(r'<img\s+class="desktop-mock"\s+src="([^"]+)"', html, re.S)
+          assert m and m.group(1) == 'assets/emissao-portal-wide-v9.1.0.avif?v=1', m.group(1) if m else None
+
           ratio = 1916 / 821
           panel = (770, 80, 1148, 650)
           viewports = [(1366,641),(1366,768),(1440,900),(1600,900),(1920,1080),(2560,1080)]
@@ -192,11 +202,13 @@ jobs:
           grep -q 'display: none !important' emissao-v9.1.0.css
           ! grep -q 'scaleX(-1)' emissao-v9.1.0.js
           echo "integration=PASS" >> viewport-install-diagnostic.txt
+          cat viewport-install-diagnostic.txt
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/install-approved-viewport.yml
-          git add index.html emissao-v9.1.0.css emissao-v9.1.0.js "$ASSET_PATH" viewport-install-diagnostic.txt
+          git rm -f viewport-install-diagnostic.txt || true
+          git add index.html emissao-v9.1.0.css emissao-v9.1.0.js "$ASSET_PATH"
           git commit -m "Publicar viewport steampunk aprovada v9.1"
           git push origin HEAD:main
 
@@ -208,6 +220,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add viewport-install-diagnostic.txt
-          git commit -m "Registrar diagnostico da viewport aprovada" || true
+          git commit -m "Atualizar diagnostico da viewport aprovada" || true
           git push origin HEAD:main
           exit 1
