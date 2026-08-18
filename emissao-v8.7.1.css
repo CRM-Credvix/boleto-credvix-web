@@ -1,0 +1,37 @@
+/* v8.7.1 - corrige a extensao lateral sem duplicar a arte inteira. */
+@media (min-width: 801px) {
+  /* A copia ampliada da v8.7.0 duplicava janela, abelha e demais objetos. */
+  .emissao-bg-fill {
+    display: none !important;
+  }
+
+  /* As laterais passam a ser preenchidas por faixas de continuacao geradas em canvas. */
+  .emissao-edge-fill {
+    position: fixed !important;
+    z-index: 0 !important;
+    display: block;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    image-rendering: auto !important;
+    background: #050402;
+  }
+
+  .emissao-edge-fill[hidden] {
+    display: none !important;
+  }
+
+  /* Mantem uma unica arte principal, centralizada, como referencia dos hotspots. */
+  .visual-stage {
+    z-index: 1 !important;
+    background: transparent !important;
+  }
+
+  .desktop-mock {
+    z-index: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    image-rendering: auto !important;
+  }
+}
