@@ -1,0 +1,40 @@
+/* v8.6.20 - Afasta a composicao inteira da emissao no desktop.
+   Corrige o comportamento anterior de cover/zoom: arte e hotspots usam o mesmo palco,
+   preservando alinhamento sem ampliar para preencher toda a largura. */
+@media (min-width: 801px) {
+  html,
+  body {
+    background: #050402 !important;
+  }
+
+  .visual-stage {
+    position: fixed !important;
+    z-index: 1 !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: min(96vw, calc(96dvh * 1.7768331562)) !important;
+    height: auto !important;
+    aspect-ratio: 1672 / 941 !important;
+    overflow: visible !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: 50% 50% !important;
+    isolation: isolate !important;
+    background: #050402 !important;
+    box-shadow: none !important;
+  }
+
+  .desktop-mock {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: 1672 / 941 !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    transform: none !important;
+    filter: none !important;
+    user-select: none !important;
+    pointer-events: none !important;
+  }
+}
