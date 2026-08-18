@@ -1,0 +1,71 @@
+/* ============================================================
+   v8.6.21 - RESTAURA O VIEWPORT ANTERIOR DA EMISSAO
+   - desfaz o afastamento/contain global da v8.6.20
+   - volta ao enquadramento aprovado da v8.6.18
+   - preserva exatamente os hotspots/campos existentes
+   - usa interpolacao normal do navegador para evitar perda de nitidez
+   ============================================================ */
+
+@media (min-width: 801px) {
+  html,
+  body {
+    background: #050402 !important;
+  }
+
+  .visual-stage {
+    position: fixed !important;
+    z-index: 1 !important;
+    left: 50% !important;
+    top: min(0px, calc((100vh - (100vw / 1.7768331562)) * .28)) !important;
+    top: min(0px, calc((100dvh - (100vw / 1.7768331562)) * .28)) !important;
+    width: max(100vw, calc(100vh * 1.7768331562)) !important;
+    width: max(100vw, calc(100dvh * 1.7768331562)) !important;
+    height: auto !important;
+    aspect-ratio: 1672 / 941 !important;
+    overflow: hidden !important;
+    transform: translateX(-50%) !important;
+    transform-origin: 50% 0 !important;
+    isolation: isolate !important;
+    background: #050402 !important;
+    box-shadow: none !important;
+  }
+
+  .desktop-mock {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1672 / 941 !important;
+    object-fit: contain !important;
+    object-position: center top !important;
+    transform: none !important;
+    filter: none !important;
+    image-rendering: auto !important;
+    user-select: none !important;
+    pointer-events: none !important;
+    backface-visibility: visible !important;
+  }
+}
+
+/* Mantem o comportamento aprovado em desktops mais altos/estreitos. */
+@media (min-width: 801px) and (max-aspect-ratio: 1672/941) {
+  .visual-stage {
+    top: 0 !important;
+    transform: translate(-50%, -1.35vh) scale(1.015) !important;
+    transform: translate(-50%, -1.35dvh) scale(1.015) !important;
+    transform-origin: 50% 0 !important;
+  }
+}
+
+/* Mantem o painel na altura aprovada em telas largas, inclusive Chrome. */
+@media (min-width: 801px) and (min-aspect-ratio: 1672/941) {
+  .visual-stage {
+    top: min(0px, calc((100vh - (100vw / 1.7768331562)) * .46)) !important;
+    top: min(0px, calc((100dvh - (100vw / 1.7768331562)) * .46)) !important;
+    transform: translateX(-50%) !important;
+  }
+}
