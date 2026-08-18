@@ -1,0 +1,230 @@
+name: Instalar viewport aprovada
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/install-approved-viewport.yml"
+
+permissions:
+  contents: write
+
+env:
+  EXPECTED_SHA256: ae04e0f9c4e4a9f2fa86fd8b2ad369d1741e013419f0b5ff98a39b5e0c07b1f7
+  ASSET_PATH: assets/emissao-portal-wide-v9.1.0.avif
+
+jobs:
+  install:
+    name: Reconstruir, testar e publicar viewport
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruir arte aprovada a partir dos blobs originais
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          : > /tmp/emissao-wide.b64
+          blobs=(
+            8a2a13db96c9be8464ebead8bfa2570e3acafc34
+            8316032612a136fb09884f4f34a2f1996b788e65
+            3c1544d42cdb56e6f614468299d5017a207df440
+            1f6f5ff15548dd727206f141899b9e7083c52fe3
+            f7bed33784584bf2ba0753974f16a190dc03deb5
+            3980463a570ac03232f32899865bc493db79dc01
+            0e9ba01f46a4e1edd443be4effdcf80dbec7ea5e
+            bf1666c25671f93b2cc73883732b16de8bef73a2
+            60da9d564175cef82ade314af1950aac66d79a59
+            067880c7cfc1196dffa96e2c06775d8e8d53f33a
+            772dcd7528be0efbcf015753c6ad7ef05078c6bc
+            579e7838bbe406e4afde9fb232723a4ad198d9aa
+          )
+          for sha in "${blobs[@]}"; do
+            curl -fsSL \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" \
+              | python3 -c 'import sys,json,base64; o=json.load(sys.stdin); sys.stdout.buffer.write(base64.b64decode(o["content"]))' \
+              >> /tmp/emissao-wide.b64
+          done
+          base64 -d /tmp/emissao-wide.b64 > /tmp/emissao-wide.avif
+          mkdir -p assets
+          cp /tmp/emissao-wide.avif "$ASSET_PATH"
+
+      - name: Testar integridade binaria, hash e dimensoes
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "${EXPECTED_SHA256}  ${ASSET_PATH}" | sha256sum -c -
+          file "$ASSET_PATH"
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, struct
+          p = Path("assets/emissao-portal-wide-v9.1.0.avif")
+          data = p.read_bytes()
+          assert len(data) == 129772, len(data)
+          assert data[4:8] == b"ftyp", data[:16]
+          assert b"avif" in data[:32], data[:32]
+          pos = data.find(b"ispe")
+          assert pos >= 0, "AVIF sem box ispe"
+          width, height = struct.unpack(">II", data[pos + 8:pos + 16])
+          assert (width, height) == (1916, 821), (width, height)
+          print("AVIF OK", width, height, hashlib.sha256(data).hexdigest())
+          PY
+
+      - name: Validar decodificacao visual quando ferramenta estiver disponivel
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v ffprobe >/dev/null 2>&1; then
+            dims="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$ASSET_PATH")"
+            test "$dims" = "1916x821"
+            echo "ffprobe OK: $dims"
+          else
+            echo "ffprobe nao disponivel; validacao estrutural AVIF ja aprovada."
+          fi
+
+      - name: Criar versao limpa do CSS e JS da emissao
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp emissao-v8.9.0.css emissao-v9.1.0.css
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("emissao-v9.1.0.css")
+          text = p.read_text(encoding="utf-8")
+          text = text.replace("v8.9.0 - Viewport wide definitivo", "v9.1.0 - Viewport wide aprovado")
+          p.write_text(text, encoding="utf-8")
+          PY
+          cat > emissao-v9.1.0.js <<'EOF'
+          (() => {
+            "use strict";
+
+            const parcelSelect = document.querySelector("#parcel-mode-select");
+            const emissionLogout = document.querySelector("#emissao-logout");
+            const authLogout = document.querySelector("#auth-logout");
+            const requestForm = document.querySelector("#request-form");
+
+            if (parcelSelect) {
+              parcelSelect.addEventListener("change", () => {
+                const value = parcelSelect.value;
+                if (!value) return;
+                const radio = document.querySelector(`input[name="tipoSolicitacao"][value="${value}"]`);
+                radio?.click();
+              });
+
+              document.querySelectorAll('input[name="tipoSolicitacao"]').forEach((radio) => {
+                radio.addEventListener("change", () => {
+                  if (radio.checked && parcelSelect.value !== radio.value) {
+                    parcelSelect.value = radio.value;
+                  }
+                });
+              });
+
+              requestForm?.addEventListener("reset", () => {
+                requestAnimationFrame(() => {
+                  parcelSelect.value = "";
+                });
+              });
+            }
+
+            if (emissionLogout && authLogout) {
+              emissionLogout.addEventListener("click", () => authLogout.click());
+            }
+          })();
+          EOF
+
+      - name: Apontar o site diretamente para a arte binaria
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("index.html")
+          text = p.read_text(encoding="utf-8")
+          text = text.replace('emissao-v8.9.0.css?v=1', 'emissao-v9.1.0.css?v=1')
+          text = text.replace('emissao-v8.9.0.js?v=2', 'emissao-v9.1.0.js?v=1')
+          text = text.replace('src="assets/pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp"\n      width="1916"\n      height="821"', 'src="assets/emissao-portal-wide-v9.1.0.avif?v=1"\n      width="1916"\n      height="821"')
+          preload = '  <link rel="preload" href="assets/emissao-portal-wide-v9.1.0.avif?v=1" as="image" type="image/avif" media="(min-width: 801px)">\n'
+          anchor = '  <link rel="preload" href="assets/login-portal-full-v8.5.7.webp" as="image" type="image/webp">\n'
+          if preload not in text:
+              text = text.replace(anchor, anchor + preload)
+          p.write_text(text, encoding="utf-8")
+          PY
+
+      - name: Testar referencias e eliminar a logica fragil anterior
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'assets/emissao-portal-wide-v9.1.0.avif?v=1' index.html
+          grep -q 'emissao-v9.1.0.css?v=1' index.html
+          grep -q 'emissao-v9.1.0.js?v=1' index.html
+          ! grep -q 'emissao-v8.9.0.js?v=2' index.html
+          ! grep -q 'WIDE_ART_SOURCE' emissao-v9.1.0.js
+          ! grep -q 'data:image/avif;base64' emissao-v9.1.0.js
+          ! grep -q 'fetch(' emissao-v9.1.0.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("index.html").read_text(encoding="utf-8")
+          m = re.search(r'<img\s+class="desktop-mock"\s+src="([^"]+)"', html, re.S)
+          assert m, "desktop-mock nao encontrado"
+          assert m.group(1) == "assets/emissao-portal-wide-v9.1.0.avif?v=1", m.group(1)
+          print("desktop-mock OK:", m.group(1))
+          PY
+
+      - name: Testar geometria em diversos viewports de desktop
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          ratio = 1916 / 821
+          panel = (770, 80, 1148, 650)
+          viewports = [
+              (1366, 641, "Chrome 1366 com barra"),
+              (1366, 768, "1366x768"),
+              (1440, 900, "1440x900"),
+              (1600, 900, "1600x900"),
+              (1920, 1080, "Full HD"),
+              (2560, 1080, "ultrawide"),
+          ]
+          for vw, vh, label in viewports:
+              stage_w = max(vw, vh * ratio)
+              stage_h = max(vh, vw / ratio)
+              assert stage_w + 1e-6 >= vw
+              assert stage_h + 1e-6 >= vh
+              scale = stage_w / 1916
+              crop_x = max(0.0, (stage_w - vw) / 2 / scale)
+              crop_y = max(0.0, (stage_h - vh) / 2 / scale)
+              visible = (crop_x, crop_y, 1916 - crop_x, 821 - crop_y)
+              assert panel[0] >= visible[0] and panel[2] <= visible[2], (label, visible)
+              assert panel[1] >= visible[1] and panel[3] <= visible[3], (label, visible)
+              print(f"{label}: stage={stage_w:.1f}x{stage_h:.1f} crop=({crop_x:.1f},{crop_y:.1f}) painel=OK sem bordas")
+          PY
+
+      - name: Confirmar que nao ha duplicacao ou espelhamento lateral
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q '.visual-stage::before' emissao-v9.1.0.css
+          grep -q 'display: none !important' emissao-v9.1.0.css
+          ! grep -q 'emissao-bg-fill' emissao-v9.1.0.js
+          ! grep -q 'scaleX(-1)' emissao-v9.1.0.js
+          echo "Teste de camada unica OK"
+
+      - name: Publicar somente depois de todos os testes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/install-approved-viewport.yml
+          git add index.html emissao-v9.1.0.css emissao-v9.1.0.js "$ASSET_PATH"
+          git commit -m "Publicar viewport steampunk aprovada v9.1"
+          git push origin HEAD:main
