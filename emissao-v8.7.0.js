@@ -1,65 +1,59 @@
 (() => {
   "use strict";
 
+  const stage = document.querySelector("#inicio.visual-stage");
   const mock = document.querySelector(".desktop-mock");
   const desktopMedia = window.matchMedia("(min-width: 801px)");
-  const parts = [
-    "part-00.bin",
-    "part-01.bin",
-    "part-02.bin",
-    "part-03.bin",
-    "part-04.bin",
-    "part-05-14.bin",
-  ];
 
-  if (!mock) return;
+  if (!stage || !mock) return;
 
-  let loadPromise = null;
-  let objectUrl = null;
+  let fill = document.querySelector(".emissao-bg-fill");
 
-  function reveal() {
-    mock.style.opacity = "1";
+  function ensureFill() {
+    if (fill) return fill;
+
+    fill = document.createElement("img");
+    fill.className = "emissao-bg-fill";
+    fill.alt = "";
+    fill.setAttribute("aria-hidden", "true");
+    fill.decoding = "async";
+    fill.hidden = true;
+
+    document.body.insertBefore(fill, stage);
+    return fill;
   }
 
-  async function loadViewportArt() {
-    if (!desktopMedia.matches || mock.dataset.emissaoViewport880 === "ready") return;
-    if (loadPromise) return loadPromise;
+  function syncFill() {
+    const background = ensureFill();
+    const shouldShow = desktopMedia.matches && !stage.hidden && Boolean(mock.src);
 
-    mock.style.opacity = "0";
+    if (!shouldShow) {
+      background.hidden = true;
+      return;
+    }
 
-    loadPromise = Promise.all(
-      parts.map((file) =>
-        fetch(`assets/emissao-v8.8.0/${file}?v=1`, { cache: "force-cache" }).then((response) => {
-          if (!response.ok) throw new Error(`EMISSAO_VIEWPORT_${file}`);
-          return response.arrayBuffer();
-        }),
-      ),
-    )
-      .then((buffers) => {
-        const blob = new Blob(buffers, { type: "image/webp" });
-        if (objectUrl) URL.revokeObjectURL(objectUrl);
-        objectUrl = URL.createObjectURL(blob);
+    const source = mock.currentSrc || mock.src;
+    if (source && background.src !== source) {
+      background.src = source;
+    }
 
-        mock.onload = () => {
-          mock.dataset.emissaoViewport880 = "ready";
-          reveal();
-        };
-        mock.onerror = () => {
-          mock.onerror = null;
-          reveal();
-        };
-        mock.src = objectUrl;
-
-        if (mock.complete) reveal();
-      })
-      .catch((error) => {
-        console.error("Falha ao carregar viewport v8.8.0", error);
-        reveal();
-      });
-
-    return loadPromise;
+    background.hidden = false;
   }
 
-  loadViewportArt();
-  desktopMedia.addEventListener?.("change", loadViewportArt);
+  mock.addEventListener("load", syncFill);
+
+  const mockObserver = new MutationObserver(syncFill);
+  mockObserver.observe(mock, {
+    attributes: true,
+    attributeFilter: ["src", "style"],
+  });
+
+  const stageObserver = new MutationObserver(syncFill);
+  stageObserver.observe(stage, {
+    attributes: true,
+    attributeFilter: ["hidden"],
+  });
+
+  desktopMedia.addEventListener?.("change", syncFill);
+  syncFill();
 })();
