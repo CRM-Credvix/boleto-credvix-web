@@ -11,5 +11,9 @@ blob=60da9d564175cef82ade314af1950aac66d79a59 http=200
 blob=067880c7cfc1196dffa96e2c06775d8e8d53f33a http=200
 blob=772dcd7528be0efbcf015753c6ad7ef05078c6bc http=200
 blob=579e7838bbe406e4afde9fb232723a4ad198d9aa http=200
-base64: invalid input
-validation=FAIL_RECONSTRUCTION
+size=229199
+sha256=4617556c14df7b3e6160f398e45ea3e5fc888c0ecd00205073bb75a2c1572fb6
+/tmp/emissao-wide.avif: ASCII text, with very long lines (65536), with no line terminators
+magic=4141414149475a3065584268646d6c6d
+ispe_pos=-1
+validation=FAIL_HASH_OR_SIZE
