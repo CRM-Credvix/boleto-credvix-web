@@ -1,0 +1,26 @@
+/* v8.6.19 - afastar a tela de emissao dentro do viewport.
+   Troca o comportamento de cover/scale por contain com respiro.
+   Os hotspots permanecem presos ao mesmo palco e acompanham a escala. */
+@media (min-width: 801px) {
+  .visual-stage {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: min(94vw, calc(94dvh * 1.7768331562)) !important;
+    height: auto !important;
+    aspect-ratio: 1672 / 941 !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: 50% 50% !important;
+    overflow: visible !important;
+  }
+
+  .desktop-mock {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    transform: none !important;
+  }
+}
