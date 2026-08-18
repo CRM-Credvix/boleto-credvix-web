@@ -1,0 +1,306 @@
+/* ============================================================
+   v8.7.0 - VIEWPORT E CAMPOS DA EMISSAO DESKTOP
+
+   Objetivos:
+   1. eliminar as faixas pretas que fazem parte da propria arte;
+   2. manter o painel central na escala/alinhamento atual;
+   3. preencher as laterais com a mesma arte ampliada, sem esticar o painel;
+   4. remover o efeito de perda de qualidade ao focar/digitar nos campos;
+   5. substituir a cascata de pequenos patches v8.6.8..v8.6.22.
+   ============================================================ */
+
+@media (min-width: 801px) {
+  html,
+  body {
+    width: 100% !important;
+    min-width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    background: #050402 !important;
+  }
+
+  /*
+   * A arte principal continua sendo o sistema de coordenadas dos hotspots.
+   * Ela fica em cover real, centralizada, mas transparente fora do recorte util.
+   */
+  .visual-stage {
+    position: fixed !important;
+    z-index: 1 !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: max(100vw, calc(100vh * 1.7768331562)) !important;
+    width: max(100vw, calc(100dvh * 1.7768331562)) !important;
+    height: max(100vh, calc(100vw / 1.7768331562)) !important;
+    height: max(100dvh, calc(100vw / 1.7768331562)) !important;
+    aspect-ratio: auto !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: 50% 50% !important;
+    isolation: isolate !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .visual-stage::before,
+  .visual-stage::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /*
+   * A imagem gerada possui margens pretas embutidas nas laterais.
+   * Recortamos somente essas margens na copia principal. A composicao central,
+   * inclusive o painel, nao e ampliada por este recorte.
+   */
+  .desktop-mock {
+    position: absolute !important;
+    z-index: 1 !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    object-fit: fill !important;
+    object-position: center center !important;
+    clip-path: inset(.70% 10.15% .70% 10.15%) !important;
+    transform: none !important;
+    filter: none !important;
+    image-rendering: auto !important;
+    backface-visibility: visible !important;
+    user-select: none !important;
+    pointer-events: none !important;
+  }
+
+  /*
+   * Copia da mesma arte criada pelo JS. Ela existe apenas para preencher as
+   * regioes que antes exibiam as faixas pretas. Fica atras do painel original.
+   */
+  .emissao-bg-fill {
+    position: fixed !important;
+    z-index: 0 !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: max(127vw, calc(127vh * 1.7768331562)) !important;
+    width: max(127vw, calc(127dvh * 1.7768331562)) !important;
+    height: max(127vh, calc(127vw / 1.7768331562)) !important;
+    height: max(127dvh, calc(127vw / 1.7768331562)) !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: 50% 50% !important;
+    object-fit: fill !important;
+    object-position: center center !important;
+    filter: none !important;
+    image-rendering: auto !important;
+    opacity: 1 !important;
+    user-select: none !important;
+    pointer-events: none !important;
+  }
+
+  .emissao-bg-fill[hidden] {
+    display: none !important;
+  }
+
+  /* ----------------------------------------------------------
+     CAMPOS REAIS: passam a ser a fonte visual do texto.
+     O interior fica consistente antes, durante e depois do foco.
+     Assim o clique nao troca uma area raster por um bloco preto chapado.
+     ---------------------------------------------------------- */
+
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit .unit-trigger {
+    position: absolute !important;
+    inset: auto !important;
+    left: 3% !important;
+    top: 20% !important;
+    width: 95.45% !important;
+    height: 60% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: .08vw .66vw 0 !important;
+    border: 0 !important;
+    border-radius: .08vw !important;
+    outline: 0 !important;
+    appearance: none !important;
+    color: #d9c7a7 !important;
+    caret-color: #ffc14a !important;
+    background: linear-gradient(180deg, #0b0c08 0%, #070804 100%) !important;
+    box-shadow: inset 0 0 0 1px rgba(176, 117, 28, .16) !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(.58rem, .76vw, .86rem) !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.08 !important;
+    text-shadow: none !important;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    transition: box-shadow .12s ease, background .12s ease, color .12s ease !important;
+  }
+
+  .slot-name > input::placeholder,
+  .slot-cpf > input::placeholder,
+  .slot-phone > input::placeholder,
+  .slot-contract > input::placeholder,
+  .slot-unit .unit-trigger::placeholder {
+    color: rgba(211, 193, 160, .62) !important;
+    opacity: 1 !important;
+  }
+
+  .slot-name > input:focus,
+  .slot-cpf > input:focus,
+  .slot-phone > input:focus,
+  .slot-contract > input:focus,
+  .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger[aria-expanded="true"] {
+    color: #f1dfbd !important;
+    caret-color: #ffc14a !important;
+    background: linear-gradient(180deg, #0d0e09 0%, #080905 100%) !important;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 181, 39, .58),
+      0 0 .45vw rgba(255, 151, 19, .10) !important;
+    outline: 0 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .slot-name > input:not(:placeholder-shown),
+  .slot-cpf > input:not(:placeholder-shown),
+  .slot-phone > input:not(:placeholder-shown),
+  .slot-contract > input:not(:placeholder-shown),
+  .slot-unit .unit-trigger.has-value {
+    color: #ead8b7 !important;
+    background: linear-gradient(180deg, #0b0c08 0%, #070804 100%) !important;
+  }
+
+  .slot-unit .unit-trigger {
+    padding-right: 2.06vw !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .slot-name > input:-webkit-autofill,
+  .slot-name > input:-webkit-autofill:hover,
+  .slot-name > input:-webkit-autofill:focus,
+  .slot-cpf > input:-webkit-autofill,
+  .slot-cpf > input:-webkit-autofill:hover,
+  .slot-cpf > input:-webkit-autofill:focus,
+  .slot-phone > input:-webkit-autofill,
+  .slot-phone > input:-webkit-autofill:hover,
+  .slot-phone > input:-webkit-autofill:focus,
+  .slot-contract > input:-webkit-autofill,
+  .slot-contract > input:-webkit-autofill:hover,
+  .slot-contract > input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ead8b7 !important;
+    caret-color: #ffc14a !important;
+    -webkit-box-shadow: 0 0 0 1000px #090a06 inset !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(.58rem, .76vw, .86rem) !important;
+    line-height: 1.08 !important;
+  }
+
+  /* Parcelas usa o mesmo acabamento dos demais campos. */
+  .parcel-mode-select {
+    left: 42.72% !important;
+    top: 63.255% !important;
+    width: 24.97% !important;
+    height: 2.26% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: .08vw 2vw 0 .68vw !important;
+    border: 0 !important;
+    border-radius: .08vw !important;
+    outline: 0 !important;
+    appearance: none !important;
+    color: #d9c7a7 !important;
+    background: linear-gradient(180deg, #0b0c08 0%, #070804 100%) !important;
+    box-shadow: inset 0 0 0 1px rgba(176, 117, 28, .16) !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(.58rem, .76vw, .86rem) !important;
+    font-weight: 400 !important;
+    line-height: 1.08 !important;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .parcel-mode-select:focus {
+    color: #f1dfbd !important;
+    background: linear-gradient(180deg, #0d0e09 0%, #080905 100%) !important;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 181, 39, .58),
+      0 0 .45vw rgba(255, 151, 19, .10) !important;
+    outline: 0 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .parcel-mode-select option {
+    color: #ead8b7 !important;
+    background: #0a0b07 !important;
+  }
+
+  /* Posicoes finais aprovadas dos elementos condicionais. */
+  .parcel-fields {
+    left: 69.40% !important;
+    top: 56.10% !important;
+    width: 12.75% !important;
+    padding: .34vw .42vw .40vw !important;
+    border-radius: .25vw !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  .parcel-fields .parcel-range {
+    grid-template-columns: 1fr !important;
+    gap: .26vw !important;
+  }
+
+  .parcel-fields::before {
+    margin-bottom: .18vw !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(.47rem, .56vw, .64rem) !important;
+    line-height: 1.02 !important;
+  }
+
+  .parcel-fields .field-label {
+    margin-bottom: .14vw !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(.44rem, .52vw, .60rem) !important;
+    line-height: 1.02 !important;
+  }
+
+  .parcel-fields .field input {
+    width: 100% !important;
+    height: 1.62vw !important;
+    max-height: 28px !important;
+    min-height: 22px !important;
+    box-sizing: border-box !important;
+    padding: .05vw .38vw 0 !important;
+    border-radius: .14vw !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(.54rem, .64vw, .72rem) !important;
+    line-height: 1.05 !important;
+  }
+
+  .consent {
+    top: 67.82% !important;
+    height: 3.05% !important;
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1120px) {
+  .parcel-fields {
+    left: 68.55% !important;
+  }
+}
