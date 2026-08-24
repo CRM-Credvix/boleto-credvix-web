@@ -1,4 +1,4 @@
-name: Instalar viewport aprovada
+name: Publicar viewport aprovada v9.2
 
 on:
   push:
@@ -11,15 +11,15 @@ permissions:
   contents: write
 
 env:
-  ASSET_PATH: assets/emissao-portal-wide-v9.1.0.avif
+  ASSET_PATH: assets/emissao-portal-wide-v9.2.0.webp
   EXPECTED_B64_LEN: "226400"
-  EXPECTED_SIZE: "169800"
-  EXPECTED_SHA256: fd39453584c7005dad4d13c17b5a02cb4caa302e1d3ded820ffd5a44f416e1de
+  EXPECTED_AVIF_SIZE: "169800"
+  EXPECTED_AVIF_SHA256: fd39453584c7005dad4d13c17b5a02cb4caa302e1d3ded820ffd5a44f416e1de
   EXPECTED_AHASH: "000000000007f0020c0fd8024ddfdf0203ff1f800bee188800ee1ed8089f1cc0608e1d8820fffb8818e7f30a180c188a40988c004098080008c0000000000000"
 
 jobs:
   install:
-    name: Validar e publicar viewport steampunk
+    name: Testar e publicar viewport steampunk v9.2
     runs-on: ubuntu-latest
     steps:
       - name: Baixar repositorio
@@ -82,29 +82,29 @@ jobs:
           expected = int(os.environ['EXPECTED_B64_LEN'])
           assert len(text) == expected, (len(text), expected)
           binary = base64.b64decode(text, validate=True)
-          Path('/tmp/emissao-wide.avif').write_bytes(binary)
+          Path('/tmp/emissao-wide-approved.avif').write_bytes(binary)
           print('base64=PASS chars=', len(text))
           print('decoded_bytes=', len(binary))
           PY
 
-      - name: Testar hash, tamanho, formato e dimensoes
+      - name: Validar a arte aprovada antes da conversao
         shell: bash
         run: |
           set -euo pipefail
-          test "$(wc -c < /tmp/emissao-wide.avif | tr -d ' ')" = "$EXPECTED_SIZE"
-          echo "${EXPECTED_SHA256}  /tmp/emissao-wide.avif" | sha256sum -c -
-          file /tmp/emissao-wide.avif | grep -q 'AVIF Image'
-          dims="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 /tmp/emissao-wide.avif)"
+          test "$(wc -c < /tmp/emissao-wide-approved.avif | tr -d ' ')" = "$EXPECTED_AVIF_SIZE"
+          echo "${EXPECTED_AVIF_SHA256}  /tmp/emissao-wide-approved.avif" | sha256sum -c -
+          file /tmp/emissao-wide-approved.avif | grep -q 'AVIF Image'
+          dims="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 /tmp/emissao-wide-approved.avif)"
           test "$dims" = "1916x821"
-          echo "binary_hash=PASS"
-          echo "format=PASS"
-          echo "dimensions=PASS ${dims}"
+          echo "approved_binary_hash=PASS"
+          echo "approved_format=PASS"
+          echo "approved_dimensions=PASS ${dims}"
 
-      - name: Testar decodificacao visual pixel a pixel por fingerprint
+      - name: Validar fingerprint visual da arte aprovada
         shell: bash
         run: |
           set -euo pipefail
-          ffmpeg -v error -i /tmp/emissao-wide.avif -vf scale=32:16,format=gray -f rawvideo -pix_fmt gray /tmp/emissao-gray.raw -y
+          ffmpeg -v error -i /tmp/emissao-wide-approved.avif -vf scale=32:16,format=gray -f rawvideo -pix_fmt gray /tmp/emissao-gray.raw -y
           python3 - <<'PY'
           from pathlib import Path
           import os
@@ -115,25 +115,45 @@ jobs:
           actual = hex(int(bits, 2))[2:].zfill(128)
           expected = os.environ['EXPECTED_AHASH']
           assert actual == expected, (actual, expected)
-          print('visual_fingerprint=PASS', actual)
+          print('approved_visual_fingerprint=PASS', actual)
           PY
 
-      - name: Preparar versao limpa da emissao
+      - name: Converter para WebP lossless e provar equivalencia visual
+        shell: bash
+        run: |
+          set -euo pipefail
+          ffmpeg -v error -i /tmp/emissao-wide-approved.avif -frames:v 1 -c:v libwebp -lossless 1 -compression_level 6 -preset picture /tmp/emissao-wide.webp -y
+          file /tmp/emissao-wide.webp | grep -q 'Web/P image'
+          dims="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 /tmp/emissao-wide.webp)"
+          test "$dims" = "1916x821"
+
+          ffmpeg -v error -i /tmp/emissao-wide-approved.avif -frames:v 1 -f rawvideo -pix_fmt rgb24 /tmp/approved.rgb -y
+          ffmpeg -v error -i /tmp/emissao-wide.webp -frames:v 1 -f rawvideo -pix_fmt rgb24 /tmp/webp.rgb -y
+          cmp -s /tmp/approved.rgb /tmp/webp.rgb
+
+          echo "webp_format=PASS"
+          echo "webp_dimensions=PASS ${dims}"
+          echo "webp_pixel_equivalence=PASS"
+          echo "webp_sha256=$(sha256sum /tmp/emissao-wide.webp | awk '{print $1}')"
+          echo "webp_bytes=$(wc -c < /tmp/emissao-wide.webp | tr -d ' ')"
+
+      - name: Preparar integracao limpa da emissao
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p assets
-          cp /tmp/emissao-wide.avif "$ASSET_PATH"
-          cp emissao-v8.9.0.css emissao-v9.1.0.css
+          cp /tmp/emissao-wide.webp "$ASSET_PATH"
+          cp emissao-v8.9.0.css emissao-v9.2.0.css
+
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('emissao-v9.1.0.css')
+          p = Path('emissao-v9.2.0.css')
           text = p.read_text(encoding='utf-8')
-          text = text.replace('v8.9.0 - Viewport wide definitivo', 'v9.1.0 - Viewport steampunk wide aprovada')
+          text = text.replace('v8.9.0 - Viewport wide definitivo', 'v9.2.0 - Viewport steampunk wide aprovada')
           p.write_text(text, encoding='utf-8')
           PY
 
-          cat > emissao-v9.1.0.js <<'EOF'
+          cat > emissao-v9.2.0.js <<'EOF'
           (() => {
             "use strict";
 
@@ -151,7 +171,9 @@ jobs:
 
               document.querySelectorAll('input[name="tipoSolicitacao"]').forEach((radio) => {
                 radio.addEventListener("change", () => {
-                  if (radio.checked && parcelSelect.value !== radio.value) parcelSelect.value = radio.value;
+                  if (radio.checked && parcelSelect.value !== radio.value) {
+                    parcelSelect.value = radio.value;
+                  }
                 });
               });
 
@@ -168,44 +190,62 @@ jobs:
 
           python3 - <<'PY'
           from pathlib import Path
+          import re
+
           p = Path('index.html')
           text = p.read_text(encoding='utf-8')
-          text = text.replace('emissao-v8.9.0.css?v=1', 'emissao-v9.1.0.css?v=1')
-          text = text.replace('emissao-v8.9.0.js?v=2', 'emissao-v9.1.0.js?v=1')
-          text = text.replace('src="assets/pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp"\n      width="1916"\n      height="821"', 'src="assets/emissao-portal-wide-v9.1.0.avif?v=1"\n      width="1916"\n      height="821"')
-          preload = '  <link rel="preload" href="assets/emissao-portal-wide-v9.1.0.avif?v=1" as="image" type="image/avif" media="(min-width: 801px)">\n'
+
+          text = re.sub(r'emissao-v(?:8\.9\.0|9\.1\.0)\.css\?v=\d+', 'emissao-v9.2.0.css?v=1', text)
+          text = re.sub(r'emissao-v(?:8\.9\.0|9\.1\.0)\.js\?v=\d+', 'emissao-v9.2.0.js?v=1', text)
+          text = re.sub(
+              r'(<img\s+class="desktop-mock"\s+src=")[^"]+("[^>]*>)',
+              r'\1assets/emissao-portal-wide-v9.2.0.webp?v=1\2',
+              text,
+              count=1,
+              flags=re.S,
+          )
+
+          text = re.sub(
+              r'\s*<link rel="preload" href="assets/emissao-portal-wide-v9\.[^"]+" as="image"[^>]*>\n?',
+              '\n',
+              text,
+          )
           anchor = '  <link rel="preload" href="assets/login-portal-full-v8.5.7.webp" as="image" type="image/webp">\n'
-          if preload not in text:
-              text = text.replace(anchor, anchor + preload)
+          preload = '  <link rel="preload" href="assets/emissao-portal-wide-v9.2.0.webp?v=1" as="image" type="image/webp" media="(min-width: 801px)">\n'
+          assert anchor in text
+          text = text.replace(anchor, anchor + preload, 1)
+
           p.write_text(text, encoding='utf-8')
           PY
 
-      - name: Testar integracao e eliminar os mecanismos que causavam erro
+      - name: Testar integracao e eliminar causas anteriores
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
           import re
+
           html = Path('index.html').read_text(encoding='utf-8')
-          js = Path('emissao-v9.1.0.js').read_text(encoding='utf-8')
-          css = Path('emissao-v9.1.0.css').read_text(encoding='utf-8')
+          js = Path('emissao-v9.2.0.js').read_text(encoding='utf-8')
+          css = Path('emissao-v9.2.0.css').read_text(encoding='utf-8')
 
           m = re.search(r'<img\s+class="desktop-mock"\s+src="([^"]+)"', html, re.S)
-          assert m and m.group(1) == 'assets/emissao-portal-wide-v9.1.0.avif?v=1', m.group(1) if m else None
-          assert 'emissao-v9.1.0.css?v=1' in html
-          assert 'emissao-v9.1.0.js?v=1' in html
+          assert m and m.group(1) == 'assets/emissao-portal-wide-v9.2.0.webp?v=1', m.group(1) if m else None
+          assert 'emissao-v9.2.0.css?v=1' in html
+          assert 'emissao-v9.2.0.js?v=1' in html
           assert 'emissao-v8.9.0.js?v=2' not in html
           assert 'WIDE_ART_SOURCE' not in js
-          assert 'data:image/avif;base64' not in js
+          assert 'data:image/' not in js
           assert 'fetch(' not in js
           assert 'pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp' not in m.group(0)
           assert '.visual-stage::before' in css and '.visual-stage::after' in css
           assert 'display: none !important' in css
           assert 'scaleX(-1)' not in js
-          print('direct_asset=PASS')
+
+          print('direct_webp_asset=PASS')
           print('no_base64_loader=PASS')
-          print('no_fallback_neon=PASS')
+          print('no_neon_fallback=PASS')
           print('no_mirror_or_duplicate_js=PASS')
           PY
 
@@ -237,40 +277,57 @@ jobs:
               print(f'{label}=PASS stage={sw:.1f}x{sh:.1f} crop_source={crop_x:.1f},{crop_y:.1f}')
           PY
 
-      - name: Testar a arte no Chrome headless
+      - name: Testar renderizacao real no Chrome
         shell: bash
         run: |
           set -euo pipefail
           chrome="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
-          test -n "$chrome"
+          if [ -z "$chrome" ]; then
+            sudo apt-get update -qq
+            sudo apt-get install -y chromium-browser || sudo apt-get install -y chromium
+            chrome="$(command -v chromium || command -v chromium-browser)"
+          fi
+
           mkdir -p /tmp/viewport-browser
-          cp "$ASSET_PATH" /tmp/viewport-browser/emissao.avif
+          cp "$ASSET_PATH" /tmp/viewport-browser/emissao.webp
           cat > /tmp/viewport-browser/index.html <<'EOF'
-          <!doctype html><meta charset="utf-8"><style>
+          <!doctype html>
+          <html><head><meta charset="utf-8"><title>VIEWPORT_TEST</title><style>
           html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#050402}
           .stage{position:fixed;left:50%;top:50%;width:max(100vw,calc(100vh * 2.3337393423));height:max(100vh,calc(100vw / 2.3337393423));transform:translate(-50%,-50%)}
           img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block}
-          </style><div class="stage"><img src="emissao.avif"></div>
+          input{position:absolute;left:44.95%;top:28%;width:14%;height:1.7%;border:0;background:transparent;transform:none;filter:none}
+          </style></head><body><div class="stage" id="stage"><img src="emissao.webp"><input id="name"></div><script>
+          const s=document.getElementById('stage');const i=document.getElementById('name');const a=s.getBoundingClientRect();i.focus();i.value='Teste Credvix';const b=s.getBoundingClientRect();const stable=Math.abs(a.x-b.x)<0.01&&Math.abs(a.y-b.y)<0.01&&Math.abs(a.width-b.width)<0.01&&Math.abs(a.height-b.height)<0.01;document.title=stable?'FOCUS_PASS':'FOCUS_FAIL';
+          </script></body></html>
           EOF
-          for size in 1366,641 1600,900 1920,1080 2560,1080; do
-            out="/tmp/viewport-browser/shot-${size/,/x}.png"
+
+          for size in 1366,641 1366,768 1600,900 1920,1080 2560,1080; do
+            label="${size/,/x}"
+            out="/tmp/viewport-browser/shot-${label}.png"
             "$chrome" --headless --no-sandbox --disable-gpu --hide-scrollbars --window-size="$size" --screenshot="$out" file:///tmp/viewport-browser/index.html >/tmp/chrome.log 2>&1
             test -s "$out"
-            test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$out")" = "${size/,/x}"
+            test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$out")" = "$label"
             bytes="$(wc -c < "$out" | tr -d ' ')"
             test "$bytes" -gt 100000
-            echo "chrome_render_${size/,/x}=PASS bytes=${bytes}"
+            "$chrome" --headless --no-sandbox --disable-gpu --dump-dom --window-size="$size" file:///tmp/viewport-browser/index.html 2>/dev/null | grep -q '<title>FOCUS_PASS</title>'
+            echo "chrome_render_${label}=PASS bytes=${bytes}"
+            echo "focus_stability_${label}=PASS"
           done
 
-      - name: Substituir somente apos todos os testes passarem
+      - name: Substituir somente depois de todos os testes passarem
         shell: bash
         run: |
           set -euo pipefail
+          git diff --check
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git rm -f .github/workflows/install-approved-viewport.yml
           git rm -f .github/workflows/diagnose-viewport-chunks.yml || true
           git rm -f viewport-install-diagnostic.txt viewport-chunks-diagnostic.txt || true
-          git add index.html emissao-v9.1.0.css emissao-v9.1.0.js "$ASSET_PATH"
-          git commit -m "Publicar viewport steampunk aprovada v9.1"
+          git add index.html emissao-v9.2.0.css emissao-v9.2.0.js "$ASSET_PATH"
+
+          git status --short
+          git commit -m "Publicar viewport steampunk aprovada v9.2"
           git push origin HEAD:main
