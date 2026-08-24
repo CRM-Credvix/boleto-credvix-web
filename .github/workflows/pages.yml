@@ -3,6 +3,8 @@ name: Publicar Boleto Credvix
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - "PAGES_DEPLOYED_V9_2_2.txt"
   workflow_dispatch:
 
 permissions:
@@ -73,7 +75,6 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import base64, hashlib, os, struct
-
           text = b''.join(Path('/tmp/emissao-wide.b64').read_bytes().split())
           assert len(text) == int(os.environ['EXPECTED_B64_LEN']), len(text)
           binary = base64.b64decode(text, validate=True)
@@ -105,7 +106,6 @@ jobs:
             const emissionLogout = document.querySelector("#emissao-logout");
             const authLogout = document.querySelector("#auth-logout");
             const requestForm = document.querySelector("#request-form");
-
             if (parcelSelect) {
               parcelSelect.addEventListener("change", () => {
                 if (!parcelSelect.value) return;
@@ -120,10 +120,7 @@ jobs:
                 requestAnimationFrame(() => { parcelSelect.value = ""; });
               });
             }
-
-            if (emissionLogout && authLogout) {
-              emissionLogout.addEventListener("click", () => authLogout.click());
-            }
+            if (emissionLogout && authLogout) emissionLogout.addEventListener("click", () => authLogout.click());
           })();
           EOF
 
@@ -134,18 +131,8 @@ jobs:
           text = p.read_text(encoding='utf-8')
           text = re.sub(r'emissao-v(?:8\.9\.0|9\.1\.0|9\.2\.0|9\.2\.1|9\.2\.2)\.css\?v=\d+', 'emissao-v9.2.2.css?v=1', text)
           text = re.sub(r'emissao-v(?:8\.9\.0|9\.1\.0|9\.2\.0|9\.2\.1|9\.2\.2)\.js\?v=\d+', 'emissao-v9.2.2.js?v=1', text)
-          text = re.sub(
-              r'(<img\s+class="desktop-mock"\s+src=")[^"]+("[^>]*>)',
-              r'\1assets/emissao-portal-wide-v9.2.2.avif?v=1\2',
-              text,
-              count=1,
-              flags=re.S,
-          )
-          text = re.sub(
-              r'\s*<link rel="preload" href="assets/emissao-portal-wide-v9\.[^"]+" as="image"[^>]*>\n?',
-              '\n',
-              text,
-          )
+          text = re.sub(r'(<img\s+class="desktop-mock"\s+src=")[^"]+("[^>]*>)', r'\1assets/emissao-portal-wide-v9.2.2.avif?v=1\2', text, count=1, flags=re.S)
+          text = re.sub(r'\s*<link rel="preload" href="assets/emissao-portal-wide-v9\.[^"]+" as="image"[^>]*>\n?', '\n', text)
           anchor = '  <link rel="preload" href="assets/login-portal-full-v8.5.7.webp" as="image" type="image/webp">\n'
           preload = '  <link rel="preload" href="assets/emissao-portal-wide-v9.2.2.avif?v=1" as="image" type="image/avif" media="(min-width: 801px)">\n'
           assert anchor in text
@@ -160,12 +147,10 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-
           html = Path('index.html').read_text(encoding='utf-8')
           js = Path('emissao-v9.2.2.js').read_text(encoding='utf-8')
           css = Path('emissao-v9.2.2.css').read_text(encoding='utf-8')
           asset = Path('assets/emissao-portal-wide-v9.2.2.avif')
-
           assert asset.exists() and asset.stat().st_size == 169800
           m = re.search(r'<img\s+class="desktop-mock"\s+src="([^"]+)"', html, re.S)
           assert m and m.group(1) == 'assets/emissao-portal-wide-v9.2.2.avif?v=1'
@@ -187,7 +172,6 @@ jobs:
               visible = (cx, cy, 1916-cx, 821-cy)
               assert panel[0] >= visible[0] and panel[2] <= visible[2]
               assert panel[1] >= visible[1] and panel[3] <= visible[3]
-
           print('direct_binary_asset=PASS')
           print('no_runtime_base64=PASS')
           print('no_neon_fallback=PASS')
@@ -222,6 +206,7 @@ jobs:
       pages: write
       id-token: write
       actions: read
+      contents: write
 
     environment:
       name: github-pages
@@ -231,3 +216,21 @@ jobs:
       - name: Publicar no GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Confirmar deploy no repositorio
+        if: success()
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Gravar marcador de deploy concluido
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'viewport=v9.2.2\ndeployed_from=%s\ndeployed_at=%s\n' "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > PAGES_DEPLOYED_V9_2_2.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add PAGES_DEPLOYED_V9_2_2.txt
+          git commit -m "Confirmar deploy da viewport v9.2.2" || exit 0
+          git push origin HEAD:main
