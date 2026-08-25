@@ -15,11 +15,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  VIEWPORT_ASSET: assets/emissao-portal-wide-v9.2.3.avif
-  SOURCE_REF: refs/remotes/origin/agent/publicar-viewport-v9-2-2
-  SOURCE_ASSET: assets/emissao-portal-wide-v9.1.0.avif
-  EXPECTED_SIZE: "169800"
-  EXPECTED_SHA256: fd39453584c7005dad4d13c17b5a02cb4caa302e1d3ded820ffd5a44f416e1de
+  VIEWPORT_ASSET: assets/emissao-portal-wide-v9.3.1.avif
+  EXPECTED_B64_LEN: "213592"
+  EXPECTED_SIZE: "160193"
+  EXPECTED_SHA256: aaebdce747cf723fb7444a66ad02083b73bd64245b52a95ea55a260275a4145a
 
 jobs:
   build:
@@ -27,41 +26,76 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar repositorio completo
+      - name: Baixar repositorio
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Recuperar viewport aprovada de forma deterministica
+      - name: Montar viewport steampunk validada
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p assets
-          git show "${SOURCE_REF}:${SOURCE_ASSET}" > "${VIEWPORT_ASSET}"
-          test "$(wc -c < "${VIEWPORT_ASSET}" | tr -d ' ')" = "${EXPECTED_SIZE}"
+          : > /tmp/viewport.b64
+          blobs=(
+            b32475c8aafa96bc8ee3da753944dbd5a293a3f0
+            02c44170893d314687e492e8f45acc897909cd28
+            cfc1d405c9c6f80bb14897267e4442773a5e678d
+            4fee7b0008dad78581b15799c85f2bfa511fe2ba
+            a58d952cfbe2da496bdadf4a8ca75002263eac28
+            358a9f6983e0cd4525fc7203399e01129f9ad235
+            d677bb0c9796c62734c7085f82e09adce77d33f8
+            b0eca59a4548e6725de1d6d0587790784df0c908
+            5b3c251e33e3397e7025d978f99659234d8f141e
+            61e15fcad70d504124d24dfbddb133733d891c41
+            79f044f6fd82f10b31bd231db3221b68f66fb024
+            f1b5e796536e0a58a4ac3c4ced9ca0ff9eec1232
+            1ecad24bb82f4e074c9a69cc4d67e3d7f306e037
+            f3dcddd2836dc00ceb1a73e1ad9ac56e420c3f96
+            9155cd756bd39f957c2a1b9ad36e4b141235ba12
+            024298194006f66cd78f6cbe7d89680b0247fa1d
+            c0903d694e9b7dc01844ce20ec032c87f45b4f41
+            b68dc83a796199c338dee12f73cdf7b7c3f140c3
+            99fd8498f4517b0537d2a7a9911895e434570414
+            5d5743e085d55c12f49d662314c3d18729dae8c2
+            884f15ac085964b03a0b212e982a965883f986e0
+            72573e6eaaf6bc2f4de7f13d98a98330924b9fe8
+          )
+
+          for sha in "${blobs[@]}"; do
+            echo "validando_blob=${sha}"
+            curl -fsSL \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" \
+              | python3 -c 'import sys,json,base64; o=json.load(sys.stdin); sys.stdout.buffer.write(base64.b64decode(o["content"]))' \
+              >> /tmp/viewport.b64
+          done
+
+          test "$(wc -c < /tmp/viewport.b64 | tr -d ' ')" = "$EXPECTED_B64_LEN"
+          base64 -d /tmp/viewport.b64 > "$VIEWPORT_ASSET"
+          test "$(wc -c < "$VIEWPORT_ASSET" | tr -d ' ')" = "$EXPECTED_SIZE"
           echo "${EXPECTED_SHA256}  ${VIEWPORT_ASSET}" | sha256sum -c -
+
           python3 - <<'PY'
           from pathlib import Path
           import os, struct
-          p = Path(os.environ['VIEWPORT_ASSET'])
-          b = p.read_bytes()
-          assert b[4:8] == b'ftyp' and b'avif' in b[:32], 'arquivo nao e AVIF valido'
-          pos = b.find(b'ispe')
-          assert pos >= 0, 'ispe ausente'
-          width, height = struct.unpack('>II', b[pos+8:pos+16])
-          assert (width, height) == (1916, 821), (width, height)
-          print('viewport_binary=PASS')
-          print('dimensions=PASS', width, height)
+          b = Path(os.environ["VIEWPORT_ASSET"]).read_bytes()
+          assert b[4:8] == b"ftyp" and b"avif" in b[:32], "AVIF invalido"
+          p = b.find(b"ispe")
+          assert p >= 0, "ispe ausente"
+          w, h = struct.unpack(">II", b[p+8:p+16])
+          assert (w, h) == (1916, 821), (w, h)
+          print("viewport_binary=PASS")
+          print("sha256=PASS")
+          print("dimensions=PASS", w, h)
           PY
 
-      - name: Montar emissao limpa v9.2.3
+      - name: Montar integracao da emissao
         shell: bash
         run: |
           set -euo pipefail
-          cp emissao-v8.9.0.css emissao-v9.2.3.css
-          sed -i 's/v8.9.0 - Viewport wide definitivo/v9.2.3 - Viewport steampunk wide aprovada/' emissao-v9.2.3.css
-
-          cat > emissao-v9.2.3.js <<'EOF'
+          cat > emissao-v9.3.1.js <<'EOF'
           (() => {
             "use strict";
 
@@ -99,63 +133,59 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-          p = Path('index.html')
-          text = p.read_text(encoding='utf-8')
-          text = text.replace('emissao-v8.9.0.css?v=1', 'emissao-v9.2.3.css?v=1')
-          text = text.replace('emissao-v8.9.0.js?v=2', 'emissao-v9.2.3.js?v=1')
-          text = re.sub(
-              r'(<img\s+class="desktop-mock"\s+src=")[^"]+("[^>]*>)',
-              r'\1assets/emissao-portal-wide-v9.2.3.avif?v=1\2',
-              text,
-              count=1,
-              flags=re.S,
-          )
-          anchor = '  <link rel="preload" href="assets/login-portal-full-v8.5.7.webp" as="image" type="image/webp">\n'
-          preload = '  <link rel="preload" href="assets/emissao-portal-wide-v9.2.3.avif?v=1" as="image" type="image/avif" media="(min-width: 801px)">\n'
-          assert anchor in text
-          text = text.replace(anchor, anchor + preload, 1)
-          p.write_text(text, encoding='utf-8')
+          p = Path("index.html")
+          text = p.read_text(encoding="utf-8")
+
+          login_preload = '  <link rel="preload" href="assets/login-portal-full-v8.5.7.webp" as="image" type="image/webp">\n'
+          emission_preload = '  <link rel="preload" href="assets/emissao-portal-wide-v9.3.1.avif?v=1" as="image" type="image/avif" media="(min-width: 801px)">\n'
+          assert login_preload in text
+          if emission_preload not in text:
+              text = text.replace(login_preload, login_preload + emission_preload, 1)
+
+          old_script = '<script src="emissao-v8.9.0.js?v=2" defer></script>'
+          assert old_script in text
+          text = text.replace(old_script, '<script src="emissao-v9.3.1.js?v=1" defer></script>', 1)
+
+          m = re.search(r'(<img\s+class="desktop-mock"\s+src=")[^"]+("[^>]*>)', text, re.S)
+          assert m, "desktop-mock ausente"
+          text = text[:m.start()] + m.group(1) + 'assets/emissao-portal-wide-v9.3.1.avif?v=1' + m.group(2) + text[m.end():]
+
+          p.write_text(text, encoding="utf-8")
           PY
 
-      - name: Validar integracao final
+      - name: Validar integracao e geometria
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
           import re
-          html = Path('index.html').read_text(encoding='utf-8')
-          js = Path('emissao-v9.2.3.js').read_text(encoding='utf-8')
-          css = Path('emissao-v9.2.3.css').read_text(encoding='utf-8')
-
+          html = Path("index.html").read_text(encoding="utf-8")
+          js = Path("emissao-v9.3.1.js").read_text(encoding="utf-8")
           m = re.search(r'<img\s+class="desktop-mock"\s+src="([^"]+)"', html, re.S)
-          assert m and m.group(1) == 'assets/emissao-portal-wide-v9.2.3.avif?v=1'
-          assert 'emissao-v9.2.3.css?v=1' in html
-          assert 'emissao-v9.2.3.js?v=1' in html
-          assert 'emissao-v8.9.0.js?v=2' not in html
-          assert 'fetch(' not in js
-          assert 'data:image/' not in js
-          assert 'WIDE_ART_SOURCE' not in js
-          assert 'pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp' not in m.group(0)
-          assert '.visual-stage::before' in css and 'display: none !important' in css
+          assert m and m.group(1) == "assets/emissao-portal-wide-v9.3.1.avif?v=1"
+          assert "emissao-v9.3.1.js?v=1" in html
+          assert "emissao-v8.9.0.js?v=2" not in html
+          assert "fetch(" not in js
+          assert "data:image/" not in js
+          assert "WIDE_ART_SOURCE" not in js
+          assert "pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp" not in m.group(0)
 
           ratio = 1916 / 821
           panel = (770, 80, 1148, 650)
           for vw, vh in [(1366,641),(1366,768),(1440,900),(1600,900),(1920,1080),(2560,1080)]:
               sw = max(vw, vh * ratio)
               sh = max(vh, vw / ratio)
-              assert sw >= vw and sh >= vh
               scale = sw / 1916
               cx = max(0.0, (sw-vw)/2/scale)
               cy = max(0.0, (sh-vh)/2/scale)
               visible = (cx, cy, 1916-cx, 821-cy)
               assert panel[0] >= visible[0] and panel[2] <= visible[2]
               assert panel[1] >= visible[1] and panel[3] <= visible[3]
-
-          print('direct_binary_asset=PASS')
-          print('no_runtime_base64=PASS')
-          print('no_neon_fallback=PASS')
-          print('geometry_6_viewports=PASS')
+          print("integration=PASS")
+          print("no_runtime_base64=PASS")
+          print("no_neon_fallback=PASS")
+          print("geometry_6_viewports=PASS")
           PY
 
       - name: Configurar GitHub Pages
@@ -170,15 +200,12 @@ jobs:
     name: Publicar site
     needs: build
     runs-on: ubuntu-latest
-
     permissions:
       pages: write
       id-token: write
-
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
       - name: Publicar no GitHub Pages
         id: deployment
