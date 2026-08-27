@@ -1,0 +1,180 @@
+name: Reparar publicacao v9.5.0
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/repair-pages-v9-5-durable.yml"
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  reparar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Instalar pipeline duravel
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          cat > .github/workflows/pages.yml <<'YAML'
+          name: Publicar Boleto Credvix
+
+          on:
+            push:
+              branches: ["main"]
+            pull_request:
+              branches: ["main"]
+            workflow_dispatch:
+
+          permissions:
+            contents: read
+            pages: write
+            id-token: write
+
+          concurrency:
+            group: "pages-${{ github.ref }}"
+            cancel-in-progress: true
+
+          env:
+            VIEWPORT_ASSET: assets/emissao-portal-wide-v9.5.0.avif
+            VIEWPORT_SOURCE: .build/emissao-portal-wide-v9.5.0-source.png
+            VIEWPORT_SOURCE_PARTS: assets/viewport-v9.4.0
+            EXPECTED_SOURCE_SHA256: cb0881a5d9a3ad0c19be1912ce61757f722c478a817b75ef06dde5a8e4c6089d
+
+          jobs:
+            build:
+              name: Preparar e validar site
+              runs-on: ubuntu-latest
+
+              steps:
+                - name: Baixar repositorio
+                  uses: actions/checkout@v4
+
+                - name: Montar fonte steampunk aprovada
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+                    python3 - <<'PY'
+                    from pathlib import Path
+                    import base64, hashlib, os, struct
+
+                    parts_dir = Path(os.environ["VIEWPORT_SOURCE_PARTS"])
+                    parts = sorted(parts_dir.glob("part-*.b64"))
+                    assert len(parts) == 7, f"Partes esperadas=7 encontradas={len(parts)}"
+
+                    encoded = "".join(p.read_text(encoding="utf-8") for p in parts)
+                    encoded = "".join(encoded.split())
+                    raw = base64.b64decode(encoded, validate=True)
+
+                    expected_sha = os.environ["EXPECTED_SOURCE_SHA256"]
+                    actual_sha = hashlib.sha256(raw).hexdigest()
+                    assert actual_sha == expected_sha, (actual_sha, expected_sha)
+                    assert raw[:8] == b"\x89PNG\r\n\x1a\n", "PNG fonte invalido"
+                    w, h = struct.unpack(">II", raw[16:24])
+                    assert (w, h) == (1916, 821), (w, h)
+
+                    out = Path(os.environ["VIEWPORT_SOURCE"])
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_bytes(raw)
+                    print("source_binary=PASS", w, h, len(raw), actual_sha)
+                    PY
+
+                - name: Gerar viewport AVIF v9.5.0
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+                    if ! command -v ffmpeg >/dev/null 2>&1; then
+                      sudo apt-get update
+                      sudo apt-get install -y ffmpeg
+                    fi
+
+                    ffmpeg -loglevel error -y \
+                      -i "$VIEWPORT_SOURCE" \
+                      -frames:v 1 \
+                      -c:v libaom-av1 \
+                      -crf 23 \
+                      -b:v 0 \
+                      -cpu-used 4 \
+                      -still-picture 1 \
+                      -pix_fmt yuv444p \
+                      "$VIEWPORT_ASSET"
+
+                    python3 - <<'PY'
+                    from pathlib import Path
+                    import hashlib, os, struct
+
+                    p = Path(os.environ["VIEWPORT_ASSET"])
+                    raw = p.read_bytes()
+                    assert 150000 <= len(raw) <= 350000, len(raw)
+                    assert raw[4:8] == b"ftyp" and b"avif" in raw[:32], "AVIF invalido"
+                    pos = raw.find(b"ispe")
+                    assert pos >= 0, "ispe ausente"
+                    w, h = struct.unpack(">II", raw[pos+8:pos+16])
+                    assert (w, h) == (1916, 821), (w, h)
+                    print("viewport_binary=PASS", w, h, len(raw), hashlib.sha256(raw).hexdigest())
+                    PY
+
+                - name: Validar integracao da emissao
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+                    node --check emissao-v9.5.0.js
+                    grep -q 'assets/emissao-portal-wide-v9.5.0.avif?v=1' index.html
+                    grep -q 'emissao-v9.5.0.js?v=1' index.html
+                    ! grep -q 'emissao-v8.9.0.js?v=2' index.html
+                    ! grep -q 'pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp' index.html
+                    test "$(grep -c 'login-portal-full-v8.5.7.webp' index.html)" -ge 1
+                    test -s "$VIEWPORT_ASSET"
+
+                - name: Limpar arquivos de build
+                  shell: bash
+                  run: |
+                    rm -rf "$VIEWPORT_SOURCE_PARTS" .build
+
+                - name: Configurar GitHub Pages
+                  if: github.event_name != 'pull_request'
+                  uses: actions/configure-pages@v5
+
+                - name: Empacotar site validado
+                  if: github.event_name != 'pull_request'
+                  uses: actions/upload-pages-artifact@v4
+                  with:
+                    path: "."
+
+            deploy:
+              name: Publicar site
+              if: github.event_name != 'pull_request'
+              needs: build
+              runs-on: ubuntu-latest
+              permissions:
+                pages: write
+                id-token: write
+              environment:
+                name: github-pages
+                url: ${{ steps.deployment.outputs.page_url }}
+              steps:
+                - name: Publicar no GitHub Pages
+                  id: deployment
+                  uses: actions/deploy-pages@v4
+          YAML
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/pages.yml
+          if ! git diff --cached --quiet; then
+            git commit -m "[skip ci] Corrigir pipeline v9.5.0 com fonte versionada"
+            git push origin HEAD:main
+          fi
+
+          gh workflow run pages.yml --ref main
