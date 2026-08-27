@@ -1,4 +1,5 @@
 name: Publicar Boleto Credvix
+# Re-disparo seguro apos incidente do GitHub Actions em 2026-08-26; sem alteracao do site.
 
 on:
   push:
