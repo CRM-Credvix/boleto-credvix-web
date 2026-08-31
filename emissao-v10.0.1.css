@@ -1,0 +1,43 @@
+/* v10.0.1 - ajustes de QA da viewport v10.
+   Mantem a tela de login intacta e corrige apenas a emissao. */
+
+@media (min-width: 801px) and (max-height: 720px) {
+  .form-layer {
+    padding-top: 116px !important;
+  }
+}
+
+@media (max-width: 800px) {
+  .emissao-logout {
+    position: fixed !important;
+    z-index: 1000 !important;
+    top: max(10px, env(safe-area-inset-top)) !important;
+    right: 12px !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: auto !important;
+    min-width: 58px !important;
+    height: 30px !important;
+    margin: 0 !important;
+    padding: 0 11px !important;
+    transform: none !important;
+    border: 1px solid rgba(129, 112, 255, .55) !important;
+    border-radius: 7px !important;
+    color: #f4f0ff !important;
+    background: rgba(5, 8, 24, .88) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .34) !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: .04em !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+  }
+
+  .emissao-logout:focus-visible {
+    outline: 2px solid rgba(69, 200, 255, .9) !important;
+    outline-offset: 2px !important;
+  }
+}
