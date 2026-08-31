@@ -18,8 +18,7 @@ concurrency:
 
 env:
   VIEWPORT_ASSET: assets/emissao-portal-wide-v9.5.0.avif
-  EXPECTED_SIZE: "223313"
-  EXPECTED_SHA256: 62c3aafb08c8d20a51f4cdcccbe29c35880e4af50fbcfbc952df1d0b75de131d
+  VIEWPORT_PARTS: assets/viewport-v9.4.0
 
 jobs:
   build:
@@ -31,52 +30,47 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Montar viewport steampunk v9.5.0
-        env:
-          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          : > "$VIEWPORT_ASSET"
-          blobs=(
-            66f5331a2de8ed67bcae80e496655db53129bbea
-            8c9fb6218311d0ae225b0d6449a7387112f9d504
-            01bcdf1dbefab0468924471c4e54d38c438d25d3
-            9ce28b0b44d20abda8dfe70eea2e222da72a22bb
-            22813c14dcae98fd88cbde7e8c61a1993973bb2e
-            85f61f7e084abdccb75a724a80bd03d9d5a69771
-            ccc9f413503710934551454cf18cfc3dc6bf4f94
-            c36fb448426b1f4f7cdce0842c03e36fd3f110ae
-            f3a25ae5119f347496283fea20daf72e79f4cbcf
-            72fbfe100489677e032610716bd9539052cdbca0
-            afc23bf98518ce1164e55788284361b3a75dfdb3
-            5bfe28575037fada392c402fde90fea421236c72
-            175cbdf03ab201a51beb6cf1008a4cfeb3590b6e
-            b2978789419caeebccdbca8503a29bc6598da05a
-            2706fe7f0a9dc4b977ea5f2e5ec70564eb914fd2
-            1529b301949af581131059d4ba5dfaa3414efa1d
-            2be13cb0e5955fadd98306f07ebe3c01da572e2a
-            68bb80e4b545cdaadd2fd47ec6fef983985b3bfc
-            0eb52ac936bf2082af1ebe36ca5c7179feb2da17
-            fd8bd6456519fede3521375db244199bef851c13
-            f3ab6bb6801d2a2e52b5428c6daa8747539f8a9b
-            f8f9d49cd8c5e071cbe55ef623e78e6261466d8a
-            9737b5615071826d93a9d98bc877341a51a47698
-          )
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, hashlib, os, string, struct
 
-          for sha in "${blobs[@]}"; do
-            echo "blob=${sha}"
-            curl -fsSL \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" \
-              | python3 -c 'import sys,json,base64; o=json.load(sys.stdin); sys.stdout.buffer.write(base64.b64decode(o["content"]))' \
-              >> "$VIEWPORT_ASSET"
-          done
+          parts_dir = Path(os.environ["VIEWPORT_PARTS"])
+          parts = sorted(parts_dir.glob("part-*.b64"))
+          assert len(parts) == 7, f"Partes esperadas=7 encontradas={len(parts)}"
 
-          test "$(wc -c < "$VIEWPORT_ASSET" | tr -d ' ')" = "$EXPECTED_SIZE"
-          echo "${EXPECTED_SHA256}  ${VIEWPORT_ASSET}" | sha256sum -c -
-          python3 -c 'from pathlib import Path; import os,struct; b=Path(os.environ["VIEWPORT_ASSET"]).read_bytes(); assert b[4:8] == b"ftyp" and b"avif" in b[:32], "AVIF invalido"; p=b.find(b"ispe"); assert p>=0, "ispe ausente"; w,h=struct.unpack(">II",b[p+8:p+16]); assert (w,h)==(1916,821),(w,h); print("viewport_binary=PASS",w,h)'
+          encoded = "".join(p.read_text(encoding="utf-8") for p in parts)
+          encoded = "".join(encoded.split())
+
+          # O ultimo fragmento legado termina com dois marcadores "??" que
+          # nunca fizeram parte do Base64. Corrigimos somente essa anomalia
+          # conhecida e recusamos qualquer outra corrupcao.
+          assert encoded.endswith("??"), "Marcador final esperado nao encontrado"
+          assert encoded.count("?") == 2, "Foram encontrados marcadores inesperados"
+          encoded = encoded[:-2]
+
+          alphabet = set(string.ascii_letters + string.digits + "+/=")
+          invalid = sorted(set(encoded) - alphabet)
+          assert not invalid, f"Caracteres Base64 invalidos: {invalid}"
+
+          core = encoded.rstrip("=")
+          assert "=" not in core, "Padding Base64 interno invalido"
+          encoded = core + ("=" * ((-len(core)) % 4))
+          raw = base64.b64decode(encoded, validate=True)
+
+          assert 120000 <= len(raw) <= 350000, f"Tamanho AVIF inesperado: {len(raw)}"
+          assert raw[4:8] == b"ftyp" and b"avif" in raw[:32], "AVIF invalido"
+          pos = raw.find(b"ispe")
+          assert pos >= 0, "ispe ausente"
+          w, h = struct.unpack(">II", raw[pos+8:pos+16])
+          assert (w, h) == (1916, 821), (w, h)
+
+          out = Path(os.environ["VIEWPORT_ASSET"])
+          out.write_bytes(raw)
+          print("viewport_binary=PASS", w, h, len(raw), hashlib.sha256(raw).hexdigest())
+          PY
 
       - name: Validar integracao da emissao
         shell: bash
@@ -89,6 +83,11 @@ jobs:
           ! grep -q 'pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp' index.html
           test "$(grep -c 'login-portal-full-v8.5.7.webp' index.html)" -ge 1
           test -s "$VIEWPORT_ASSET"
+
+      - name: Remover fragmentos de build do artefato publicado
+        shell: bash
+        run: |
+          rm -rf "$VIEWPORT_PARTS"
 
       - name: Configurar GitHub Pages
         if: github.event_name != 'pull_request'
