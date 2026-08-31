@@ -1,9 +1,24 @@
 /* v10.0.1 - ajustes de QA da viewport v10.
    Mantem a tela de login intacta e corrige apenas a emissao. */
 
+@media (min-width: 801px) {
+  .form-layer {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+    padding-bottom: 28px !important;
+  }
+
+  #request-form {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+}
+
 @media (min-width: 801px) and (max-height: 720px) {
   .form-layer {
     padding-top: 116px !important;
+    padding-bottom: 24px !important;
   }
 }
 
