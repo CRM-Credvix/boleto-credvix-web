@@ -3,22 +3,22 @@
 
 @media (min-width: 801px) {
   .form-layer {
-    height: auto !important;
+    height: clamp(500px, 52dvh, 560px) !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
-    padding-bottom: 28px !important;
+    max-height: calc(100dvh - 24px) !important;
+    padding-bottom: 24px !important;
   }
 
-  #request-form {
-    height: auto !important;
-    min-height: 0 !important;
+  .form-layer:has(#parcel-fields:not([hidden])),
+  .form-layer:has(.access-code-field:not([hidden])) {
+    height: clamp(590px, 68dvh, 680px) !important;
   }
 }
 
 @media (min-width: 801px) and (max-height: 720px) {
   .form-layer {
     padding-top: 116px !important;
-    padding-bottom: 24px !important;
+    padding-bottom: 22px !important;
   }
 }
 
