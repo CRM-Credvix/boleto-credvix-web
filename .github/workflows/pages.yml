@@ -322,6 +322,8 @@ jobs:
             --exclude '_site' \
             --exclude '_qa-preview-v10.html' \
             --exclude 'qa-v10' \
+            --exclude '*.b64' \
+            --exclude 'part-*.bin' \
             --exclude 'assets/emissao-v10.0.0' \
             --exclude 'assets/emissao-v10.0.0-src' \
             ./ _site/
