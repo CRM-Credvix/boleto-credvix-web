@@ -62,8 +62,19 @@ jobs:
           except Exception as exc:
               raise SystemExit(f"Falha ao decodificar Base64: {exc}") from exc
 
-          if not payload.startswith(b"\xff\xd8") or not payload.endswith(b"\xff\xd9"):
-              raise SystemExit("Arquivo montado nao possui estrutura JPEG completa")
+          if not payload.startswith(b"\xff\xd8"):
+              raise SystemExit("Arquivo montado nao inicia como JPEG")
+
+          eoi = payload.rfind(b"\xff\xd9")
+          print(f"VIEWPORT_V10_RAW_BYTES={len(payload)}")
+          print(f"VIEWPORT_V10_EOI_OFFSET={eoi}")
+          print(f"VIEWPORT_V10_TAIL_HEX={payload[-24:].hex()}")
+          if eoi < 0:
+              raise SystemExit("JPEG incompleto: marcador EOI nao encontrado")
+          if eoi + 2 < len(payload):
+              trailing = len(payload) - (eoi + 2)
+              print(f"VIEWPORT_V10_TRAILING_BYTES={trailing}; normalizando arquivo ate o EOI")
+              payload = payload[:eoi + 2]
 
           target = Path("assets/emissao-portal-wide-v10.0.0.jpg")
           target.write_bytes(payload)
