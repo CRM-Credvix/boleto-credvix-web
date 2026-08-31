@@ -77,17 +77,20 @@ jobs:
         run: |
           set -euo pipefail
           node --check emissao-v9.5.0.js
-          grep -q 'assets/emissao-portal-wide-v9.5.0.avif?v=1' index.html
-          grep -q 'emissao-v9.5.0.js?v=1' index.html
+          grep -q 'assets/emissao-portal-wide-v9.5.0.avif?v=2' index.html
+          grep -q 'emissao-v9.5.0.js?v=2' index.html
           ! grep -q 'emissao-v8.9.0.js?v=2' index.html
           ! grep -q 'pixel-neon-whatsapp-desktop-colmeia-solar-v8.3.0.webp' index.html
           test "$(grep -c 'login-portal-full-v8.5.7.webp' index.html)" -ge 1
           test -s "$VIEWPORT_ASSET"
+          test "$(find "$VIEWPORT_PARTS" -maxdepth 1 -name 'part-*.b64' | wc -l)" -eq 7
 
-      - name: Remover fragmentos de build do artefato publicado
+      - name: Preservar fallback versionado da viewport
         shell: bash
         run: |
-          rm -rf "$VIEWPORT_PARTS"
+          set -euo pipefail
+          test -s "$VIEWPORT_PARTS/part-00.b64"
+          test -s "$VIEWPORT_PARTS/part-06.b64"
 
       - name: Configurar GitHub Pages
         if: github.event_name != 'pull_request'
