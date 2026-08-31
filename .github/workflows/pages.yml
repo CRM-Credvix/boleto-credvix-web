@@ -1,6 +1,8 @@
-name: Publicar Boleto Credvix
+name: Validar e publicar Boleto Credvix
 
 on:
+  pull_request:
+    branches: ["main"]
   push:
     branches: ["main"]
   workflow_dispatch:
@@ -9,29 +11,282 @@ permissions:
   contents: read
 
 concurrency:
-  group: "pages"
+  group: "pages-${{ github.ref }}"
   cancel-in-progress: true
 
 jobs:
   build:
-    name: Preparar site
+    name: Validar viewport e preparar site
     runs-on: ubuntu-latest
 
     steps:
       - name: Baixar repositorio
         uses: actions/checkout@v6
 
+      - name: Configurar Python de validacao
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Instalar validador de imagem
+        run: python -m pip install --disable-pip-version-check pillow==11.3.0
+
+      - name: Montar e validar viewport v10
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          import hashlib
+          import re
+          from PIL import Image
+
+          source = Path("assets/emissao-v10.0.0")
+          expected_names = [f"part-{i:02d}.b64" for i in range(4)]
+          actual_names = sorted(p.name for p in source.glob("part-*.b64"))
+          if actual_names != expected_names:
+              raise SystemExit(f"Fragmentos inesperados: {actual_names!r}")
+
+          raw = "".join((source / name).read_text(encoding="utf-8") for name in expected_names)
+          compact = re.sub(r"\s+", "", raw)
+          if len(compact) != 48884:
+              raise SystemExit(f"Tamanho Base64 inesperado: {len(compact)} (esperado 48884)")
+          if re.search(r"[^A-Za-z0-9+/=]", compact):
+              raise SystemExit("Base64 contem caracteres invalidos")
+          if len(compact) % 4:
+              raise SystemExit("Base64 com padding invalido")
+
+          try:
+              payload = base64.b64decode(compact, validate=True)
+          except Exception as exc:
+              raise SystemExit(f"Falha ao decodificar Base64: {exc}") from exc
+
+          if not payload.startswith(b"\xff\xd8") or not payload.endswith(b"\xff\xd9"):
+              raise SystemExit("Arquivo montado nao possui estrutura JPEG completa")
+
+          target = Path("assets/emissao-portal-wide-v10.0.0.jpg")
+          target.write_bytes(payload)
+
+          with Image.open(target) as image:
+              if image.format != "JPEG":
+                  raise SystemExit(f"Formato inesperado: {image.format}")
+              if image.size != (1000, 487):
+                  raise SystemExit(f"Dimensoes inesperadas: {image.size}; esperado (1000, 487)")
+              image.verify()
+
+          with Image.open(target) as image:
+              image.load()
+              if image.size != (1000, 487):
+                  raise SystemExit("Dimensoes mudaram apos decodificacao completa")
+
+          digest = hashlib.sha256(payload).hexdigest()
+          print(f"VIEWPORT_V10_BYTES={len(payload)}")
+          print(f"VIEWPORT_V10_SHA256={digest}")
+          print("VIEWPORT_V10_OK=1")
+          PY
+
+      - name: Validar HTML, referencias e JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          grep -q 'emissao-v10.0.0.css?v=1' index.html
+          grep -q 'emissao-v10.0.0.js?v=1' index.html
+          grep -q 'emissao-portal-wide-v10.0.0.jpg?v=1' index.html
+
+          if grep -Eq 'emissao-v8\.6\.7\.(css|js)|emissao-v8\.7\.0\.(css|js)' index.html; then
+            echo "ERRO: index ainda carrega os patches antigos da emissao"
+            exit 1
+          fi
+
+          if grep -Eq 'fetch\(.+emissao-v10|part-[0-9]+\.b64' emissao-v10.0.0.js; then
+            echo "ERRO: a viewport v10 nao pode ser montada no navegador"
+            exit 1
+          fi
+
+          node --check app.js
+          node --check auth-v8.4.0.js
+          node --check emissao-v8.6.12.js
+          node --check emissao-v10.0.0.js
+
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          from collections import Counter
+
+          class Parser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids = []
+                  self.refs = []
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if "id" in attrs:
+                      self.ids.append(attrs["id"])
+                  key = "href" if tag == "link" else "src" if tag in {"script", "img"} else None
+                  if key and attrs.get(key):
+                      self.refs.append(attrs[key])
+
+          html = Path("index.html").read_text(encoding="utf-8")
+          parser = Parser()
+          parser.feed(html)
+
+          duplicated = [name for name, count in Counter(parser.ids).items() if count > 1]
+          if duplicated:
+              raise SystemExit(f"IDs HTML duplicados: {duplicated}")
+
+          required = {
+              "auth-gate", "auth-form", "auth-email", "auth-password", "auth-submit",
+              "inicio", "solicitar", "request-form", "solicitante", "cpf", "telefone",
+              "unidade", "contrato", "parcel-mode-select", "consentimento", "submit-button",
+              "emissao-logout", "success-panel"
+          }
+          missing = sorted(required.difference(parser.ids))
+          if missing:
+              raise SystemExit(f"IDs obrigatorios ausentes: {missing}")
+
+          missing_files = []
+          for ref in parser.refs:
+              if ref.startswith(("http://", "https://", "//", "data:", "#")):
+                  continue
+              path = urlsplit(ref).path
+              if path and not Path(path).exists():
+                  missing_files.append(path)
+          if missing_files:
+              raise SystemExit(f"Referencias locais inexistentes: {sorted(set(missing_files))}")
+
+          if "utm_source" in html:
+              raise SystemExit("Parametro de rastreamento indevido encontrado no HTML")
+
+          print("HTML_REFERENCES_OK=1")
+          PY
+
+      - name: Criar preview de QA sem autenticar
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          html = Path("index.html").read_text(encoding="utf-8")
+          html = re.sub(r'<script\b[^>]*>.*?</script>', '', html, flags=re.I | re.S)
+          html = html.replace('<main id="inicio" class="visual-stage" hidden>', '<main id="inicio" class="visual-stage">')
+          html = html.replace('</head>', '<style>#auth-gate{display:none!important}</style></head>')
+          Path("_qa-preview-v10.html").write_text(html, encoding="utf-8")
+          PY
+
+      - name: Testar viewport em navegadores desktop
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$CHROME" ]; then
+            echo "ERRO: Chromium/Chrome nao encontrado no runner"
+            exit 1
+          fi
+
+          mkdir -p qa-v10
+          python -m http.server 8765 --bind 127.0.0.1 > /tmp/v10-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          sleep 2
+
+          curl --fail --silent --show-error http://127.0.0.1:8765/assets/emissao-portal-wide-v10.0.0.jpg -o /dev/null
+          curl --fail --silent --show-error http://127.0.0.1:8765/emissao-v10.0.0.css -o /dev/null
+
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1365,695 --screenshot=qa-v10/preview-1365x695.png http://127.0.0.1:8765/_qa-preview-v10.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1920,1080 --screenshot=qa-v10/preview-1920x1080.png http://127.0.0.1:8765/_qa-preview-v10.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=2560,1080 --screenshot=qa-v10/preview-2560x1080.png http://127.0.0.1:8765/_qa-preview-v10.html#solicitar
+
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageStat
+
+          expected = {
+              "preview-1365x695.png": (1365, 695),
+              "preview-1920x1080.png": (1920, 1080),
+              "preview-2560x1080.png": (2560, 1080),
+          }
+
+          for name, size in expected.items():
+              path = Path("qa-v10") / name
+              with Image.open(path) as image:
+                  image.load()
+                  if image.size != size:
+                      raise SystemExit(f"Screenshot {name} com tamanho {image.size}, esperado {size}")
+                  gray = image.convert("L")
+                  stat = ImageStat.Stat(gray)
+                  mean = stat.mean[0]
+                  stddev = stat.stddev[0]
+                  if mean < 7 or stddev < 8:
+                      raise SystemExit(f"Screenshot {name} parece vazio/preto: media={mean:.2f}, desvio={stddev:.2f}")
+
+                  edge_w = max(8, image.width // 20)
+                  for side, box in {
+                      "left": (0, 0, edge_w, image.height),
+                      "right": (image.width - edge_w, 0, image.width, image.height),
+                  }.items():
+                      edge = gray.crop(box)
+                      values = list(edge.getdata())
+                      near_black = sum(v <= 3 for v in values) / len(values)
+                      edge_std = ImageStat.Stat(edge).stddev[0]
+                      if near_black > .985 and edge_std < 3:
+                          raise SystemExit(
+                              f"Faixa lateral preta detectada em {name}/{side}: "
+                              f"near_black={near_black:.3f}, desvio={edge_std:.2f}"
+                          )
+
+                  print(f"{name}: mean={mean:.2f} stddev={stddev:.2f} OK")
+          PY
+
+      - name: Guardar screenshots de conferencia
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-viewport-v10-${{ github.sha }}
+          path: qa-v10/*.png
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Preparar pacote limpo do site
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          rsync -a \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '_site' \
+            --exclude '_qa-preview-v10.html' \
+            --exclude 'qa-v10' \
+            --exclude 'assets/emissao-v8.6.7' \
+            --exclude 'assets/emissao-v8.8.0' \
+            --exclude 'assets/emissao-v10.0.0' \
+            ./ _site/
+
+          test -f _site/assets/emissao-portal-wide-v10.0.0.jpg
+          test -f _site/emissao-v10.0.0.css
+          test -f _site/emissao-v10.0.0.js
+
+          if find _site -type f \( -name '*.b64' -o -name 'part-*.bin' \) -print -quit | grep -q .; then
+            echo "ERRO: fragmentos de montagem vazaram para o pacote publicado"
+            exit 1
+          fi
+
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Empacotar site
+      - name: Empacotar site validado
         uses: actions/upload-pages-artifact@v4
         with:
-          path: "."
+          path: "_site"
 
   deploy:
     name: Publicar site
     needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     permissions:
