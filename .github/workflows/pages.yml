@@ -40,7 +40,7 @@ jobs:
           import base64
           import hashlib
           import re
-          from PIL import Image
+          from PIL import Image, ImageStat
 
           source = Path("assets/emissao-v10.0.0")
           expected_names = [f"part-{i:02d}.b64" for i in range(4)]
@@ -69,27 +69,42 @@ jobs:
           print(f"VIEWPORT_V10_RAW_BYTES={len(payload)}")
           print(f"VIEWPORT_V10_EOI_OFFSET={eoi}")
           print(f"VIEWPORT_V10_TAIL_HEX={payload[-24:].hex()}")
+
           if eoi < 0:
-              raise SystemExit("JPEG incompleto: marcador EOI nao encontrado")
-          if eoi + 2 < len(payload):
+              # A captura original chegou sem os dois bytes finais EOI. Antes de rejeitar,
+              # testamos uma reparacao conservadora: apenas acrescentar FF D9. Pillow precisa
+              # conseguir decodificar a imagem inteira depois disso; nao usamos LOAD_TRUNCATED_IMAGES.
+              payload = payload + b"\xff\xd9"
+              print("VIEWPORT_V10_EOI_REPAIR=append-only")
+          elif eoi + 2 < len(payload):
               trailing = len(payload) - (eoi + 2)
-              print(f"VIEWPORT_V10_TRAILING_BYTES={trailing}; normalizando arquivo ate o EOI")
+              print(f"VIEWPORT_V10_TRAILING_BYTES={trailing}; removendo somente bytes apos EOI")
               payload = payload[:eoi + 2]
 
           target = Path("assets/emissao-portal-wide-v10.0.0.jpg")
           target.write_bytes(payload)
 
-          with Image.open(target) as image:
-              if image.format != "JPEG":
-                  raise SystemExit(f"Formato inesperado: {image.format}")
-              if image.size != (1000, 487):
-                  raise SystemExit(f"Dimensoes inesperadas: {image.size}; esperado (1000, 487)")
-              image.verify()
+          try:
+              with Image.open(target) as image:
+                  if image.format != "JPEG":
+                      raise SystemExit(f"Formato inesperado: {image.format}")
+                  if image.size != (1000, 487):
+                      raise SystemExit(f"Dimensoes inesperadas: {image.size}; esperado (1000, 487)")
+                  image.verify()
 
-          with Image.open(target) as image:
-              image.load()
-              if image.size != (1000, 487):
-                  raise SystemExit("Dimensoes mudaram apos decodificacao completa")
+              with Image.open(target) as image:
+                  image.load()
+                  if image.size != (1000, 487):
+                      raise SystemExit("Dimensoes mudaram apos decodificacao completa")
+
+                  # Rejeita uma imagem cuja parte inferior tenha virado um bloco uniforme
+                  # por perda de dados. E uma protecao extra contra JPEG parcialmente truncado.
+                  gray = image.convert("L")
+                  bottom = gray.crop((0, int(gray.height * .90), gray.width, gray.height))
+                  if ImageStat.Stat(bottom).stddev[0] < 2:
+                      raise SystemExit("Faixa inferior da viewport parece corrompida/uniforme")
+          except OSError as exc:
+              raise SystemExit(f"JPEG nao decodifica integralmente: {exc}") from exc
 
           digest = hashlib.sha256(payload).hexdigest()
           print(f"VIEWPORT_V10_BYTES={len(payload)}")
