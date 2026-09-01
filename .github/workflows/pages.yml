@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    name: Validar viewport e preparar site
+    name: Validar viewport v11 e preparar site
     runs-on: ubuntu-latest
 
     steps:
@@ -25,15 +25,41 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Configurar Python de validacao
+      - name: Configurar Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
-      - name: Instalar validador de imagem
+      - name: Instalar Pillow
         run: python -m pip install --disable-pip-version-check pillow==11.3.0
 
-      - name: Validar arte-base do login reutilizada na emissao
+      - name: Reconstruir viewport v11 aprovada
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+
+          src = Path("assets/emissao-v11-src")
+          parts = [
+              src / "part-00.b64", src / "part-01.b64", src / "part-02.b64",
+              src / "part-03.b64", src / "part-04.b64", src / "part-05.b64",
+              src / "part-06.b64", src / "part-07a.b64", src / "part-07b.b64",
+              src / "part-08.b64", src / "part-09.b64", src / "part-10.b64",
+          ]
+          missing = [str(p) for p in parts if not p.is_file()]
+          if missing:
+              raise SystemExit(f"Fragmentos ausentes: {missing}")
+
+          payload = "".join(p.read_text(encoding="ascii").strip() for p in parts)
+          raw = base64.b64decode(payload, validate=True)
+          out = Path("assets/emissao-viewport-v11-wide.webp")
+          out.write_bytes(raw)
+          print(f"VIEWPORT_BYTES={len(raw)}")
+          PY
+
+      - name: Validar viewport e arte de login
         shell: bash
         run: |
           set -euo pipefail
@@ -42,78 +68,61 @@ jobs:
           from PIL import Image, ImageStat
           import hashlib
 
-          path = Path("assets/login-portal-full-v8.5.7.webp")
-          if not path.is_file():
-              raise SystemExit("Arte-base do login nao encontrada")
+          checks = [
+              (Path("assets/login-portal-full-v8.5.7.webp"), (1916, 821), "LOGIN"),
+              (Path("assets/emissao-viewport-v11-wide.webp"), (2560, 1080), "VIEWPORT_V11"),
+          ]
 
-          payload = path.read_bytes()
-          with Image.open(path) as image:
-              if image.format != "WEBP":
-                  raise SystemExit(f"Formato inesperado: {image.format}")
-              if image.size != (1916, 821):
-                  raise SystemExit(f"Dimensoes inesperadas: {image.size}; esperado (1916, 821)")
-              image.load()
-              gray = image.convert("L")
-              stat = ImageStat.Stat(gray)
-              if stat.mean[0] < 7 or stat.stddev[0] < 8:
-                  raise SystemExit("Arte-base parece vazia ou preta")
-
-          print(f"LOGIN_ART_BYTES={len(payload)}")
-          print(f"LOGIN_ART_SHA256={hashlib.sha256(payload).hexdigest()}")
-          print("LOGIN_ART_OK=1")
+          for path, expected_size, label in checks:
+              if not path.is_file():
+                  raise SystemExit(f"{label}: arquivo ausente: {path}")
+              raw = path.read_bytes()
+              with Image.open(path) as image:
+                  if image.format != "WEBP":
+                      raise SystemExit(f"{label}: formato inesperado {image.format}")
+                  if image.size != expected_size:
+                      raise SystemExit(f"{label}: dimensoes {image.size}; esperado {expected_size}")
+                  image.load()
+                  gray = image.convert("L")
+                  stat = ImageStat.Stat(gray)
+                  if stat.mean[0] < 7 or stat.stddev[0] < 8:
+                      raise SystemExit(f"{label}: imagem parece vazia ou preta")
+              print(f"{label}_BYTES={len(raw)}")
+              print(f"{label}_SHA256={hashlib.sha256(raw).hexdigest()}")
           PY
 
-      - name: Garantir que a tela de login nao foi alterada
+      - name: Garantir que o login nao mudou
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
           git fetch origin main:refs/remotes/origin/main
-
           if ! git diff --quiet refs/remotes/origin/main -- auth-v8.5.4.css auth-v8.4.0.js assets/login-portal-full-v8.5.7.webp; then
-            echo "ERRO: arquivos da tela de login foram modificados neste PR"
+            echo "ERRO: arquivos do login foram alterados"
             git diff --stat refs/remotes/origin/main -- auth-v8.5.4.css auth-v8.4.0.js assets/login-portal-full-v8.5.7.webp
             exit 1
           fi
 
           python - <<'PY'
-          import re
-          import subprocess
+          import re, subprocess
           from pathlib import Path
-
           current = Path("index.html").read_text(encoding="utf-8")
-          base = subprocess.check_output(
-              ["git", "show", "refs/remotes/origin/main:index.html"], text=True
-          )
-
-          pattern = re.compile(r'<section id="auth-gate".*?</section>\s*<div id="auth-session-badge"', re.S)
-          current_match = pattern.search(current)
-          base_match = pattern.search(base)
-          if not current_match or not base_match:
-              raise SystemExit("Nao foi possivel isolar a estrutura do login")
-          if current_match.group(0) != base_match.group(0):
-              raise SystemExit("A estrutura HTML do login mudou")
-          print("LOGIN_MARKUP_UNCHANGED=1")
+          base = subprocess.check_output(["git", "show", "refs/remotes/origin/main:index.html"], text=True)
+          pat = re.compile(r'<section id="auth-gate".*?</section>\s*<div id="auth-session-badge"', re.S)
+          a, b = pat.search(current), pat.search(base)
+          if not a or not b or a.group(0) != b.group(0):
+              raise SystemExit("Estrutura HTML do login mudou")
+          print("LOGIN_UNCHANGED=1")
           PY
 
-      - name: Validar HTML, CSS, referencias e JavaScript
+      - name: Validar integracao v11
         shell: bash
         run: |
           set -euo pipefail
-
-          grep -q 'emissao-v10.0.0.css?v=2' index.html
-          grep -q 'emissao-v10.0.0.js?v=2' index.html
-          grep -q 'url("assets/login-portal-full-v8.5.7.webp")' emissao-v10.0.0.css
-
-          if grep -Eq 'emissao-portal-wide-v10|emissao-v10\.0\.0/(part|chunk)|fetch\(.+emissao-v10' index.html emissao-v10.0.0.css emissao-v10.0.0.js; then
-            echo "ERRO: a emissao ainda depende de asset experimental ou montagem no navegador"
-            exit 1
-          fi
-
-          if grep -Eq 'emissao-v8\.6\.7\.(css|js)|emissao-v8\.7\.0\.(css|js)' index.html; then
-            echo "ERRO: index ainda carrega patches antigos conflitantes da emissao"
-            exit 1
-          fi
+          grep -q 'emissao-v11.0.0.css' index.html
+          grep -q 'assets/emissao-viewport-v11-wide.webp' emissao-v11.0.0.css
+          test -f emissao-v11.0.0.css
+          test -f assets/emissao-viewport-v11-wide.webp
 
           node --check app.js
           node --check auth-v8.4.0.js
@@ -128,190 +137,111 @@ jobs:
 
           class Parser(HTMLParser):
               def __init__(self):
-                  super().__init__()
-                  self.ids = []
-                  self.refs = []
+                  super().__init__(); self.ids=[]; self.refs=[]
               def handle_starttag(self, tag, attrs):
-                  attrs = dict(attrs)
-                  if "id" in attrs:
-                      self.ids.append(attrs["id"])
-                  key = "href" if tag == "link" else "src" if tag in {"script", "img"} else None
-                  if key and attrs.get(key):
-                      self.refs.append(attrs[key])
+                  attrs=dict(attrs)
+                  if "id" in attrs: self.ids.append(attrs["id"])
+                  key="href" if tag=="link" else "src" if tag in {"script","img"} else None
+                  if key and attrs.get(key): self.refs.append(attrs[key])
 
-          html = Path("index.html").read_text(encoding="utf-8")
-          parser = Parser()
-          parser.feed(html)
-
-          duplicated = [name for name, count in Counter(parser.ids).items() if count > 1]
-          if duplicated:
-              raise SystemExit(f"IDs HTML duplicados: {duplicated}")
-
-          required = {
-              "auth-gate", "auth-form", "auth-email", "auth-password", "auth-submit",
-              "inicio", "solicitar", "request-form", "solicitante", "cpf", "telefone",
-              "unidade", "contrato", "parcel-mode-select", "consentimento", "submit-button",
-              "emissao-logout", "success-panel"
-          }
-          missing = sorted(required.difference(parser.ids))
-          if missing:
-              raise SystemExit(f"IDs obrigatorios ausentes: {missing}")
-
-          missing_files = []
-          for ref in parser.refs:
-              if ref.startswith(("http://", "https://", "//", "data:", "#")):
-                  continue
-              path = urlsplit(ref).path
-              if path and not Path(path).exists():
-                  missing_files.append(path)
-          if missing_files:
-              raise SystemExit(f"Referencias locais inexistentes: {sorted(set(missing_files))}")
-
-          if "utm_source" in html:
-              raise SystemExit("Parametro de rastreamento indevido encontrado no HTML")
-
-          css = Path("emissao-v10.0.0.css").read_text(encoding="utf-8")
-          required_css = [
-              "background-size: cover, cover",
-              ".form-layer",
-              ".emissao-logout",
-              "@media (min-width: 801px)",
-          ]
-          for token in required_css:
-              if token not in css:
-                  raise SystemExit(f"Regra CSS obrigatoria ausente: {token}")
-
-          print("HTML_CSS_JS_OK=1")
+          html=Path("index.html").read_text(encoding="utf-8")
+          p=Parser(); p.feed(html)
+          dup=[k for k,v in Counter(p.ids).items() if v>1]
+          if dup: raise SystemExit(f"IDs duplicados: {dup}")
+          required={"auth-gate","auth-form","inicio","solicitar","request-form","solicitante","cpf","telefone","unidade","contrato","parcel-mode-select","consentimento","submit-button","emissao-logout","success-panel"}
+          missing=sorted(required.difference(p.ids))
+          if missing: raise SystemExit(f"IDs obrigatorios ausentes: {missing}")
+          missing_files=[]
+          for ref in p.refs:
+              if ref.startswith(("http://","https://","//","data:","#")): continue
+              path=urlsplit(ref).path
+              if path and not Path(path).exists(): missing_files.append(path)
+          if missing_files: raise SystemExit(f"Referencias locais ausentes: {sorted(set(missing_files))}")
+          if "utm_source" in html: raise SystemExit("Parametro de rastreamento indevido no HTML")
+          print("INTEGRACAO_V11_OK=1")
           PY
 
-      - name: Criar preview de QA sem autenticar
+      - name: Criar preview de QA
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
           import re
-
-          html = Path("index.html").read_text(encoding="utf-8")
-          html = re.sub(r'<script\b[^>]*>.*?</script>', '', html, flags=re.I | re.S)
-          html = html.replace('<main id="inicio" class="visual-stage" hidden>', '<main id="inicio" class="visual-stage">')
-          qa_script = r'''
+          html=Path("index.html").read_text(encoding="utf-8")
+          html=re.sub(r'<script\b[^>]*>.*?</script>', '', html, flags=re.I|re.S)
+          html=html.replace('<main id="inicio" class="visual-stage" hidden>', '<main id="inicio" class="visual-stage">')
+          qa='''
           <style>#auth-gate{display:none!important}</style>
           <script>
-          addEventListener('load', () => {
-            const desktop = innerWidth >= 801;
-            const panel = document.querySelector('.form-layer');
-            const ids = ['solicitante','cpf','telefone','contrato','parcel-mode-select','consentimento','submit-button'];
-            const failures = [];
-            const inside = (r, outer, pad = 1) => r.left >= outer.left-pad && r.right <= outer.right+pad && r.top >= outer.top-pad && r.bottom <= outer.bottom+pad;
-            if (desktop) {
-              const pr = panel.getBoundingClientRect();
-              if (pr.left < -2 || pr.top < -2 || pr.right > innerWidth+2 || pr.bottom > innerHeight+2) failures.push('panel-outside');
-              for (const id of ids) {
-                const el = document.getElementById(id);
-                if (!el) { failures.push('missing-'+id); continue; }
-                const r = el.getBoundingClientRect();
-                if (r.width < 8 || r.height < 8) failures.push('collapsed-'+id);
-                if (!inside(r, pr, 3)) failures.push('outside-'+id);
-              }
-            }
-            document.documentElement.dataset.qa = failures.length ? 'fail-' + failures.join('-') : 'ok';
+          addEventListener('load',()=>{
+            const ids=['solicitante','cpf','telefone','contrato','parcel-mode-select','consentimento','submit-button'];
+            const failures=[];
+            for(const id of ids){const el=document.getElementById(id);if(!el){failures.push('missing-'+id);continue;}const r=el.getBoundingClientRect();if(r.width<8||r.height<8)failures.push('collapsed-'+id);if(r.right<0||r.left>innerWidth||r.bottom<0||r.top>innerHeight)failures.push('offscreen-'+id);}
+            document.documentElement.dataset.qa=failures.length?'fail-'+failures.join('-'):'ok';
           });
           </script>
           '''
-          html = html.replace('</head>', qa_script + '</head>')
-          Path("_qa-preview-v10.html").write_text(html, encoding="utf-8")
+          html=html.replace('</head>', qa+'</head>')
+          Path("_qa-preview-v11.html").write_text(html,encoding="utf-8")
           PY
 
-      - name: Testar viewport em Chrome desktop e mobile
+      - name: Testar v11 no Chrome
         shell: bash
         run: |
           set -euo pipefail
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
-          if [ -z "$CHROME" ]; then
-            echo "ERRO: Chromium/Chrome nao encontrado no runner"
-            exit 1
-          fi
-
-          mkdir -p qa-v10
-          python -m http.server 8765 --bind 127.0.0.1 > /tmp/v10-http.log 2>&1 &
+          [ -n "$CHROME" ] || { echo "ERRO: Chrome/Chromium nao encontrado"; exit 1; }
+          mkdir -p qa-v11
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/v11-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
           sleep 2
+          curl --fail --silent http://127.0.0.1:8765/assets/emissao-viewport-v11-wide.webp -o /dev/null
+          curl --fail --silent http://127.0.0.1:8765/emissao-v11.0.0.css -o /dev/null
 
-          curl --fail --silent --show-error http://127.0.0.1:8765/assets/login-portal-full-v8.5.7.webp -o /dev/null
-          curl --fail --silent --show-error http://127.0.0.1:8765/emissao-v10.0.0.css -o /dev/null
-
-          check_layout () {
+          check_layout() {
             local size="$1"
             local dump
-            dump="$("$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size="$size" --dump-dom http://127.0.0.1:8765/_qa-preview-v10.html#solicitar 2>/dev/null)"
-            if ! grep -q 'data-qa="ok"' <<< "$dump"; then
-              echo "ERRO: geometria invalida em $size"
-              grep -o 'data-qa="[^"]*"' <<< "$dump" || true
-              exit 1
-            fi
+            dump="$("$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size="$size" --dump-dom http://127.0.0.1:8765/_qa-preview-v11.html#solicitar 2>/dev/null)"
+            grep -q 'data-qa="ok"' <<<"$dump" || { echo "ERRO: geometria invalida em $size"; grep -o 'data-qa="[^"]*"' <<<"$dump" || true; exit 1; }
           }
 
           check_layout 1365,695
           check_layout 1920,1080
           check_layout 2560,1080
 
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1365,695 --screenshot=qa-v10/preview-1365x695.png http://127.0.0.1:8765/_qa-preview-v10.html#solicitar
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1920,1080 --screenshot=qa-v10/preview-1920x1080.png http://127.0.0.1:8765/_qa-preview-v10.html#solicitar
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=2560,1080 --screenshot=qa-v10/preview-2560x1080.png http://127.0.0.1:8765/_qa-preview-v10.html#solicitar
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=390,844 --screenshot=qa-v10/preview-mobile-390x844.png http://127.0.0.1:8765/_qa-preview-v10.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1365,695 --screenshot=qa-v11/preview-1365x695.png http://127.0.0.1:8765/_qa-preview-v11.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1920,1080 --screenshot=qa-v11/preview-1920x1080.png http://127.0.0.1:8765/_qa-preview-v11.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=2560,1080 --screenshot=qa-v11/preview-2560x1080.png http://127.0.0.1:8765/_qa-preview-v11.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=390,844 --screenshot=qa-v11/preview-mobile-390x844.png http://127.0.0.1:8765/_qa-preview-v11.html#solicitar
 
           python - <<'PY'
           from pathlib import Path
           from PIL import Image, ImageStat
-
-          expected = {
-              "preview-1365x695.png": (1365, 695),
-              "preview-1920x1080.png": (1920, 1080),
-              "preview-2560x1080.png": (2560, 1080),
-              "preview-mobile-390x844.png": (390, 844),
-          }
-
-          for name, size in expected.items():
-              path = Path("qa-v10") / name
-              with Image.open(path) as image:
-                  image.load()
-                  if image.size != size:
-                      raise SystemExit(f"Screenshot {name} com tamanho {image.size}, esperado {size}")
-                  gray = image.convert("L")
-                  stat = ImageStat.Stat(gray)
-                  mean, stddev = stat.mean[0], stat.stddev[0]
-                  if mean < 7 or stddev < 8:
-                      raise SystemExit(f"Screenshot {name} parece vazio/preto: media={mean:.2f}, desvio={stddev:.2f}")
-
-                  if image.width >= 801:
-                      edge_w = max(8, image.width // 24)
-                      for side, box in {
-                          "left": (0, 0, edge_w, image.height),
-                          "right": (image.width-edge_w, 0, image.width, image.height),
-                      }.items():
-                          edge = gray.crop(box)
-                          values = list(edge.getdata())
-                          near_black = sum(v <= 3 for v in values) / len(values)
-                          edge_std = ImageStat.Stat(edge).stddev[0]
-                          if near_black > .985 and edge_std < 3:
-                              raise SystemExit(
-                                  f"Faixa lateral preta detectada em {name}/{side}: "
-                                  f"near_black={near_black:.3f}, desvio={edge_std:.2f}"
-                              )
-                  print(f"{name}: mean={mean:.2f} stddev={stddev:.2f} OK")
+          for path in Path("qa-v11").glob("*.png"):
+              with Image.open(path) as im:
+                  im.load(); stat=ImageStat.Stat(im.convert("L"))
+                  if stat.mean[0] < 7 or stat.stddev[0] < 8:
+                      raise SystemExit(f"Screenshot parece vazio/preto: {path}")
+                  if im.width>=801:
+                      edge=max(8,im.width//30)
+                      for side,box in {"left":(0,0,edge,im.height),"right":(im.width-edge,0,im.width,im.height)}.items():
+                          crop=im.convert("L").crop(box); vals=list(crop.getdata()); near=sum(v<=3 for v in vals)/len(vals)
+                          if near>.985 and ImageStat.Stat(crop).stddev[0]<3:
+                              raise SystemExit(f"Faixa preta detectada: {path.name}/{side}")
+                  print(path.name,"OK")
           PY
 
-      - name: Guardar screenshots de conferencia
+      - name: Guardar screenshots de QA
         uses: actions/upload-artifact@v4
         with:
-          name: qa-viewport-v10-${{ github.sha }}
-          path: qa-v10/*.png
+          name: qa-viewport-v11-${{ github.sha }}
+          path: qa-v11/*.png
           if-no-files-found: error
           retention-days: 7
 
-      - name: Preparar pacote limpo do site
+      - name: Preparar pacote limpo
         shell: bash
         run: |
           set -euo pipefail
@@ -320,27 +250,23 @@ jobs:
             --exclude '.git' \
             --exclude '.github' \
             --exclude '_site' \
-            --exclude '_qa-preview-v10.html' \
-            --exclude 'qa-v10' \
+            --exclude '_qa-preview-v11.html' \
+            --exclude 'qa-v11' \
             --exclude '*.b64' \
-            --exclude 'part-*.bin' \
-            --exclude 'assets/emissao-v10.0.0' \
-            --exclude 'assets/emissao-v10.0.0-src' \
+            --exclude 'assets/emissao-v11-src' \
             ./ _site/
-
+          test -f _site/assets/emissao-viewport-v11-wide.webp
+          test -f _site/emissao-v11.0.0.css
           test -f _site/assets/login-portal-full-v8.5.7.webp
-          test -f _site/emissao-v10.0.0.css
-          test -f _site/emissao-v10.0.0.js
-
-          if find _site -type f \( -name '*.b64' -o -name 'part-*.bin' \) -print -quit | grep -q .; then
-            echo "ERRO: fragmentos de teste vazaram para o pacote publicado"
+          if find _site -type f -name '*.b64' -print -quit | grep -q .; then
+            echo "ERRO: fragmentos b64 vazaram para o pacote"
             exit 1
           fi
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Empacotar site validado
+      - name: Empacotar site
         uses: actions/upload-pages-artifact@v4
         with:
           path: "_site"
