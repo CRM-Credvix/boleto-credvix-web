@@ -1,6 +1,7 @@
 /* v11.0.1 - alinhamento fino do formulario funcional sobre a viewport aprovada.
    Preserva bordas, icones, textos decorativos e botao desenhados na arte-base,
-   cobrindo apenas o texto estatico dos campos para evitar duplicacao visual. */
+   cobrindo apenas o texto estatico dos campos para evitar duplicacao visual.
+   Ajuste fino: campos e faixa de autorizacao com 34px no desktop. */
 
 @media (min-width: 801px) {
   .slot-name,
@@ -15,13 +16,25 @@
     width: 17.8125% !important;
   }
 
-  .slot-name { top: 26.666667% !important; height: 5.092593% !important; }
-  .slot-cpf { top: 32.685185% !important; height: 5.000000% !important; }
-  .slot-phone { top: 38.611111% !important; height: 5.185185% !important; }
-  .slot-unit { top: 44.629630% !important; height: 5.092593% !important; }
-  .slot-contract { top: 50.555556% !important; height: 5.092593% !important; }
-  .parcel-choice { top: 56.481481% !important; height: 5.092593% !important; }
-  .consent { top: 62.962963% !important; height: 5.277778% !important; }
+  .slot-name,
+  .slot-cpf,
+  .slot-phone,
+  .slot-unit,
+  .slot-contract,
+  .parcel-choice,
+  .consent {
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  .slot-name { top: 26.666667% !important; }
+  .slot-cpf { top: 32.685185% !important; }
+  .slot-phone { top: 38.611111% !important; }
+  .slot-unit { top: 44.629630% !important; }
+  .slot-contract { top: 50.555556% !important; }
+  .parcel-choice { top: 56.481481% !important; }
+  .consent { top: 62.962963% !important; }
   .primary-button { top: 69.814815% !important; height: 8.240741% !important; }
 
   .slot-name > input,
@@ -31,10 +44,12 @@
     position: absolute !important;
     left: 10.5% !important;
     right: 1.2% !important;
-    top: 4% !important;
-    bottom: 4% !important;
+    top: 2px !important;
+    bottom: auto !important;
     width: auto !important;
-    height: auto !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
     padding: 0 2.3% !important;
     border: 0 !important;
     border-radius: 0 !important;
@@ -42,6 +57,7 @@
     background: #070805 !important;
     box-shadow: none !important;
     font-size: clamp(10px, .70vw, 15px) !important;
+    line-height: 30px !important;
   }
 
   .slot-unit > select,
@@ -50,11 +66,12 @@
     position: absolute !important;
     left: 10.5% !important;
     right: 9.2% !important;
-    top: 4% !important;
-    bottom: 4% !important;
+    top: 2px !important;
+    bottom: auto !important;
     width: auto !important;
-    height: auto !important;
-    min-height: 0 !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
     padding: 0 2.4% !important;
     border: 0 !important;
     border-radius: 0 !important;
@@ -63,6 +80,7 @@
     box-shadow: none !important;
     appearance: none !important;
     font-size: clamp(10px, .70vw, 15px) !important;
+    line-height: 30px !important;
   }
 
   .slot-name > input:focus,
@@ -92,7 +110,9 @@
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
-    height: 100% !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
     margin: 0 !important;
     opacity: 0 !important;
     cursor: pointer !important;
@@ -101,11 +121,13 @@
   .checkbox-ui {
     position: absolute !important;
     left: 3.73% !important;
-    top: 26.3% !important;
-    width: 5.92% !important;
-    height: 47.4% !important;
+    top: 50% !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
     box-sizing: border-box !important;
-    transform: none !important;
+    transform: translateY(-50%) !important;
     border: 1px solid #a76e18 !important;
     border-radius: 2px !important;
     background: #080905 !important;
@@ -121,7 +143,7 @@
     place-items: center !important;
     color: #ffad25 !important;
     font-family: Arial, Helvetica, sans-serif !important;
-    font-size: clamp(8px, .65vw, 15px) !important;
+    font-size: 12px !important;
     font-weight: 900 !important;
     line-height: 1 !important;
   }
