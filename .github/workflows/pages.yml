@@ -52,9 +52,12 @@ jobs:
           if missing:
               raise SystemExit(f"Fragmentos ausentes: {missing}")
 
-          payload = "".join(p.read_text(encoding="ascii").strip() for p in parts)
-          payload += "=" * (-len(payload) % 4)
-          raw = base64.b64decode(payload)
+          chunks = []
+          for part in parts:
+              payload = part.read_text(encoding="ascii").strip()
+              payload += "=" * (-len(payload) % 4)
+              chunks.append(base64.b64decode(payload))
+          raw = b"".join(chunks)
           out = Path("assets/emissao-viewport-v11-wide.webp")
           out.write_bytes(raw)
           print(f"VIEWPORT_BYTES={len(raw)}")
