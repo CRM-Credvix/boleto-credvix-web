@@ -1,7 +1,6 @@
 /* v11.0.1 - alinhamento fino do formulario funcional sobre a viewport aprovada.
-   Preserva bordas, icones, textos decorativos e botao desenhados na arte-base,
-   cobrindo apenas o texto estatico dos campos para evitar duplicacao visual.
-   Ajuste fino: campos e faixa de autorizacao com 34px no desktop. */
+   Preserva integralmente a arte-base e corrige somente as areas HTML interativas.
+   As posicoes abaixo seguem os trilhos reais desenhados na viewport 2560x1080. */
 
 @media (min-width: 801px) {
   .slot-name,
@@ -16,25 +15,33 @@
     width: 17.8125% !important;
   }
 
+  /* Cada controle acompanha a altura real do trilho desenhado na arte.
+     Percentual, e nao px fixo, evita desalinhamento quando o background escala. */
   .slot-name,
   .slot-cpf,
   .slot-phone,
   .slot-unit,
   .slot-contract,
-  .parcel-choice,
-  .consent {
-    height: 34px !important;
-    min-height: 34px !important;
-    max-height: 34px !important;
+  .parcel-choice {
+    height: 5.35% !important;
+    min-height: 0 !important;
+    max-height: none !important;
   }
 
-  .slot-name { top: 26.666667% !important; }
-  .slot-cpf { top: 32.685185% !important; }
-  .slot-phone { top: 38.611111% !important; }
-  .slot-unit { top: 44.629630% !important; }
-  .slot-contract { top: 50.555556% !important; }
-  .parcel-choice { top: 56.481481% !important; }
-  .consent { top: 62.962963% !important; }
+  .consent {
+    height: 5.52% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+
+  /* Coordenadas medidas diretamente nos trilhos da viewport aprovada. */
+  .slot-name { top: 25.75% !important; }
+  .slot-cpf { top: 32.11% !important; }
+  .slot-phone { top: 38.46% !important; }
+  .slot-unit { top: 44.98% !important; }
+  .slot-contract { top: 51.34% !important; }
+  .parcel-choice { top: 57.69% !important; }
+  .consent { top: 64.55% !important; }
   .primary-button { top: 69.814815% !important; height: 8.240741% !important; }
 
   .slot-name > input,
@@ -44,12 +51,12 @@
     position: absolute !important;
     left: 10.5% !important;
     right: 1.2% !important;
-    top: 2px !important;
-    bottom: auto !important;
+    top: 6% !important;
+    bottom: 6% !important;
     width: auto !important;
-    height: 30px !important;
-    min-height: 30px !important;
-    max-height: 30px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
     padding: 0 2.3% !important;
     border: 0 !important;
     border-radius: 0 !important;
@@ -57,7 +64,9 @@
     background: #070805 !important;
     box-shadow: none !important;
     font-size: clamp(10px, .70vw, 15px) !important;
-    line-height: 30px !important;
+    line-height: normal !important;
+    transform: none !important;
+    filter: none !important;
   }
 
   .slot-unit > select,
@@ -66,12 +75,12 @@
     position: absolute !important;
     left: 10.5% !important;
     right: 9.2% !important;
-    top: 2px !important;
-    bottom: auto !important;
+    top: 6% !important;
+    bottom: 6% !important;
     width: auto !important;
-    height: 30px !important;
-    min-height: 30px !important;
-    max-height: 30px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
     padding: 0 2.4% !important;
     border: 0 !important;
     border-radius: 0 !important;
@@ -80,7 +89,14 @@
     box-shadow: none !important;
     appearance: none !important;
     font-size: clamp(10px, .70vw, 15px) !important;
-    line-height: 30px !important;
+    line-height: normal !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .slot-unit .unit-trigger {
+    display: flex !important;
+    align-items: center !important;
   }
 
   .slot-name > input:focus,
@@ -110,27 +126,30 @@
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
-    height: 34px !important;
-    min-height: 34px !important;
-    max-height: 34px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
     margin: 0 !important;
     opacity: 0 !important;
     cursor: pointer !important;
   }
 
+  /* A caixa vazia ja faz parte da arte. O HTML nao desenha uma segunda caixa;
+     quando marcado, exibe somente o check no centro da caixa original. */
   .checkbox-ui {
     position: absolute !important;
-    left: 3.73% !important;
+    left: 3.0% !important;
     top: 50% !important;
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
-    min-height: 18px !important;
+    width: 8.8% !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    aspect-ratio: 1 / 1 !important;
     box-sizing: border-box !important;
     transform: translateY(-50%) !important;
-    border: 1px solid #a76e18 !important;
-    border-radius: 2px !important;
-    background: #080905 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
     box-shadow: none !important;
     pointer-events: none !important;
   }
@@ -141,11 +160,12 @@
     inset: 0 !important;
     display: grid !important;
     place-items: center !important;
-    color: #ffad25 !important;
+    color: #f4b223 !important;
     font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 12px !important;
+    font-size: clamp(11px, .78vw, 17px) !important;
     font-weight: 900 !important;
     line-height: 1 !important;
+    text-shadow: 0 0 5px rgba(244, 178, 35, .45) !important;
   }
 
   .consent-copy {
@@ -155,7 +175,7 @@
 
   #consent-error {
     left: 42.9% !important;
-    top: 68.35% !important;
+    top: 70.15% !important;
     width: 17.2% !important;
   }
 
@@ -187,7 +207,7 @@
 
   #form-alert {
     left: 42.9% !important;
-    top: 67.9% !important;
+    top: 71.0% !important;
     width: 17.3% !important;
   }
 }
