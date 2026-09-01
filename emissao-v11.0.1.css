@@ -105,6 +105,7 @@
     width: 5.92% !important;
     height: 47.4% !important;
     box-sizing: border-box !important;
+    transform: none !important;
     border: 1px solid #a76e18 !important;
     border-radius: 2px !important;
     background: #080905 !important;
