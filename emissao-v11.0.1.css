@@ -39,7 +39,7 @@
     border: 0 !important;
     border-radius: 0 !important;
     color: #e7d4b3 !important;
-    background: rgba(7, 8, 5, .985) !important;
+    background: #070805 !important;
     box-shadow: none !important;
     font-size: clamp(10px, .70vw, 15px) !important;
   }
@@ -59,7 +59,7 @@
     border: 0 !important;
     border-radius: 0 !important;
     color: #e7d4b3 !important;
-    background: rgba(7, 8, 5, .985) !important;
+    background: #070805 !important;
     box-shadow: none !important;
     appearance: none !important;
     font-size: clamp(10px, .70vw, 15px) !important;
@@ -74,7 +74,7 @@
   .slot-unit .unit-trigger[aria-expanded="true"],
   .parcel-mode-select:focus {
     border: 0 !important;
-    background: rgba(9, 10, 6, .995) !important;
+    background: #090a06 !important;
     box-shadow: 0 0 10px rgba(255, 158, 24, .12) !important;
     outline: none !important;
   }
@@ -100,10 +100,10 @@
 
   .checkbox-ui {
     position: absolute !important;
-    left: 2.9% !important;
-    top: 24% !important;
-    width: 5.8% !important;
-    height: 52% !important;
+    left: 3.73% !important;
+    top: 26.3% !important;
+    width: 5.92% !important;
+    height: 47.4% !important;
     box-sizing: border-box !important;
     border: 1px solid #a76e18 !important;
     border-radius: 2px !important;
