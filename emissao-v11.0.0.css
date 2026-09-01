@@ -1,0 +1,430 @@
+/* v11.0.0 - viewport aprovada para a tela de emissao.
+   Desktop usa a arte widescreen 2560x1080 como viewport real.
+   O formulario continua HTML/CSS funcional, alinhado sobre o painel da arte.
+   Login e mobile permanecem sob os estilos existentes. */
+
+@media (min-width: 801px) {
+  html,
+  body {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    background: #030302 !important;
+  }
+
+  .visual-stage {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    background: #030302 url("assets/emissao-viewport-v11-wide.webp?v=11.0.0") center center / cover no-repeat !important;
+    transform: none !important;
+    isolation: isolate !important;
+  }
+
+  .visual-stage::before,
+  .visual-stage::after,
+  .desktop-mock,
+  .emissao-bg-fill,
+  .emissao-edge-fill,
+  .desktop-hotspot,
+  .auth-session-badge,
+  body > .auth-logout,
+  .mobile-intro {
+    display: none !important;
+    content: none !important;
+  }
+
+  /* Artboard virtual que acompanha exatamente a proporcao 2560x1080 da viewport. */
+  .form-layer {
+    position: absolute !important;
+    z-index: 20 !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: max(100vw, 237.037037vh) !important;
+    height: max(100vh, 42.1875vw) !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: translate(-50%, -50%) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+  }
+
+  .form-layer::before,
+  .form-layer::after,
+  .mobile-form-title {
+    display: none !important;
+    content: none !important;
+  }
+
+  #request-form {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    pointer-events: none !important;
+  }
+
+  .honeypot,
+  .slot-name > .field-label,
+  .slot-cpf > .field-label,
+  .slot-phone > .field-label,
+  .slot-unit > .field-label,
+  .slot-contract > .field-label,
+  .mobile-only-label,
+  .parcel-choice > .parcel-option {
+    display: none !important;
+  }
+
+  .slot-name,
+  .slot-cpf,
+  .slot-phone,
+  .slot-unit,
+  .slot-contract,
+  .parcel-choice,
+  .consent,
+  .primary-button {
+    position: absolute !important;
+    left: 42.77% !important;
+    width: 17.70% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    pointer-events: auto !important;
+  }
+
+  .slot-name { top: 28.05% !important; height: 3.75% !important; }
+  .slot-cpf { top: 32.50% !important; height: 3.75% !important; }
+  .slot-phone { top: 36.95% !important; height: 3.75% !important; }
+  .slot-unit { top: 41.40% !important; height: 3.75% !important; z-index: 80 !important; }
+  .slot-contract { top: 45.85% !important; height: 3.75% !important; }
+  .parcel-choice { top: 50.30% !important; height: 3.75% !important; border: 0 !important; padding: 0 !important; }
+  .consent { top: 54.72% !important; height: 4.00% !important; }
+  .primary-button { top: 60.45% !important; height: 6.10% !important; }
+
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit > select,
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 3.1% !important;
+    border: 1px solid rgba(190, 117, 18, .82) !important;
+    border-radius: 4px !important;
+    outline: none !important;
+    appearance: none !important;
+    color: #ead6ae !important;
+    caret-color: #ffb33f !important;
+    background: rgba(7, 8, 5, .965) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 182, 58, .025) !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(10px, .70vw, 15px) !important;
+    line-height: 1 !important;
+    text-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+    -webkit-font-smoothing: antialiased !important;
+  }
+
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    padding-right: 8% !important;
+    cursor: pointer !important;
+  }
+
+  .slot-name > input::placeholder,
+  .slot-cpf > input::placeholder,
+  .slot-phone > input::placeholder,
+  .slot-contract > input::placeholder,
+  .slot-unit .unit-trigger::placeholder {
+    color: rgba(224, 203, 166, .72) !important;
+    opacity: 1 !important;
+  }
+
+  .slot-name > input:focus,
+  .slot-cpf > input:focus,
+  .slot-phone > input:focus,
+  .slot-contract > input:focus,
+  .slot-unit > select:focus,
+  .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger[aria-expanded="true"],
+  .parcel-mode-select:focus {
+    border-color: #f4a62d !important;
+    color: #fff0cf !important;
+    background: rgba(8, 9, 5, .99) !important;
+    box-shadow: 0 0 0 2px rgba(255, 157, 22, .12), inset 0 0 0 1px rgba(255, 194, 77, .07) !important;
+  }
+
+  .slot-name > input:-webkit-autofill,
+  .slot-cpf > input:-webkit-autofill,
+  .slot-phone > input:-webkit-autofill,
+  .slot-contract > input:-webkit-autofill {
+    -webkit-text-fill-color: #ead6ae !important;
+    caret-color: #ffb33f !important;
+    -webkit-box-shadow: 0 0 0 1000px #080905 inset !important;
+  }
+
+  .field-error {
+    position: absolute !important;
+    left: 1% !important;
+    top: calc(100% + 1px) !important;
+    z-index: 120 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #ffc66d !important;
+    font-size: clamp(7px, .45vw, 10px) !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    text-shadow: 0 1px 2px #000 !important;
+  }
+
+  .unit-list {
+    left: 0 !important;
+    top: calc(100% + 4px) !important;
+    z-index: 200 !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: min(34vh, 250px) !important;
+    box-sizing: border-box !important;
+    padding: 4px !important;
+    border: 1px solid rgba(244, 166, 45, .85) !important;
+    border-radius: 5px !important;
+    background: rgba(7, 8, 5, .995) !important;
+    box-shadow: 0 12px 28px rgba(0,0,0,.82), 0 0 18px rgba(255,145,18,.12) !important;
+  }
+
+  .unit-option {
+    min-height: 30px !important;
+    padding: 7px 9px !important;
+    color: #ead6ae !important;
+    background: transparent !important;
+    font-size: 12px !important;
+  }
+
+  .unit-option:hover,
+  .unit-option:focus-visible,
+  .unit-option.is-active,
+  .unit-option[aria-selected="true"] {
+    color: #fff3d6 !important;
+    background: rgba(151, 80, 8, .88) !important;
+  }
+
+  .parcel-mode-select option {
+    color: #ead6ae !important;
+    background: #090a06 !important;
+  }
+
+  /* Campos de parcela abrem como painel lateral e nao deslocam a arte aprovada. */
+  .parcel-fields,
+  .access-code-field:not([hidden]) {
+    position: absolute !important;
+    left: 61.2% !important;
+    top: 49.9% !important;
+    z-index: 180 !important;
+    width: 15.5% !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: .65% !important;
+    border: 1px solid rgba(236, 150, 28, .78) !important;
+    border-radius: 6px !important;
+    color: #ead6ae !important;
+    background: rgba(7, 8, 5, .985) !important;
+    box-shadow: 0 14px 34px rgba(0,0,0,.78), 0 0 18px rgba(255,150,18,.08) !important;
+    pointer-events: auto !important;
+  }
+
+  .parcel-fields[hidden],
+  .access-code-field[hidden],
+  .parcel-fields .parcel-range[hidden],
+  .parcel-fields .parcel-single[hidden] {
+    display: none !important;
+  }
+
+  .parcel-fields .parcel-range {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .parcel-fields .field,
+  .access-code-field:not([hidden]) {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+  }
+
+  .parcel-fields .field-label,
+  .access-code-field:not([hidden]) .field-label {
+    display: block !important;
+    margin: 0 0 4px !important;
+    color: #e8c684 !important;
+    font-size: clamp(8px, .52vw, 11px) !important;
+  }
+
+  .parcel-fields input,
+  .access-code-field:not([hidden]) input {
+    width: 100% !important;
+    height: clamp(30px, 3.7vh, 38px) !important;
+    box-sizing: border-box !important;
+    padding: 0 9px !important;
+    border: 1px solid rgba(236, 150, 28, .55) !important;
+    border-radius: 4px !important;
+    color: #f3dfbc !important;
+    background: #090a06 !important;
+  }
+
+  .consent {
+    display: flex !important;
+    align-items: center !important;
+    gap: 2.5% !important;
+    padding: 0 2.2% !important;
+    border: 1px solid rgba(190, 117, 18, .68) !important;
+    border-radius: 4px !important;
+    color: #e6cfaa !important;
+    background: rgba(7, 8, 5, .965) !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(8px, .57vw, 12px) !important;
+    cursor: pointer !important;
+  }
+
+  .consent input {
+    position: absolute !important;
+    opacity: 0 !important;
+  }
+
+  .checkbox-ui {
+    position: relative !important;
+    flex: 0 0 auto !important;
+    width: clamp(13px, .90vw, 19px) !important;
+    height: clamp(13px, .90vw, 19px) !important;
+    border: 1px solid #d2871b !important;
+    border-radius: 2px !important;
+    background: #080905 !important;
+  }
+
+  .consent input:checked + .checkbox-ui::after {
+    content: "✓" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    color: #ffad25 !important;
+    font-weight: 900 !important;
+    font-size: 90% !important;
+  }
+
+  .consent-copy {
+    white-space: nowrap !important;
+  }
+
+  #consent-error {
+    position: absolute !important;
+    left: 42.95% !important;
+    top: 58.72% !important;
+    z-index: 120 !important;
+    width: 17.4% !important;
+    color: #ffc66d !important;
+    font-size: clamp(7px, .45vw, 10px) !important;
+    text-shadow: 0 1px 2px #000 !important;
+    pointer-events: none !important;
+  }
+
+  .primary-button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    border: 1px solid rgba(255, 178, 45, .98) !important;
+    border-radius: 6px !important;
+    color: #ffb12e !important;
+    background: rgba(11, 10, 5, .72) !important;
+    box-shadow: 0 0 16px rgba(255, 146, 16, .23), inset 0 0 18px rgba(255, 134, 10, .06) !important;
+    font-family: "Courier New", monospace !important;
+    font-size: clamp(12px, .93vw, 20px) !important;
+    font-weight: 900 !important;
+    letter-spacing: .035em !important;
+    cursor: pointer !important;
+    text-shadow: 0 1px 2px #000 !important;
+    transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease !important;
+  }
+
+  .primary-button:hover,
+  .primary-button:focus-visible {
+    color: #1b1002 !important;
+    background: linear-gradient(180deg, #ffb637, #ee8f0b) !important;
+    box-shadow: 0 0 24px rgba(255, 155, 18, .42) !important;
+    outline: none !important;
+  }
+
+  .primary-button:disabled {
+    opacity: .70 !important;
+    cursor: wait !important;
+  }
+
+  #form-alert {
+    position: absolute !important;
+    left: 42.77% !important;
+    top: 67.1% !important;
+    z-index: 170 !important;
+    width: 17.70% !important;
+    box-sizing: border-box !important;
+    padding: 7px 10px !important;
+    border: 1px solid rgba(230, 135, 22, .58) !important;
+    border-radius: 5px !important;
+    color: #f0d4a7 !important;
+    background: rgba(8, 9, 5, .96) !important;
+    font-size: clamp(8px, .52vw, 11px) !important;
+    pointer-events: auto !important;
+  }
+
+  .success-panel:not([hidden]) {
+    position: absolute !important;
+    z-index: 260 !important;
+    left: 50% !important;
+    top: 50% !important;
+    display: block !important;
+    width: min(430px, 30vw) !important;
+    box-sizing: border-box !important;
+    padding: 30px !important;
+    transform: translate(-50%, -50%) !important;
+    border: 1px solid rgba(244, 166, 45, .88) !important;
+    border-radius: 10px !important;
+    color: #ead6ae !important;
+    background: rgba(7, 8, 5, .985) !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,.82), 0 0 30px rgba(255,150,18,.12) !important;
+    pointer-events: auto !important;
+  }
+
+  .success-panel[hidden] {
+    display: none !important;
+  }
+
+  .emissao-logout {
+    z-index: 500 !important;
+  }
+}
