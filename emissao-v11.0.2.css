@@ -105,17 +105,43 @@
     padding-right: 1.5% !important;
     border: 0 !important;
     border-radius: 0 !important;
-    background: transparent !important;
     box-shadow: none !important;
     outline: 0 !important;
     line-height: 1 !important;
   }
 
-  .parcel-mode-select:hover,
-  .parcel-mode-select:focus,
-  .parcel-mode-select:focus-visible {
+  /* Enquanto nenhuma opção foi escolhida, o texto que aparece é somente o que já
+     existe na própria viewport. Assim não há duplicação/ghosting do placeholder. */
+  .parcel-mode-select:invalid {
+    color: transparent !important;
+    background: transparent !important;
+    text-shadow: none !important;
+  }
+
+  /* Depois de escolher uma opção, cobre apenas a área interna do texto antigo e
+     exibe o valor real do select, preservando bordas e seta desenhadas na arte. */
+  .parcel-mode-select:valid {
+    color: #e7d4b3 !important;
+    background: #070805 !important;
+    text-shadow: none !important;
+  }
+
+  .parcel-mode-select:hover:invalid,
+  .parcel-mode-select:focus:invalid,
+  .parcel-mode-select:focus-visible:invalid {
+    color: transparent !important;
     border: 0 !important;
-    background: rgba(255, 164, 28, .018) !important;
+    background: rgba(255, 164, 28, .012) !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  .parcel-mode-select:hover:valid,
+  .parcel-mode-select:focus:valid,
+  .parcel-mode-select:focus-visible:valid {
+    color: #f0ddbc !important;
+    border: 0 !important;
+    background: #090a06 !important;
     box-shadow: none !important;
     outline: 0 !important;
   }
