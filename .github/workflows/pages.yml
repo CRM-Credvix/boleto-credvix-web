@@ -40,23 +40,30 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import base64
+          import hashlib
 
           src = Path("assets/emissao-v12-src")
-          parts = [src / "part-00.b64", src / "part-01.b64"]
+          parts = [src / f"part-{i:02d}.b64" for i in range(10)]
           missing = [str(p) for p in parts if not p.is_file()]
           if missing:
               raise SystemExit(f"Fragmentos v12 ausentes: {missing}")
 
-          payload = "".join(
-              p.read_text(encoding="ascii").strip()
-              for p in parts
-          )
+          payload = "".join(p.read_text(encoding="ascii").strip() for p in parts)
           payload += "=" * (-len(payload) % 4)
           raw = base64.b64decode(payload, validate=True)
+
+          expected_bytes = 147480
+          expected_sha = "e5ffc8b5d605ba4c3318dfdac2f8f135ca526098e9b77318b3cf7901a1ed9d41"
+          actual_sha = hashlib.sha256(raw).hexdigest()
+          if len(raw) != expected_bytes:
+              raise SystemExit(f"VIEWPORT_V12: tamanho {len(raw)}; esperado {expected_bytes}")
+          if actual_sha != expected_sha:
+              raise SystemExit(f"VIEWPORT_V12: SHA256 {actual_sha}; esperado {expected_sha}")
 
           out = Path("assets/emissao-viewport-v12-wide.webp")
           out.write_bytes(raw)
           print(f"VIEWPORT_V12_BYTES={len(raw)}")
+          print(f"VIEWPORT_V12_SHA256={actual_sha}")
           PY
 
       - name: Validar viewport v12 e arte de login
@@ -72,7 +79,6 @@ jobs:
               (Path("assets/login-portal-full-v8.5.7.webp"), (1916, 821), "LOGIN"),
               (Path("assets/emissao-viewport-v12-wide.webp"), (1916, 821), "VIEWPORT_V12"),
           ]
-
           for path, expected_size, label in checks:
               if not path.is_file():
                   raise SystemExit(f"{label}: arquivo ausente: {path}")
@@ -83,8 +89,7 @@ jobs:
                   if image.size != expected_size:
                       raise SystemExit(f"{label}: dimensoes {image.size}; esperado {expected_size}")
                   image.load()
-                  gray = image.convert("L")
-                  stat = ImageStat.Stat(gray)
+                  stat = ImageStat.Stat(image.convert("L"))
                   if stat.mean[0] < 7 or stat.stddev[0] < 8:
                       raise SystemExit(f"{label}: imagem parece vazia ou preta")
               print(f"{label}_BYTES={len(raw)}")
@@ -102,9 +107,9 @@ jobs:
             git diff --stat refs/remotes/origin/main -- auth-v8.5.4.css auth-v8.4.0.js assets/login-portal-full-v8.5.7.webp
             exit 1
           fi
-
           python - <<'PY'
-          import re, subprocess
+          import re
+          import subprocess
           from pathlib import Path
           current = Path("index.html").read_text(encoding="utf-8")
           base = subprocess.check_output(["git", "show", "refs/remotes/origin/main:index.html"], text=True)
@@ -120,15 +125,14 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'emissao-v12.0.0.css' index.html
+          grep -q 'assets/emissao-viewport-v12-wide.webp' index.html
           grep -q 'assets/emissao-viewport-v12-wide.webp' emissao-v12.0.0.css
           test -f emissao-v12.0.0.css
           test -f assets/emissao-viewport-v12-wide.webp
-
           node --check app.js
           node --check auth-v8.4.0.js
           node --check emissao-v8.6.12.js
           node --check emissao-v10.0.0.js
-
           python - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
@@ -177,7 +181,13 @@ jobs:
           addEventListener('load',()=>{
             const ids=['solicitante','cpf','telefone','contrato','parcel-mode-select','consentimento','submit-button'];
             const failures=[];
-            for(const id of ids){const el=document.getElementById(id);if(!el){failures.push('missing-'+id);continue;}const r=el.getBoundingClientRect();if(r.width<8||r.height<8)failures.push('collapsed-'+id);if(r.right<0||r.left>innerWidth||r.bottom<0||r.top>innerHeight)failures.push('offscreen-'+id);}
+            for(const id of ids){
+              const el=document.getElementById(id);
+              if(!el){failures.push('missing-'+id);continue;}
+              const r=el.getBoundingClientRect();
+              if(r.width<8||r.height<8)failures.push('collapsed-'+id);
+              if(r.right<0||r.left>innerWidth||r.bottom<0||r.top>innerHeight)failures.push('offscreen-'+id);
+            }
             document.documentElement.dataset.qa=failures.length?'fail-'+failures.join('-'):'ok';
           });
           </script>
@@ -292,50 +302,30 @@ jobs:
 
           current = get_json(f"{api}/repos/{repo}/actions/runs/{current_id}")
           cutoff = current["created_at"]
-
-          runs = []
-          page = 1
+          runs=[]
+          page=1
           while True:
-              data = get_json(f"{api}/repos/{repo}/actions/runs?per_page=100&page={page}")
-              batch = data.get("workflow_runs", [])
-              if not batch:
-                  break
+              data=get_json(f"{api}/repos/{repo}/actions/runs?per_page=100&page={page}")
+              batch=data.get("workflow_runs", [])
+              if not batch: break
               runs.extend(batch)
-              if len(batch) < 100:
-                  break
-              page += 1
-
-          targets = [
-              run for run in runs
-              if int(run["id"]) != current_id and run.get("created_at", "") <= cutoff
-          ]
-
-          deleted = 0
+              if len(batch)<100: break
+              page+=1
+          targets=[run for run in runs if int(run["id"])!=current_id and run.get("created_at", "")<=cutoff]
+          deleted=0
           for run in targets:
-              run_id = int(run["id"])
-              req = urllib.request.Request(
-                  f"{api}/repos/{repo}/actions/runs/{run_id}",
-                  headers=headers,
-                  method="DELETE",
-              )
+              run_id=int(run["id"])
+              req=urllib.request.Request(f"{api}/repos/{repo}/actions/runs/{run_id}",headers=headers,method="DELETE")
               try:
-                  with urllib.request.urlopen(req, timeout=30):
-                      pass
-                  deleted += 1
+                  with urllib.request.urlopen(req, timeout=30): pass
+                  deleted+=1
               except urllib.error.HTTPError as exc:
-                  if exc.code == 404:
-                      continue
+                  if exc.code==404: continue
                   raise
-
-          remaining = get_json(f"{api}/repos/{repo}/actions/runs?per_page=100").get("workflow_runs", [])
-          stale = [
-              run for run in remaining
-              if int(run["id"]) != current_id and run.get("created_at", "") <= cutoff
-          ]
+          remaining=get_json(f"{api}/repos/{repo}/actions/runs?per_page=100").get("workflow_runs", [])
+          stale=[run for run in remaining if int(run["id"])!=current_id and run.get("created_at", "")<=cutoff]
           if stale:
-              ids = [run["id"] for run in stale]
-              raise SystemExit(f"Runs antigos ainda presentes: {ids}")
-
+              raise SystemExit(f"Runs antigos ainda presentes: {[run['id'] for run in stale]}")
           print(f"WORKFLOW_RUNS_REMOVIDOS={deleted}")
           print(f"WORKFLOW_RUN_MANTIDO={current_id}")
           PY
