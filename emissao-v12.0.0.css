@@ -1,0 +1,213 @@
+/* v12.0.0 - nova viewport de emissao aprovada (1916x821).
+   Desktop apenas: substitui a arte v11 e realinha a camada funcional.
+   Login, autenticacao e mobile permanecem inalterados. */
+
+@media (min-width: 801px) {
+  html,
+  body {
+    background: #030302 !important;
+  }
+
+  .visual-stage {
+    background: #030302 url("assets/emissao-viewport-v12-wide.webp?v=12.0.0") center center / cover no-repeat !important;
+  }
+
+  /* Artboard virtual na proporcao exata da nova imagem: 1916 x 821. */
+  .form-layer {
+    width: max(100vw, 233.374vh) !important;
+    height: max(100vh, 42.8497vw) !important;
+  }
+
+  /* Trilhos medidos diretamente na nova arte. */
+  .slot-name,
+  .slot-cpf,
+  .slot-phone,
+  .slot-unit,
+  .slot-contract,
+  .parcel-choice,
+  .consent,
+  .primary-button {
+    left: 40.19% !important;
+    width: 19.02% !important;
+  }
+
+  .slot-name { top: 26.35% !important; height: 5.12% !important; }
+  .slot-cpf { top: 32.40% !important; height: 5.12% !important; }
+  .slot-phone { top: 38.49% !important; height: 5.12% !important; }
+  .slot-unit { top: 44.46% !important; height: 5.12% !important; }
+  .slot-contract { top: 50.43% !important; height: 5.12% !important; }
+  .parcel-choice { top: 56.39% !important; height: 5.12% !important; }
+  .consent { top: 62.55% !important; height: 4.35% !important; }
+  .primary-button { top: 68.24% !important; height: 5.60% !important; }
+
+  /* Inputs cobrem somente o miolo textual, mantendo icones/bordas da propria arte. */
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit > select,
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    left: 10.9% !important;
+    right: 3.7% !important;
+    top: 7% !important;
+    bottom: 7% !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 2.4% !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    background: #070805 !important;
+    box-shadow: none !important;
+    color: #e6d1ab !important;
+    font-size: clamp(10px, .70vw, 15px) !important;
+    line-height: 1 !important;
+  }
+
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    right: 8.5% !important;
+    padding-right: 1.5% !important;
+  }
+
+  .slot-name > input::placeholder,
+  .slot-cpf > input::placeholder,
+  .slot-phone > input::placeholder,
+  .slot-contract > input::placeholder,
+  .slot-unit .unit-trigger::placeholder {
+    color: #d9c7a8 !important;
+    opacity: .86 !important;
+  }
+
+  .parcel-mode-select:invalid {
+    color: #d9c7a8 !important;
+    background: #070805 !important;
+  }
+
+  .parcel-mode-select:valid {
+    color: #ead7b5 !important;
+    background: #070805 !important;
+  }
+
+  .slot-name > input:focus,
+  .slot-cpf > input:focus,
+  .slot-phone > input:focus,
+  .slot-contract > input:focus,
+  .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger[aria-expanded="true"],
+  .parcel-mode-select:focus {
+    background: #090a06 !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 177, 38, .22) !important;
+  }
+
+  /* WhatsApp: usa a caixa desenhada na arte e adiciona somente o check dourado. */
+  .consent {
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: transparent !important;
+    overflow: visible !important;
+  }
+
+  .consent-copy {
+    visibility: hidden !important;
+  }
+
+  .consent input {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0 !important;
+    cursor: pointer !important;
+  }
+
+  .checkbox-ui {
+    position: absolute !important;
+    left: 1.05% !important;
+    top: 50% !important;
+    width: 5.3% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    transform: translateY(-50%) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+  }
+
+  .consent input:checked + .checkbox-ui::before {
+    content: none !important;
+  }
+
+  .consent input:checked + .checkbox-ui::after {
+    content: "✓" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    color: #ffb328 !important;
+    background: transparent !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(9px, .56vw, 13px) !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    text-shadow: 0 0 4px rgba(255,179,40,.38) !important;
+  }
+
+  .consent:hover .checkbox-ui,
+  .consent:focus-within .checkbox-ui,
+  .consent:active .checkbox-ui {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  /* Botao funcional invisivel sobre o botao da arte. */
+  .primary-button,
+  .primary-button:hover:not(:disabled),
+  .primary-button:active:not(:disabled) {
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  .primary-button .button-label,
+  .primary-button .spinner {
+    visibility: hidden !important;
+  }
+
+  .primary-button:focus-visible {
+    box-shadow: inset 0 0 0 1px rgba(255,190,68,.28), 0 0 12px rgba(255,145,18,.12) !important;
+  }
+
+  #consent-error {
+    left: 40.30% !important;
+    top: 66.82% !important;
+    width: 18.7% !important;
+  }
+
+  #form-alert {
+    left: 40.19% !important;
+    top: 74.15% !important;
+    width: 19.02% !important;
+  }
+
+  /* Painel de parcela lateral sem deslocar a viewport. */
+  .parcel-fields,
+  .access-code-field:not([hidden]) {
+    left: 60.25% !important;
+    top: 49.3% !important;
+    width: 16.1% !important;
+  }
+}
