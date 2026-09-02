@@ -195,3 +195,163 @@
     outline: 0 !important;
   }
 }
+
+/* v11.0.2 patch de enquadramento - coordenadas medidas na arte 2560x1080.
+   Corrige o desvio vertical progressivo que fazia os controles HTML escaparem
+   dos trilhos desenhados, sobretudo unidade, contrato, parcelas e autorizacao. */
+@media (min-width: 801px) {
+  .slot-name,
+  .slot-cpf,
+  .slot-phone,
+  .slot-unit,
+  .slot-contract,
+  .parcel-choice,
+  .consent,
+  .primary-button {
+    left: 42.6171875% !important;
+    width: 17.8515625% !important;
+  }
+
+  .slot-name {
+    top: 26.6666667% !important;
+    height: 5.0925926% !important;
+  }
+
+  .slot-cpf {
+    top: 32.6851852% !important;
+    height: 5% !important;
+  }
+
+  .slot-phone {
+    top: 38.6111111% !important;
+    height: 5.0925926% !important;
+  }
+
+  .slot-unit {
+    top: 44.6296296% !important;
+    height: 5.0925926% !important;
+  }
+
+  .slot-contract {
+    top: 50.5555556% !important;
+    height: 5.0925926% !important;
+  }
+
+  .parcel-choice {
+    top: 56.4814815% !important;
+    height: 5.0925926% !important;
+  }
+
+  .consent {
+    top: 62.962963% !important;
+    height: 5.2777778% !important;
+  }
+
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input {
+    left: 10.5% !important;
+    right: 1.8% !important;
+    top: 8% !important;
+    bottom: 8% !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 0 2.3% !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: rgba(7, 8, 5, .985) !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  .slot-unit > select,
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    left: 10.5% !important;
+    right: 9.2% !important;
+    top: 8% !important;
+    bottom: 8% !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 0 2.4% !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  .parcel-mode-select:invalid {
+    color: transparent !important;
+    background: transparent !important;
+  }
+
+  .parcel-mode-select:valid {
+    color: #e7d4b3 !important;
+    background: rgba(7, 8, 5, .985) !important;
+  }
+
+  .slot-name > input:focus,
+  .slot-cpf > input:focus,
+  .slot-phone > input:focus,
+  .slot-contract > input:focus,
+  .slot-unit > select:focus,
+  .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger[aria-expanded="true"],
+  .parcel-mode-select:focus,
+  .parcel-mode-select:focus-visible {
+    border: 0 !important;
+    background: rgba(8, 9, 5, .995) !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  .parcel-mode-select:focus:invalid,
+  .parcel-mode-select:focus-visible:invalid {
+    color: transparent !important;
+    background: transparent !important;
+  }
+
+  .slot-unit .unit-combobox::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .checkbox-ui {
+    left: 3.95% !important;
+    top: 50% !important;
+    width: 6.15% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    transform: translateY(-50%) !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .consent input:checked + .checkbox-ui::after {
+    inset: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    color: #ffb328 !important;
+    font-size: clamp(8px, .52vw, 12px) !important;
+    line-height: 1 !important;
+    text-shadow: 0 0 3px rgba(255, 179, 40, .32) !important;
+    transform: none !important;
+  }
+
+  .slot-name:focus-within,
+  .slot-cpf:focus-within,
+  .slot-phone:focus-within,
+  .slot-unit:focus-within,
+  .slot-contract:focus-within,
+  .parcel-choice:focus-within,
+  .consent:focus-within {
+    outline: 0 !important;
+    box-shadow: none !important;
+  }
+}
