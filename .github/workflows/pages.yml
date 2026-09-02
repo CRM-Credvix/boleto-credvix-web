@@ -33,6 +33,32 @@ jobs:
       - name: Instalar Pillow
         run: python -m pip install --disable-pip-version-check pillow==11.3.0
 
+      - name: Reconstruir viewport v12 aprovada
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+
+          src = Path("assets/emissao-v12-src")
+          parts = [src / "part-00.b64", src / "part-01.b64"]
+          missing = [str(p) for p in parts if not p.is_file()]
+          if missing:
+              raise SystemExit(f"Fragmentos v12 ausentes: {missing}")
+
+          payload = "".join(
+              p.read_text(encoding="ascii").strip()
+              for p in parts
+          )
+          payload += "=" * (-len(payload) % 4)
+          raw = base64.b64decode(payload, validate=True)
+
+          out = Path("assets/emissao-viewport-v12-wide.webp")
+          out.write_bytes(raw)
+          print(f"VIEWPORT_V12_BYTES={len(raw)}")
+          PY
+
       - name: Validar viewport v12 e arte de login
         shell: bash
         run: |
