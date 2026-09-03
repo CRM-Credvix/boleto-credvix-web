@@ -1,67 +1,64 @@
-/* v12.0.1 - auditoria visual e contenção robusta dos controles desktop.
-   Corrige ghosting da arte rasterizada, overflow de texto e sizing intrínseco
-   sem alterar login, autenticação, regras do formulário ou layout mobile. */
+/* v12.0.1 - auditoria visual e correção geométrica dos controles desktop.
+   Coordenadas medidas diretamente na viewport v12 aprovada (1916x821).
+   Login, autenticação, regras do formulário e mobile permanecem inalterados. */
 
 @media (min-width: 801px) {
-  /* Evita que fieldset/select imponham largura intrínseca maior que o trilho. */
+  /*
+   * Causa raiz corrigida: havia desvio vertical progressivo entre a camada HTML
+   * e os seis trilhos rasterizados. A diferença começava pequena no Nome e
+   * chegava a ~13 px no campo Parcelas, fazendo o texto original da arte reaparecer
+   * como uma segunda linha. As posições abaixo seguem os pixels reais da arte.
+   */
   .slot-name,
   .slot-cpf,
   .slot-phone,
   .slot-unit,
   .slot-contract,
-  .parcel-choice,
-  .consent,
-  .primary-button {
+  .parcel-choice {
+    left: 39.7182% !important;   /* x=761 / 1916 */
+    width: 19.3111% !important; /* 370 / 1916 */
     min-width: 0 !important;
     max-width: none !important;
     box-sizing: border-box !important;
   }
 
+  .slot-name {
+    top: 27.1620% !important;   /* y=223 / 821 */
+    height: 4.9939% !important; /* 41 / 821 */
+  }
+
+  .slot-cpf {
+    top: 33.3739% !important;   /* y=274 / 821 */
+    height: 5.1157% !important; /* 42 / 821 */
+  }
+
+  .slot-phone {
+    top: 39.5859% !important;   /* y=325 / 821 */
+    height: 4.9939% !important;
+  }
+
+  .slot-unit {
+    top: 45.6760% !important;   /* y=375 / 821 */
+    height: 5.1157% !important;
+  }
+
+  .slot-contract {
+    top: 51.8879% !important;   /* y=426 / 821 */
+    height: 4.9939% !important;
+  }
+
   .parcel-choice {
+    top: 57.9781% !important;   /* y=476 / 821 */
+    height: 5.1157% !important;
     min-inline-size: 0 !important;
     overflow: hidden !important;
     isolation: isolate !important;
   }
 
   /*
-   * A viewport possui textos gravados dentro dos campos. Em vez de depender do
-   * background de cada input/select para apagar esse texto, aplicamos uma máscara
-   * estável no próprio trilho. Ela cobre somente a faixa textual e preserva os
-   * ícones, setas e bordas que fazem parte da arte.
+   * Os controles cobrem somente a área onde a arte possui texto rasterizado.
+   * Ícones, molduras e setas continuam pertencendo à viewport e ficam visíveis.
    */
-  .slot-name,
-  .slot-cpf,
-  .slot-phone,
-  .slot-contract {
-    background:
-      linear-gradient(90deg,
-        transparent 0 8.55%,
-        #070805 8.55% 96.70%,
-        transparent 96.70% 100%)
-      center / 100% 84% no-repeat !important;
-  }
-
-  .slot-unit,
-  .parcel-choice {
-    background:
-      linear-gradient(90deg,
-        transparent 0 8.55%,
-        #070805 8.55% 91.85%,
-        transparent 91.85% 100%)
-      center / 100% 84% no-repeat !important;
-  }
-
-  .slot-name::before,
-  .slot-cpf::before,
-  .slot-phone::before,
-  .slot-unit::before,
-  .slot-contract::before,
-  .parcel-choice::before {
-    content: none !important;
-    display: none !important;
-  }
-
-  /* Controles ficam confinados à faixa útil do trilho. */
   .slot-name > input,
   .slot-cpf > input,
   .slot-phone > input,
@@ -70,10 +67,10 @@
   .parcel-mode-select {
     position: absolute !important;
     z-index: 2 !important;
-    left: 8.55% !important;
-    right: 3.30% !important;
-    top: 8% !important;
-    bottom: 8% !important;
+    left: 8.90% !important;
+    right: 3.70% !important;
+    top: 7% !important;
+    bottom: 7% !important;
     width: auto !important;
     height: auto !important;
     min-width: 0 !important;
@@ -81,11 +78,11 @@
     max-width: none !important;
     max-height: none !important;
     margin: 0 !important;
-    padding: 0 2.45% !important;
+    padding: 0 2.35% !important;
     border: 0 !important;
     border-radius: 0 !important;
     outline: 0 !important;
-    background: transparent !important;
+    background: #070805 !important;
     box-shadow: none !important;
     color: #e6d1ab !important;
     caret-color: #ffb328 !important;
@@ -99,11 +96,11 @@
 
   .slot-unit .unit-trigger,
   .parcel-mode-select {
-    right: 8.15% !important;
+    right: 8.50% !important;
     padding-right: 1.5% !important;
   }
 
-  /* O select nativo da unidade mantém apenas o estado/validação do formulário. */
+  /* Unidade: o select nativo guarda apenas valor/validação; o combobox é a UI. */
   .slot-unit > select.unit-native-select {
     position: absolute !important;
     left: -9999px !important;
@@ -147,45 +144,35 @@
     overflow-wrap: anywhere !important;
   }
 
-  /* Parcelas: elimina min-content do fieldset e a segunda linha rasterizada. */
+  /* Parcelas: elimina sizing intrínseco do fieldset e qualquer fuga horizontal. */
   .parcel-mode-select {
-    top: 8% !important;
-    bottom: 8% !important;
-    height: auto !important;
     display: block !important;
     appearance: none !important;
     -webkit-appearance: none !important;
-    background: transparent !important;
-  }
-
-  .parcel-mode-select:invalid,
-  .parcel-mode-select:valid,
-  .parcel-mode-select:hover,
-  .parcel-mode-select:focus,
-  .parcel-mode-select:focus-visible {
-    background: transparent !important;
-    box-shadow: none !important;
-    outline: 0 !important;
   }
 
   .parcel-mode-select:invalid {
     color: #d9c7a8 !important;
+    background: #070805 !important;
   }
 
-  .parcel-mode-select:valid,
-  .parcel-mode-select:focus:valid {
+  .parcel-mode-select:valid {
     color: #ead7b5 !important;
+    background: #070805 !important;
   }
 
-  /* Foco discreto: não altera largura, altura ou posição do campo. */
+  /* Foco discreto: não altera largura, altura nem posição. */
   .slot-name > input:focus,
   .slot-cpf > input:focus,
   .slot-phone > input:focus,
   .slot-contract > input:focus,
   .slot-unit .unit-trigger:focus,
-  .slot-unit .unit-trigger[aria-expanded="true"] {
-    background: rgba(255, 177, 38, .018) !important;
+  .slot-unit .unit-trigger[aria-expanded="true"],
+  .parcel-mode-select:focus,
+  .parcel-mode-select:focus-visible {
+    background: #090a06 !important;
     box-shadow: inset 0 0 0 1px rgba(255, 177, 38, .16) !important;
+    outline: 0 !important;
   }
 
   .slot-name > input::placeholder,
@@ -197,10 +184,12 @@
     opacity: .86 !important;
   }
 
-  /* WhatsApp e botão permanecem estritamente dentro dos trilhos da arte. */
+  /* WhatsApp e botão já estavam alinhados; apenas garantimos contenção. */
   .consent,
   .primary-button {
+    min-width: 0 !important;
     overflow: hidden !important;
+    box-sizing: border-box !important;
   }
 
   .consent input {
@@ -208,7 +197,7 @@
     max-height: 100% !important;
   }
 
-  /* Mensagens de erro quebram linha em vez de expandir a composição. */
+  /* Erros quebram linha em vez de expandir a composição. */
   .field-error,
   .standalone-error {
     max-width: min(18.5vw, 260px) !important;
