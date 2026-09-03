@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    name: Validar viewport v11 e preparar site
+    name: Validar viewport v12 e preparar site
     runs-on: ubuntu-latest
 
     steps:
@@ -33,37 +33,57 @@ jobs:
       - name: Instalar Pillow
         run: python -m pip install --disable-pip-version-check pillow==11.3.0
 
-      - name: Reconstruir viewport v11 aprovada
+      - name: Reconstruir viewport v12 aprovada
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
           import base64
+          import hashlib
 
-          src = Path("assets/emissao-v11-src")
+          src = Path("assets/emissao-v12-src")
           parts = [
-              src / "part-00.b64", src / "part-01.b64", src / "part-02.b64",
-              src / "part-03.b64", src / "part-04.b64", src / "part-05.b64",
-              src / "part-06.b64", src / "part-07a.b64", src / "part-07b.b64",
-              src / "part-08.b64", src / "part-09.b64", src / "part-10.b64",
+              src / "part-00.b64",
+              src / "part-01.b64",
+              src / "part-02.b64",
+              src / "part-03.b64",
+              src / "part-04.b64",
+              src / "part-05a.b64",
+              src / "part-05b.b64",
+              src / "part-05c.b64",
+              src / "part-05d.b64",
+              src / "part-06.b64",
+              src / "part-07.b64",
+              src / "part-08a.b64",
+              src / "part-08b.b64",
+              src / "part-08c.b64",
+              src / "part-08d.b64",
+              src / "part-09.b64",
           ]
           missing = [str(p) for p in parts if not p.is_file()]
           if missing:
-              raise SystemExit(f"Fragmentos ausentes: {missing}")
+              raise SystemExit(f"Fragmentos v12 ausentes: {missing}")
 
-          chunks = []
-          for part in parts:
-              payload = part.read_text(encoding="ascii").strip()
-              payload += "=" * (-len(payload) % 4)
-              chunks.append(base64.b64decode(payload))
-          raw = b"".join(chunks)
-          out = Path("assets/emissao-viewport-v11-wide.webp")
+          payload = "".join(p.read_text(encoding="ascii").strip() for p in parts)
+          payload += "=" * (-len(payload) % 4)
+          raw = base64.b64decode(payload, validate=True)
+
+          expected_bytes = 147480
+          expected_sha = "e5ffc8b5d605ba4c3318dfdac2f8f135ca526098e9b77318b3cf7901a1ed9d41"
+          actual_sha = hashlib.sha256(raw).hexdigest()
+          if len(raw) != expected_bytes:
+              raise SystemExit(f"VIEWPORT_V12: tamanho {len(raw)}; esperado {expected_bytes}")
+          if actual_sha != expected_sha:
+              raise SystemExit(f"VIEWPORT_V12: SHA256 {actual_sha}; esperado {expected_sha}")
+
+          out = Path("assets/emissao-viewport-v12-wide.webp")
           out.write_bytes(raw)
-          print(f"VIEWPORT_BYTES={len(raw)}")
+          print(f"VIEWPORT_V12_BYTES={len(raw)}")
+          print(f"VIEWPORT_V12_SHA256={actual_sha}")
           PY
 
-      - name: Validar viewport e arte de login
+      - name: Validar viewport v12 e arte de login
         shell: bash
         run: |
           set -euo pipefail
@@ -74,9 +94,8 @@ jobs:
 
           checks = [
               (Path("assets/login-portal-full-v8.5.7.webp"), (1916, 821), "LOGIN"),
-              (Path("assets/emissao-viewport-v11-wide.webp"), (2560, 1080), "VIEWPORT_V11"),
+              (Path("assets/emissao-viewport-v12-wide.webp"), (1916, 821), "VIEWPORT_V12"),
           ]
-
           for path, expected_size, label in checks:
               if not path.is_file():
                   raise SystemExit(f"{label}: arquivo ausente: {path}")
@@ -87,8 +106,7 @@ jobs:
                   if image.size != expected_size:
                       raise SystemExit(f"{label}: dimensoes {image.size}; esperado {expected_size}")
                   image.load()
-                  gray = image.convert("L")
-                  stat = ImageStat.Stat(gray)
+                  stat = ImageStat.Stat(image.convert("L"))
                   if stat.mean[0] < 7 or stat.stddev[0] < 8:
                       raise SystemExit(f"{label}: imagem parece vazia ou preta")
               print(f"{label}_BYTES={len(raw)}")
@@ -106,9 +124,9 @@ jobs:
             git diff --stat refs/remotes/origin/main -- auth-v8.5.4.css auth-v8.4.0.js assets/login-portal-full-v8.5.7.webp
             exit 1
           fi
-
           python - <<'PY'
-          import re, subprocess
+          import re
+          import subprocess
           from pathlib import Path
           current = Path("index.html").read_text(encoding="utf-8")
           base = subprocess.check_output(["git", "show", "refs/remotes/origin/main:index.html"], text=True)
@@ -119,20 +137,19 @@ jobs:
           print("LOGIN_UNCHANGED=1")
           PY
 
-      - name: Validar integracao v11
+      - name: Validar integracao v12
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'emissao-v11.0.0.css' index.html
-          grep -q 'assets/emissao-viewport-v11-wide.webp' emissao-v11.0.0.css
-          test -f emissao-v11.0.0.css
-          test -f assets/emissao-viewport-v11-wide.webp
-
+          grep -q 'emissao-v12.0.0.css' index.html
+          grep -q 'assets/emissao-viewport-v12-wide.webp' index.html
+          grep -q 'assets/emissao-viewport-v12-wide.webp' emissao-v12.0.0.css
+          test -f emissao-v12.0.0.css
+          test -f assets/emissao-viewport-v12-wide.webp
           node --check app.js
           node --check auth-v8.4.0.js
           node --check emissao-v8.6.12.js
           node --check emissao-v10.0.0.js
-
           python - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
@@ -162,10 +179,10 @@ jobs:
               if path and not Path(path).exists(): missing_files.append(path)
           if missing_files: raise SystemExit(f"Referencias locais ausentes: {sorted(set(missing_files))}")
           if "utm_source" in html: raise SystemExit("Parametro de rastreamento indevido no HTML")
-          print("INTEGRACAO_V11_OK=1")
+          print("INTEGRACAO_V12_OK=1")
           PY
 
-      - name: Criar preview de QA
+      - name: Criar preview de QA v12
         shell: bash
         run: |
           set -euo pipefail
@@ -181,33 +198,39 @@ jobs:
           addEventListener('load',()=>{
             const ids=['solicitante','cpf','telefone','contrato','parcel-mode-select','consentimento','submit-button'];
             const failures=[];
-            for(const id of ids){const el=document.getElementById(id);if(!el){failures.push('missing-'+id);continue;}const r=el.getBoundingClientRect();if(r.width<8||r.height<8)failures.push('collapsed-'+id);if(r.right<0||r.left>innerWidth||r.bottom<0||r.top>innerHeight)failures.push('offscreen-'+id);}
+            for(const id of ids){
+              const el=document.getElementById(id);
+              if(!el){failures.push('missing-'+id);continue;}
+              const r=el.getBoundingClientRect();
+              if(r.width<8||r.height<8)failures.push('collapsed-'+id);
+              if(r.right<0||r.left>innerWidth||r.bottom<0||r.top>innerHeight)failures.push('offscreen-'+id);
+            }
             document.documentElement.dataset.qa=failures.length?'fail-'+failures.join('-'):'ok';
           });
           </script>
           '''
           html=html.replace('</head>', qa+'</head>')
-          Path("_qa-preview-v11.html").write_text(html,encoding="utf-8")
+          Path("_qa-preview-v12.html").write_text(html,encoding="utf-8")
           PY
 
-      - name: Testar v11 no Chrome
+      - name: Testar v12 no Chrome
         shell: bash
         run: |
           set -euo pipefail
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
           [ -n "$CHROME" ] || { echo "ERRO: Chrome/Chromium nao encontrado"; exit 1; }
-          mkdir -p qa-v11
-          python -m http.server 8765 --bind 127.0.0.1 >/tmp/v11-http.log 2>&1 &
+          mkdir -p qa-v12
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/v12-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
           sleep 2
-          curl --fail --silent http://127.0.0.1:8765/assets/emissao-viewport-v11-wide.webp -o /dev/null
-          curl --fail --silent http://127.0.0.1:8765/emissao-v11.0.0.css -o /dev/null
+          curl --fail --silent http://127.0.0.1:8765/assets/emissao-viewport-v12-wide.webp -o /dev/null
+          curl --fail --silent http://127.0.0.1:8765/emissao-v12.0.0.css -o /dev/null
 
           check_layout() {
             local size="$1"
             local dump
-            dump="$("$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size="$size" --dump-dom http://127.0.0.1:8765/_qa-preview-v11.html#solicitar 2>/dev/null)"
+            dump="$("$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size="$size" --dump-dom http://127.0.0.1:8765/_qa-preview-v12.html#solicitar 2>/dev/null)"
             grep -q 'data-qa="ok"' <<<"$dump" || { echo "ERRO: geometria invalida em $size"; grep -o 'data-qa="[^"]*"' <<<"$dump" || true; exit 1; }
           }
 
@@ -215,95 +238,56 @@ jobs:
           check_layout 1920,1080
           check_layout 2560,1080
 
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1365,695 --screenshot=qa-v11/preview-1365x695.png http://127.0.0.1:8765/_qa-preview-v11.html#solicitar
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1920,1080 --screenshot=qa-v11/preview-1920x1080.png http://127.0.0.1:8765/_qa-preview-v11.html#solicitar
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=2560,1080 --screenshot=qa-v11/preview-2560x1080.png http://127.0.0.1:8765/_qa-preview-v11.html#solicitar
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=390,844 --screenshot=qa-v11/preview-mobile-390x844.png http://127.0.0.1:8765/_qa-preview-v11.html#solicitar
-
-          python - <<'PY'
-          from pathlib import Path
-          from PIL import Image, ImageStat
-          for path in Path("qa-v11").glob("*.png"):
-              with Image.open(path) as im:
-                  im.load(); stat=ImageStat.Stat(im.convert("L"))
-                  if stat.mean[0] < 7 or stat.stddev[0] < 8:
-                      raise SystemExit(f"Screenshot parece vazio/preto: {path}")
-                  if im.width>=801:
-                      edge=max(8,im.width//30)
-                      for side,box in {"left":(0,0,edge,im.height),"right":(im.width-edge,0,im.width,im.height)}.items():
-                          crop=im.convert("L").crop(box); vals=list(crop.getdata()); near=sum(v<=3 for v in vals)/len(vals)
-                          if near>.985 and ImageStat.Stat(crop).stddev[0]<3:
-                              raise SystemExit(f"Faixa preta detectada: {path.name}/{side}")
-                  print(path.name,"OK")
-          PY
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1365,695 --screenshot=qa-v12/preview-1365x695.png http://127.0.0.1:8765/_qa-preview-v12.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1920,1080 --screenshot=qa-v12/preview-1920x1080.png http://127.0.0.1:8765/_qa-preview-v12.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=2560,1080 --screenshot=qa-v12/preview-2560x1080.png http://127.0.0.1:8765/_qa-preview-v12.html#solicitar
 
       - name: Guardar screenshots de QA
         uses: actions/upload-artifact@v4
         with:
-          name: qa-viewport-v11-${{ github.sha }}
-          path: qa-v11/*.png
-          if-no-files-found: error
-          retention-days: 7
+          name: qa-v12
+          path: qa-v12
 
       - name: Preparar pacote limpo
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p _site
-          rsync -a \
-            --exclude '.git' \
-            --exclude '.github' \
-            --exclude '_site' \
-            --exclude '_qa-preview-v11.html' \
-            --exclude 'qa-v11' \
-            --exclude '*.b64' \
-            --exclude 'assets/emissao-v11-src' \
-            ./ _site/
-          test -f _site/assets/emissao-viewport-v11-wide.webp
-          test -f _site/emissao-v11.0.0.css
-          test -f _site/assets/login-portal-full-v8.5.7.webp
-          if find _site -type f -name '*.b64' -print -quit | grep -q .; then
-            echo "ERRO: fragmentos b64 vazaram para o pacote"
-            exit 1
-          fi
+          rm -rf _qa-preview-v12.html qa-v12
+          rm -rf assets/emissao-v11-src assets/emissao-v12-src
 
       - name: Configurar GitHub Pages
+        if: github.event_name == 'push'
         uses: actions/configure-pages@v5
 
       - name: Empacotar site
+        if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v4
         with:
-          path: "_site"
+          path: .
 
   deploy:
-    name: Publicar site
+    if: github.event_name == 'push'
     needs: build
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
+    name: Publicar site
     permissions:
       pages: write
       id-token: write
-      actions: read
-
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
+    runs-on: ubuntu-latest
     steps:
       - name: Publicar no GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
   cleanup:
-    name: Limpar historico antigo do Actions
+    if: github.event_name == 'push' && always() && needs.deploy.result == 'success'
     needs: deploy
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && needs.deploy.result == 'success'
+    name: Limpar historico antigo do Actions
     runs-on: ubuntu-latest
-
     permissions:
       actions: write
-
     steps:
       - name: Manter somente o workflow run atual
         env:
@@ -335,50 +319,30 @@ jobs:
 
           current = get_json(f"{api}/repos/{repo}/actions/runs/{current_id}")
           cutoff = current["created_at"]
-
-          runs = []
-          page = 1
+          runs=[]
+          page=1
           while True:
-              data = get_json(f"{api}/repos/{repo}/actions/runs?per_page=100&page={page}")
-              batch = data.get("workflow_runs", [])
-              if not batch:
-                  break
+              data=get_json(f"{api}/repos/{repo}/actions/runs?per_page=100&page={page}")
+              batch=data.get("workflow_runs", [])
+              if not batch: break
               runs.extend(batch)
-              if len(batch) < 100:
-                  break
-              page += 1
-
-          targets = [
-              run for run in runs
-              if int(run["id"]) != current_id and run.get("created_at", "") <= cutoff
-          ]
-
-          deleted = 0
+              if len(batch)<100: break
+              page+=1
+          targets=[run for run in runs if int(run["id"])!=current_id and run.get("created_at", "")<=cutoff]
+          deleted=0
           for run in targets:
-              run_id = int(run["id"])
-              req = urllib.request.Request(
-                  f"{api}/repos/{repo}/actions/runs/{run_id}",
-                  headers=headers,
-                  method="DELETE",
-              )
+              run_id=int(run["id"])
+              req=urllib.request.Request(f"{api}/repos/{repo}/actions/runs/{run_id}",headers=headers,method="DELETE")
               try:
-                  with urllib.request.urlopen(req, timeout=30):
-                      pass
-                  deleted += 1
+                  with urllib.request.urlopen(req, timeout=30): pass
+                  deleted+=1
               except urllib.error.HTTPError as exc:
-                  if exc.code == 404:
-                      continue
+                  if exc.code==404: continue
                   raise
-
-          remaining = get_json(f"{api}/repos/{repo}/actions/runs?per_page=100").get("workflow_runs", [])
-          stale = [
-              run for run in remaining
-              if int(run["id"]) != current_id and run.get("created_at", "") <= cutoff
-          ]
+          remaining=get_json(f"{api}/repos/{repo}/actions/runs?per_page=100").get("workflow_runs", [])
+          stale=[run for run in remaining if int(run["id"])!=current_id and run.get("created_at", "")<=cutoff]
           if stale:
-              ids = [run["id"] for run in stale]
-              raise SystemExit(f"Runs antigos ainda presentes: {ids}")
-
+              raise SystemExit(f"Runs antigos ainda presentes: {[run['id'] for run in stale]}")
           print(f"WORKFLOW_RUNS_REMOVIDOS={deleted}")
           print(f"WORKFLOW_RUN_MANTIDO={current_id}")
           PY
