@@ -1,0 +1,11 @@
+/* v12.0.2 - ajuste final da seta da Unidade na viewport v12. */
+@media (min-width: 801px) {
+  .slot-unit .unit-trigger {
+    right: 12.5% !important;
+  }
+
+  .slot-unit .unit-combobox::after {
+    display: none !important;
+    content: none !important;
+  }
+}
