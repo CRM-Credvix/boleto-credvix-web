@@ -1,0 +1,211 @@
+/* v12.0.1 - auditoria visual e contenção robusta dos controles desktop.
+   Corrige ghosting da arte rasterizada, overflow de texto e sizing intrínseco
+   sem alterar login, autenticação, regras do formulário ou layout mobile. */
+
+@media (min-width: 801px) {
+  /* Evita que fieldset/select imponham largura intrínseca maior que o trilho. */
+  .slot-name,
+  .slot-cpf,
+  .slot-phone,
+  .slot-unit,
+  .slot-contract,
+  .parcel-choice,
+  .consent,
+  .primary-button {
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .parcel-choice {
+    min-inline-size: 0 !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+  }
+
+  /*
+   * A viewport já possui textos gravados dentro dos campos. O controle HTML não
+   * deve ser usado como "tampa" desses textos, porque select/input variam entre
+   * engines e escalas. Criamos uma máscara independente e estável somente sobre
+   * a área textual, preservando os ícones e as setas desenhados na arte.
+   */
+  .slot-name::before,
+  .slot-cpf::before,
+  .slot-phone::before,
+  .slot-unit::before,
+  .slot-contract::before,
+  .parcel-choice::before {
+    content: "" !important;
+    position: absolute !important;
+    z-index: 1 !important;
+    left: 9.15% !important;
+    right: 3.15% !important;
+    top: 4% !important;
+    bottom: 4% !important;
+    display: block !important;
+    background: #070805 !important;
+    pointer-events: none !important;
+  }
+
+  .slot-unit::before,
+  .parcel-choice::before {
+    right: 8.15% !important;
+  }
+
+  /* Controles ficam acima da máscara e nunca podem extrapolar a faixa útil. */
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    position: absolute !important;
+    z-index: 2 !important;
+    left: 9.15% !important;
+    right: 3.15% !important;
+    top: 4% !important;
+    bottom: 4% !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 2.35% !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #e6d1ab !important;
+    caret-color: #ffb328 !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    right: 8.15% !important;
+    padding-right: 1.5% !important;
+  }
+
+  /* O select nativo da unidade é somente o estado do formulário; o input custom
+     é a superfície interativa. Mantê-lo fora do artboard elimina disputa de sizing. */
+  .slot-unit > select.unit-native-select {
+    position: absolute !important;
+    left: -9999px !important;
+    top: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 1px !important;
+    height: 1px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .slot-unit .unit-combobox {
+    position: absolute !important;
+    z-index: 3 !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  .slot-unit .unit-trigger {
+    cursor: text !important;
+  }
+
+  .unit-list {
+    z-index: 320 !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .unit-option {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  /* Select de parcelas: elimina o min-content do fieldset e o texto rasterizado
+     que aparecia como uma segunda linha por baixo do placeholder real. */
+  .parcel-mode-select {
+    top: 4% !important;
+    bottom: 4% !important;
+    height: auto !important;
+    display: block !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-color: transparent !important;
+  }
+
+  .parcel-mode-select:invalid,
+  .parcel-mode-select:valid,
+  .parcel-mode-select:hover,
+  .parcel-mode-select:focus,
+  .parcel-mode-select:focus-visible {
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  .parcel-mode-select:invalid {
+    color: #d9c7a8 !important;
+  }
+
+  .parcel-mode-select:valid,
+  .parcel-mode-select:focus:valid {
+    color: #ead7b5 !important;
+  }
+
+  /* Foco permanece discreto dentro do miolo, sem aumentar a caixa. */
+  .slot-name > input:focus,
+  .slot-cpf > input:focus,
+  .slot-phone > input:focus,
+  .slot-contract > input:focus,
+  .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger[aria-expanded="true"] {
+    background: rgba(255, 177, 38, .018) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 177, 38, .16) !important;
+  }
+
+  /* Placeholder e valor nunca ultrapassam o card em zoom/escala diferentes. */
+  .slot-name > input::placeholder,
+  .slot-cpf > input::placeholder,
+  .slot-phone > input::placeholder,
+  .slot-contract > input::placeholder,
+  .slot-unit .unit-trigger::placeholder {
+    color: #d9c7a8 !important;
+    opacity: .86 !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* Mantém a linha do WhatsApp e o botão estritamente dentro dos trilhos da arte. */
+  .consent,
+  .primary-button {
+    overflow: hidden !important;
+  }
+
+  .consent input {
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+
+  /* Erros não podem expandir a largura do campo nem empurrar a composição. */
+  .field-error,
+  .standalone-error {
+    max-width: min(18.5vw, 260px) !important;
+    overflow-wrap: anywhere !important;
+  }
+}
