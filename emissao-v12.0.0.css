@@ -75,6 +75,16 @@
     padding-right: 1.5% !important;
   }
 
+  /* Select nativo e um elemento substituido: altura explicita impede o texto da
+     viewport de reaparecer por baixo do controle em alguns tamanhos de tela. */
+  .parcel-mode-select {
+    top: 7% !important;
+    bottom: auto !important;
+    height: 86% !important;
+    display: block !important;
+    background-color: #070805 !important;
+  }
+
   .slot-name > input::placeholder,
   .slot-cpf > input::placeholder,
   .slot-phone > input::placeholder,
