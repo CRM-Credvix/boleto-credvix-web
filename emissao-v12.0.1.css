@@ -127,6 +127,13 @@
     overflow: visible !important;
   }
 
+  /* A viewport v12 já possui a seta dourada da Unidade. A seta CSS antiga
+     sobrepunha a arte e, em algumas escalas, fazia o chevron parecer um traço. */
+  .slot-unit .unit-combobox::after {
+    display: none !important;
+    content: none !important;
+  }
+
   .slot-unit .unit-trigger {
     cursor: text !important;
   }
