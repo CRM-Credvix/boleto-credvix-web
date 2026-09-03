@@ -1,9 +1,8 @@
-/* v12.0.3 - campos rentes aos trilhos da viewport v12.
-   Objetivo: eliminar qualquer aparencia de controle deslocado, ghosting ou
-   mensagem de validacao invadindo o trilho seguinte. Desktop apenas. */
+/* v12.0.3 - campos da emissao no mesmo sistema visual da tela de login.
+   Desktop apenas. A caixa funcional ocupa o trilho inteiro da arte, sem criar
+   uma segunda caixa interna. Icones, molduras e setas continuam na viewport. */
 
 @media (min-width: 801px) {
-  /* Mantem a geometria medida na arte aprovada (1916x821). */
   .slot-name,
   .slot-cpf,
   .slot-phone,
@@ -16,6 +15,8 @@
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    border: 0 !important;
+    overflow: visible !important;
     box-sizing: border-box !important;
   }
 
@@ -24,13 +25,15 @@
   .slot-phone { top: 39.5859% !important; height: 4.9939% !important; }
   .slot-unit { top: 45.6760% !important; height: 5.1157% !important; }
   .slot-contract { top: 51.8879% !important; height: 4.9939% !important; }
-  .parcel-choice { top: 57.9781% !important; height: 5.1157% !important; }
+  .parcel-choice { top: 57.9781% !important; height: 5.1157% !important; min-inline-size: 0 !important; }
 
-  /*
-   * A arte ja possui moldura, icone e seta. O HTML cobre SOMENTE a faixa textual,
-   * mas agora ocupa praticamente toda a altura util do trilho. Isso elimina a
-   * faixa rasterizada que ficava aparecendo acima/abaixo do texto digitado.
-   */
+  .slot-unit::before,
+  .slot-unit::after,
+  .slot-unit .unit-combobox::after {
+    content: none !important;
+    display: none !important;
+  }
+
   .slot-name > input,
   .slot-cpf > input,
   .slot-phone > input,
@@ -38,28 +41,27 @@
   .slot-unit .unit-trigger,
   .parcel-mode-select {
     position: absolute !important;
-    z-index: 5 !important;
-    left: 8.7% !important;
-    right: 2.0% !important;
-    top: 2px !important;
-    bottom: 2px !important;
-    width: auto !important;
-    height: auto !important;
+    z-index: 6 !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
     min-width: 0 !important;
     min-height: 0 !important;
-    max-width: none !important;
-    max-height: none !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
     margin: 0 !important;
-    padding: 0 2.4% !important;
+    padding: 0 3.8% 0 11.1% !important;
     border: 0 !important;
     border-radius: 0 !important;
     outline: 0 !important;
-    background: #070805 !important;
+    background: linear-gradient(90deg, rgba(7,8,5,0) 0 9.9%, #070805 9.9% 100%) !important;
     box-shadow: none !important;
     color: #ead7b5 !important;
     caret-color: #ffb328 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
     font-size: clamp(10px, .72vw, 15px) !important;
-    line-height: normal !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -69,19 +71,15 @@
     -webkit-font-smoothing: antialiased !important;
   }
 
-  .slot-name > input,
-  .slot-cpf > input,
-  .slot-phone > input,
-  .slot-contract > input {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-  }
-
-  /* Unidade e Parcelas reservam a coluna da seta, sem encostar nela. */
   .slot-unit .unit-trigger,
-  .parcel-mode-select {
-    right: 11.8% !important;
-    padding-right: 1.3% !important;
+  .parcel-mode-select,
+  .parcel-mode-select:invalid,
+  .parcel-mode-select:valid {
+    padding-right: 12.4% !important;
+    background: linear-gradient(90deg,
+      rgba(7,8,5,0) 0 9.9%,
+      #070805 9.9% 87.9%,
+      rgba(7,8,5,0) 87.9% 100%) !important;
   }
 
   .slot-unit .unit-trigger {
@@ -96,7 +94,6 @@
     -webkit-appearance: none !important;
   }
 
-  /* Mantem o select nativo da Unidade totalmente fora da composicao visual. */
   .slot-unit > select.unit-native-select {
     position: absolute !important;
     left: -9999px !important;
@@ -121,103 +118,64 @@
     overflow: visible !important;
   }
 
-  /* Um unico chevron, centralizado na coluna final do trilho. */
-  .slot-unit .unit-combobox::after {
-    display: none !important;
-    content: none !important;
-  }
-
-  .slot-unit::before {
-    content: "" !important;
-    position: absolute !important;
-    z-index: 12 !important;
-    right: 2.0% !important;
-    top: 16% !important;
-    width: 10.5% !important;
-    height: 68% !important;
-    background: #070805 !important;
-    pointer-events: none !important;
-  }
-
-  .slot-unit::after {
-    content: "" !important;
-    position: absolute !important;
-    z-index: 13 !important;
-    right: 5.0% !important;
-    top: 42% !important;
-    width: 3.1% !important;
-    aspect-ratio: 1 / 1 !important;
-    border-right: 1.5px solid #d59b30 !important;
-    border-bottom: 1.5px solid #d59b30 !important;
-    transform: translateY(-50%) rotate(45deg) !important;
-    background: transparent !important;
-    pointer-events: none !important;
-  }
-
-  /* Estados de foco alteram apenas tom, nunca tamanho/posicao. */
-  .slot-name > input:focus,
-  .slot-cpf > input:focus,
-  .slot-phone > input:focus,
-  .slot-contract > input:focus,
-  .slot-unit .unit-trigger:focus,
-  .slot-unit .unit-trigger[aria-expanded="true"],
-  .parcel-mode-select:focus,
-  .parcel-mode-select:focus-visible {
-    background: #090a06 !important;
-    box-shadow: inset 0 0 0 1px rgba(255, 177, 38, .14) !important;
-    outline: 0 !important;
-  }
-
   .slot-name > input::placeholder,
   .slot-cpf > input::placeholder,
   .slot-phone > input::placeholder,
   .slot-contract > input::placeholder,
   .slot-unit .unit-trigger::placeholder {
-    color: #d9c7a8 !important;
-    opacity: .88 !important;
+    color: rgba(231,212,179,.78) !important;
+    opacity: 1 !important;
   }
 
-  .parcel-mode-select:invalid {
-    color: #d9c7a8 !important;
-    background: #070805 !important;
+  .parcel-mode-select:invalid { color: rgba(231,212,179,.82) !important; }
+  .parcel-mode-select:valid { color: #ead7b5 !important; }
+
+  .slot-name > input:focus,
+  .slot-cpf > input:focus,
+  .slot-phone > input:focus,
+  .slot-contract > input:focus {
+    background: linear-gradient(90deg, rgba(9,10,6,0) 0 9.9%, #090a06 9.9% 100%) !important;
+    box-shadow: inset 0 0 0 1px rgba(224,145,34,.24), 0 0 8px rgba(255,145,18,.06) !important;
   }
 
-  .parcel-mode-select:valid {
-    color: #ead7b5 !important;
-    background: #070805 !important;
+  .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger[aria-expanded="true"],
+  .parcel-mode-select:focus,
+  .parcel-mode-select:focus-visible {
+    background: linear-gradient(90deg,
+      rgba(9,10,6,0) 0 9.9%,
+      #090a06 9.9% 87.9%,
+      rgba(9,10,6,0) 87.9% 100%) !important;
+    box-shadow: inset 0 0 0 1px rgba(224,145,34,.24), 0 0 8px rgba(255,145,18,.06) !important;
+    outline: 0 !important;
   }
 
-  /*
-   * Mensagens de campo agora ocupam somente o pequeno espaco entre um trilho e
-   * outro. Nao ganham borda/cartao proprio e nunca expandem a largura do painel.
-   */
   .slot-name > .field-error,
   .slot-cpf > .field-error,
   .slot-phone > .field-error,
   .slot-unit > .field-error,
   .slot-contract > .field-error {
     position: absolute !important;
-    z-index: 30 !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: calc(100% + 1px) !important;
-    width: auto !important;
-    max-width: 100% !important;
+    z-index: 340 !important;
+    left: calc(100% + 7px) !important;
+    right: auto !important;
+    top: 50% !important;
+    width: max-content !important;
+    max-width: min(210px, 14vw) !important;
     height: auto !important;
     margin: 0 !important;
-    padding: 0 2px !important;
-    transform: none !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    color: #d9a23a !important;
-    background: #070805 !important;
-    box-shadow: none !important;
-    font-size: clamp(7px, .46vw, 10px) !important;
+    padding: 4px 6px !important;
+    transform: translateY(-50%) !important;
+    border: 1px solid rgba(167,104,24,.72) !important;
+    border-radius: 4px !important;
+    color: #e7bf72 !important;
+    background: rgba(7,8,5,.985) !important;
+    box-shadow: 0 5px 14px rgba(0,0,0,.38) !important;
+    font-size: clamp(8px, .50vw, 11px) !important;
     font-weight: 600 !important;
-    line-height: 1.05 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
     pointer-events: none !important;
   }
 
@@ -229,10 +187,10 @@
     display: none !important;
   }
 
-  /* O dropdown pode ultrapassar verticalmente o trilho, nunca horizontalmente. */
   .unit-list {
-    z-index: 320 !important;
+    z-index: 360 !important;
     left: 0 !important;
+    top: calc(100% + 4px) !important;
     width: 100% !important;
     max-width: 100% !important;
     overflow-x: hidden !important;
@@ -244,15 +202,29 @@
     overflow-wrap: anywhere !important;
   }
 
-  /* Mantem consentimento e botao no desenho original, apenas com contenção. */
   .consent,
   .primary-button {
     min-width: 0 !important;
     box-sizing: border-box !important;
   }
+}
 
-  #consent-error {
-    max-width: 17.2% !important;
-    overflow-wrap: anywhere !important;
+/* A seta rasterizada da Unidade fica parcialmente encoberta pelo combobox em
+   algumas escalas. Redesenha somente o chevron, sem criar caixa ou mascara. */
+@media (min-width: 801px) {
+  .slot-unit::after {
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    z-index: 20 !important;
+    right: 4.35% !important;
+    top: 45% !important;
+    width: 3.1% !important;
+    aspect-ratio: 1 / 1 !important;
+    border-right: 1.5px solid #d59b30 !important;
+    border-bottom: 1.5px solid #d59b30 !important;
+    background: transparent !important;
+    transform: translateY(-50%) rotate(45deg) !important;
+    pointer-events: none !important;
   }
 }
