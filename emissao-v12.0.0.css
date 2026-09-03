@@ -40,7 +40,7 @@
   .consent { top: 62.55% !important; height: 4.35% !important; }
   .primary-button { top: 68.24% !important; height: 5.60% !important; }
 
-  /* Inputs cobrem somente o miolo textual, mantendo icones/bordas da propria arte. */
+  /* Inputs cobrem o texto gravado na arte sem encobrir os icones e molduras. */
   .slot-name > input,
   .slot-cpf > input,
   .slot-phone > input,
@@ -48,6 +48,7 @@
   .slot-unit > select,
   .slot-unit .unit-trigger,
   .parcel-mode-select {
+    position: absolute !important;
     left: 10.9% !important;
     right: 3.7% !important;
     top: 7% !important;
@@ -55,6 +56,7 @@
     width: auto !important;
     height: auto !important;
     min-height: 0 !important;
+    margin: 0 !important;
     padding: 0 2.4% !important;
     border: 0 !important;
     border-radius: 0 !important;
@@ -64,6 +66,7 @@
     color: #e6d1ab !important;
     font-size: clamp(10px, .70vw, 15px) !important;
     line-height: 1 !important;
+    transform: none !important;
   }
 
   .slot-unit .unit-trigger,
