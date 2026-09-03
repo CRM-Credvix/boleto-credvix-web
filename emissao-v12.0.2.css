@@ -1,0 +1,44 @@
+/* v12.0.2 - ajuste final da seta da Unidade na viewport v12. */
+@media (min-width: 801px) {
+  /* Reserva uma área limpa para a seta sem encostar na borda da arte. */
+  .slot-unit .unit-trigger {
+    right: 13% !important;
+  }
+
+  /* Remove a seta legada do combobox. */
+  .slot-unit .unit-combobox::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  /* Mascara somente a pequena área interna onde a seta rasterizada ficava
+     parcialmente coberta pelo input e redesenha um chevron único e nítido. */
+  .slot-unit::before {
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    z-index: 12 !important;
+    right: 2.1% !important;
+    top: 20% !important;
+    width: 10.2% !important;
+    height: 60% !important;
+    background: #070805 !important;
+    pointer-events: none !important;
+  }
+
+  .slot-unit::after {
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    z-index: 13 !important;
+    right: 4.7% !important;
+    top: 45% !important;
+    width: 2.7% !important;
+    aspect-ratio: 1 / 1 !important;
+    border-right: 1.5px solid #d39a2f !important;
+    border-bottom: 1.5px solid #d39a2f !important;
+    transform: translateY(-50%) rotate(45deg) !important;
+    background: transparent !important;
+    pointer-events: none !important;
+  }
+}
