@@ -4,10 +4,10 @@
 
 @media (min-width: 801px) {
   /*
-   * Causa raiz corrigida: havia desvio vertical progressivo entre a camada HTML
-   * e os seis trilhos rasterizados. A diferença começava pequena no Nome e
-   * chegava a ~13 px no campo Parcelas, fazendo o texto original da arte reaparecer
-   * como uma segunda linha. As posições abaixo seguem os pixels reais da arte.
+   * Causa raiz corrigida: havia desvio progressivo entre a camada HTML e os seis
+   * trilhos rasterizados. A diferença vertical começava pequena no Nome e chegava
+   * a ~13 px no campo Parcelas. Horizontalmente, a camada também era mais larga
+   * que o retângulo real da arte. As posições abaixo seguem os pixels medidos.
    */
   .slot-name,
   .slot-cpf,
@@ -15,8 +15,8 @@
   .slot-unit,
   .slot-contract,
   .parcel-choice {
-    left: 39.7182% !important;   /* x=761 / 1916 */
-    width: 19.3111% !important; /* 370 / 1916 */
+    left: 41.1273% !important;   /* x=788 / 1916 */
+    width: 17.7453% !important; /* 340 / 1916 */
     min-width: 0 !important;
     max-width: none !important;
     box-sizing: border-box !important;
