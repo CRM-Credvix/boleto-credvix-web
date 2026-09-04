@@ -1,6 +1,27 @@
-/* v12.1.7 - camada autoritativa EXCLUSIVA de Parcelas.
-   Nenhuma regra deste arquivo altera Nome, CPF, Telefone, Unidade ou Contrato. */
+/* v12.1.8 - camada autoritativa EXCLUSIVA de Parcelas.
+   Corrige a causa raiz: uma regra legada v10 encolhia .form-layer para 590px
+   quando #parcel-fields deixava de estar hidden. Nenhum campo superior muda. */
 @media (min-width: 801px) {
+  /* Neutraliza emissao-v10.0.1.css:
+     .form-layer:has(#parcel-fields:not([hidden])) { height: ...590px... }
+     A geometria volta a ser exatamente a cover da viewport v12. */
+  .visual-stage > .form-layer:has(#parcel-fields:not([hidden])),
+  .visual-stage > .form-layer:has(.access-code-field:not([hidden])) {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: max(100vw, 233.373934dvh) !important;
+    height: max(100dvh, 42.849687vw) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: translate(-50%, -50%) !important;
+    overflow: visible !important;
+  }
+
   .parcel-choice {
     contain: layout style !important;
     overflow: visible !important;
