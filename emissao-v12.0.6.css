@@ -1,0 +1,91 @@
+/* v12.0.6 - tipografia dos campos igual ao sistema visual do login.
+   O tamanho passa a acompanhar o artboard 1916x821, em vez de ficar limitado
+   a 15px. Isso mantem a proporcao correta da fonte em qualquer resolucao desktop. */
+
+@media (min-width: 801px) {
+  /* Mesma referencia responsiva usada pela tela de login. */
+  .form-layer {
+    container-type: inline-size !important;
+  }
+
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 1.02cqw !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    color: #ead8b7 !important;
+    caret-color: #ffc14a !important;
+    text-align: left !important;
+    text-transform: none !important;
+    text-shadow: none !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: geometricPrecision !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-left: .32cqw !important;
+    box-sizing: border-box !important;
+  }
+
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input {
+    padding-right: .32cqw !important;
+  }
+
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    padding-right: .32cqw !important;
+  }
+
+  /* O trigger da unidade precisa de alinhamento vertical explicito por ser botao. */
+  .slot-unit .unit-trigger {
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  /* Mantem placeholder e valor na mesma familia/peso, mudando apenas a intensidade. */
+  .slot-name > input::placeholder,
+  .slot-cpf > input::placeholder,
+  .slot-phone > input::placeholder,
+  .slot-contract > input::placeholder,
+  .slot-unit .unit-trigger::placeholder {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 1.02cqw !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+    color: rgba(234, 216, 183, .78) !important;
+    opacity: 1 !important;
+  }
+
+  .parcel-mode-select,
+  .parcel-mode-select:invalid {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 1.02cqw !important;
+    font-weight: 400 !important;
+    color: rgba(234, 216, 183, .82) !important;
+  }
+
+  .parcel-mode-select:valid {
+    color: #ead8b7 !important;
+  }
+
+  /* Autofill nao pode trocar a fonte nem engrossar os numeros. */
+  .slot-name > input:-webkit-autofill,
+  .slot-cpf > input:-webkit-autofill,
+  .slot-phone > input:-webkit-autofill,
+  .slot-contract > input:-webkit-autofill {
+    -webkit-text-fill-color: #ead8b7 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 1.02cqw !important;
+    font-weight: 400 !important;
+  }
+}
