@@ -1,8 +1,7 @@
 (() => {
   "use strict";
 
-  /* A camada complementar é carregada por último e agora altera somente
-     a etapa de Parcelas; os campos já aprovados não recebem novos overrides. */
+  /* A camada complementar altera somente Parcelas. */
   if (!document.querySelector('link[data-emissao-stability-v12="true"]')) {
     const stabilityCss = document.createElement("link");
     stabilityCss.rel = "stylesheet";
@@ -15,8 +14,14 @@
   const select = document.querySelector("#parcel-mode-select");
   const fieldset = document.querySelector(".parcel-choice");
   const form = document.querySelector("#request-form");
+  const parcelFields = document.querySelector("#parcel-fields");
+  const parcelSingle = document.querySelector(".parcel-single");
+  const parcelRange = document.querySelector(".parcel-range");
+  const singleInput = document.querySelector("#parcela");
+  const startInput = document.querySelector("#parcelaInicial");
+  const endInput = document.querySelector("#parcelaFinal");
 
-  if (!desktop.matches || !select || !fieldset || !form) return;
+  if (!desktop.matches || !select || !fieldset || !form || !parcelFields || !parcelSingle || !parcelRange) return;
   if (fieldset.querySelector(".parcel-combobox-v12")) return;
 
   select.classList.add("parcel-native-select-v12");
@@ -61,7 +66,6 @@
     fieldset.classList.toggle("parcel-mode-specific-v12", value === "parcela_especifica");
     fieldset.classList.toggle("parcel-mode-range-v12", value === "intervalo");
     fieldset.classList.toggle("parcel-mode-selected-v12", Boolean(value));
-
     trigger.classList.toggle("has-value", Boolean(value));
     triggerText.textContent = value ? selectedLabel() : "";
 
@@ -70,6 +74,33 @@
       item.classList.toggle("is-selected", selected);
       item.setAttribute("aria-selected", String(selected));
     });
+  }
+
+  function applyMode(value, { clearInactive = true } = {}) {
+    const isSingle = value === "parcela_especifica";
+    const isRange = value === "intervalo";
+    const active = isSingle || isRange;
+
+    /* Sincroniza o estado usado pelo app sem disparar click/change nos radios.
+       Isso evita que a lógica antiga recalcule a camada principal. */
+    if (active) {
+      const radio = form.querySelector(`input[name="tipoSolicitacao"][value="${CSS.escape(value)}"]`);
+      if (radio) radio.checked = true;
+    }
+
+    parcelFields.hidden = !active;
+    parcelSingle.hidden = !isSingle;
+    parcelRange.hidden = !isRange;
+
+    if (singleInput) singleInput.required = isSingle;
+    if (startInput) startInput.required = isRange;
+    if (endInput) endInput.required = isRange;
+
+    if (clearInactive && !isSingle && singleInput) singleInput.value = "";
+    if (clearInactive && !isRange) {
+      if (startInput) startInput.value = "";
+      if (endInput) endInput.value = "";
+    }
   }
 
   function open() {
@@ -85,22 +116,20 @@
   function choose(value) {
     if (!value) return;
 
-    const scrollXBefore = window.scrollX;
-    const scrollYBefore = window.scrollY;
-
     select.value = value;
-    select.dispatchEvent(new Event("input", { bubbles: true }));
-    select.dispatchEvent(new Event("change", { bubbles: true }));
+    applyMode(value);
     syncVisualState();
     close();
-
     trigger.focus({ preventScroll: true });
-    requestAnimationFrame(() => {
-      if (window.scrollX !== scrollXBefore || window.scrollY !== scrollYBefore) {
-        window.scrollTo(scrollXBefore, scrollYBefore);
-      }
-    });
   }
+
+  /* Impede que o listener legado do select converta a escolha em radio.click(),
+     que era o gatilho de alteração de estado/reflow observado na tela. */
+  select.addEventListener("change", (event) => {
+    event.stopImmediatePropagation();
+    applyMode(select.value || "");
+    syncVisualState();
+  }, true);
 
   trigger.addEventListener("click", () => {
     if (list.hidden) open();
@@ -149,13 +178,15 @@
     if (!combobox.contains(event.target)) close();
   });
 
-  select.addEventListener("change", syncVisualState);
   form.addEventListener("reset", () => {
     requestAnimationFrame(() => {
+      select.value = "";
+      applyMode("", { clearInactive: true });
       syncVisualState();
       close();
     });
   });
 
+  applyMode(select.value || "", { clearInactive: false });
   syncVisualState();
 })();
