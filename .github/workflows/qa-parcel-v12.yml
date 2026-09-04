@@ -87,6 +87,13 @@ jobs:
             }
             controls.forEach(c=>c.dispatchEvent(new Event('input',{bubbles:true})));
 
+            /* Força o mesmo estado estabilizado que existe no uso real após a
+               digitação. Sem isto o QA comparava o retângulo antes da aplicação
+               de :placeholder-shown/mascaras com o retângulo já recalculado. */
+            void document.documentElement.offsetHeight;
+            fixed.forEach(el => void el.offsetHeight);
+            controls.forEach(el => void el.offsetHeight);
+
             const fixedBefore = fixed.map(normalizedRect);
             const controlsBefore = controls.map(normalizedRect);
             const consentBefore = normalizedRect(consent);
@@ -105,6 +112,7 @@ jobs:
             trigger.click();
             const specific = list.querySelector('[data-value="parcela_especifica"]');
             specific?.click();
+            void document.documentElement.offsetHeight;
             if (select.value !== 'parcela_especifica') fail('specific-state');
             if (fields.hidden) fail('specific-fields-hidden');
             checkFixed('specific');
@@ -120,6 +128,7 @@ jobs:
             trigger.click();
             const interval = list.querySelector('[data-value="intervalo"]');
             interval?.click();
+            void document.documentElement.offsetHeight;
             if (select.value !== 'intervalo') fail('range-state');
             checkFixed('range');
 
@@ -132,7 +141,7 @@ jobs:
             }
 
             document.documentElement.dataset.parcelQa = failures.length ? 'fail-' + failures.join('-') : 'ok';
-          }, 900));
+          }, 1100));
           </script>
           '''
           html = html.replace('</body>', qa + '</body>')
@@ -152,7 +161,7 @@ jobs:
           sleep 2
 
           for size in 1365,695 1920,1080 2560,1080; do
-            dump="$("$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=4000 --window-size="$size" --dump-dom http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar 2>/dev/null)"
+            dump="$("$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=5000 --window-size="$size" --dump-dom http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar 2>/dev/null)"
             grep -q 'data-parcel-qa="ok"' <<<"$dump" || {
               echo "Falha de parcelas em $size"
               grep -o 'data-parcel-qa="[^"]*"' <<<"$dump" || true
@@ -160,8 +169,8 @@ jobs:
             }
           done
 
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=4000 --window-size=1365,695 --screenshot=qa-parcel-v12/parcelas-1365x695.png http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=4000 --window-size=1920,1080 --screenshot=qa-parcel-v12/parcelas-1920x1080.png http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=5000 --window-size=1365,695 --screenshot=qa-parcel-v12/parcelas-1365x695.png http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=5000 --window-size=1920,1080 --screenshot=qa-parcel-v12/parcelas-1920x1080.png http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar
 
       - name: Guardar QA de parcelas
         uses: actions/upload-artifact@v4
