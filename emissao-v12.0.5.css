@@ -1,0 +1,122 @@
+/* v12.0.5 - refinamento dos campos preenchidos na viewport v12.
+   Corrige o estado real digitado mostrado em producao: remove os residuos do
+   placeholder rasterizado, sobe/centraliza o texto funcional e elimina o bloco
+   visual desalinhado sem tocar em login, autenticacao, regras ou mobile. */
+
+@media (min-width: 801px) {
+  /* O controle funcional cobre todo o miolo textual da arte. A margem minima
+     vertical preserva somente o contorno dourado do trilho. */
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    position: absolute !important;
+    z-index: 14 !important;
+    left: 9.3% !important;
+    right: 1.55% !important;
+    top: 3% !important;
+    bottom: 3% !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-right: 1.8% !important;
+    padding-bottom: clamp(2px, .22vw, 4px) !important;
+    padding-left: 1.8% !important;
+    border: 0 !important;
+    border-radius: 1px !important;
+    outline: 0 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: #080904 !important;
+    box-shadow: none !important;
+    color: #ead8b7 !important;
+    caret-color: #ffc14a !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(11px, .74vw, 15px) !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-shadow: none !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+
+  /* Unidade e Parcelas preservam a coluna da seta original da viewport. */
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    right: 10.6% !important;
+    padding-right: 1.5% !important;
+  }
+
+  /* O trigger da unidade e um botao; flex garante o mesmo eixo optico dos inputs. */
+  .slot-unit .unit-trigger {
+    display: flex !important;
+    align-items: center !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Placeholders e valores pertencem somente ao HTML real. */
+  .slot-name > input::placeholder,
+  .slot-cpf > input::placeholder,
+  .slot-phone > input::placeholder,
+  .slot-contract > input::placeholder,
+  .slot-unit .unit-trigger::placeholder {
+    color: rgba(231, 212, 179, .80) !important;
+    opacity: 1 !important;
+  }
+
+  .parcel-mode-select,
+  .parcel-mode-select:invalid {
+    color: rgba(231, 212, 179, .84) !important;
+  }
+
+  .parcel-mode-select:valid {
+    color: #ead8b7 !important;
+  }
+
+  /* Foco nao pode mudar geometria, altura ou cor de fundo. */
+  .slot-name > input:focus,
+  .slot-cpf > input:focus,
+  .slot-phone > input:focus,
+  .slot-contract > input:focus,
+  .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger[aria-expanded="true"],
+  .parcel-mode-select:focus,
+  .parcel-mode-select:focus-visible {
+    background: #080904 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  /* Autofill segue exatamente o mesmo fundo e tipografia do estado normal. */
+  .slot-name > input:-webkit-autofill,
+  .slot-cpf > input:-webkit-autofill,
+  .slot-phone > input:-webkit-autofill,
+  .slot-contract > input:-webkit-autofill {
+    -webkit-text-fill-color: #ead8b7 !important;
+    -webkit-box-shadow: 0 0 0 1000px #080904 inset !important;
+    caret-color: #ffc14a !important;
+  }
+
+  /* Garante que nenhuma mascara antiga da cadeia v12 reapareca sobre os campos. */
+  .slot-name::before,
+  .slot-cpf::before,
+  .slot-phone::before,
+  .slot-unit::before,
+  .slot-contract::before,
+  .parcel-choice::before {
+    content: none !important;
+    display: none !important;
+  }
+}
