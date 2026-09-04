@@ -1,12 +1,12 @@
 (() => {
   "use strict";
 
-  /* A camada de estabilidade é carregada por último para que a geometria dos
-     campos já aprovada não seja recalculada quando o estado de Parcelas muda. */
+  /* A camada complementar é carregada por último e agora altera somente
+     a etapa de Parcelas; os campos já aprovados não recebem novos overrides. */
   if (!document.querySelector('link[data-emissao-stability-v12="true"]')) {
     const stabilityCss = document.createElement("link");
     stabilityCss.rel = "stylesheet";
-    stabilityCss.href = "emissao-v12.0.9.css?v=12.1.5";
+    stabilityCss.href = "emissao-v12.0.9.css?v=12.1.6";
     stabilityCss.dataset.emissaoStabilityV12 = "true";
     document.head.appendChild(stabilityCss);
   }
@@ -47,8 +47,6 @@
     item.setAttribute("role", "option");
     item.dataset.value = option.value;
     item.textContent = option.textContent;
-    /* Evita que o botão da lista roube o foco e provoque scroll/recalculo da
-       camada antes do click. O click continua sendo disparado normalmente. */
     item.addEventListener("mousedown", (event) => event.preventDefault());
     item.addEventListener("click", () => choose(option.value));
     list.appendChild(item);
@@ -96,8 +94,6 @@
     syncVisualState();
     close();
 
-    /* Mantém o foco no mesmo trilho sem permitir que o navegador reposicione
-       a página ao esconder a opção que acabou de ser clicada. */
     trigger.focus({ preventScroll: true });
     requestAnimationFrame(() => {
       if (window.scrollX !== scrollXBefore || window.scrollY !== scrollYBefore) {
