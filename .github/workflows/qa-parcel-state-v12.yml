@@ -29,51 +29,23 @@ jobs:
             const fail=[];
             const art=document.querySelector('.form-layer');
             const names=['name','cpf','phone','unit','contract'];
-            const slots={
-              name:document.querySelector('.slot-name'),
-              cpf:document.querySelector('.slot-cpf'),
-              phone:document.querySelector('.slot-phone'),
-              unit:document.querySelector('.slot-unit'),
-              contract:document.querySelector('.slot-contract')
-            };
-            const controls={
-              name:document.querySelector('#solicitante'),
-              cpf:document.querySelector('#cpf'),
-              phone:document.querySelector('#telefone'),
-              unit:document.querySelector('#unit-trigger') || document.querySelector('#unidade'),
-              contract:document.querySelector('#contrato')
-            };
+            const slots={name:document.querySelector('.slot-name'),cpf:document.querySelector('.slot-cpf'),phone:document.querySelector('.slot-phone'),unit:document.querySelector('.slot-unit'),contract:document.querySelector('.slot-contract')};
+            const controls={name:document.querySelector('#solicitante'),cpf:document.querySelector('#cpf'),phone:document.querySelector('#telefone'),unit:document.querySelector('#unit-trigger')||document.querySelector('#unidade'),contract:document.querySelector('#contrato')};
             const trigger=document.querySelector('#parcel-trigger-v12');
             const list=document.querySelector('#parcel-list-v12');
             const select=document.querySelector('#parcel-mode-select');
-            if(!art||!trigger||!list||!select||names.some(n=>!slots[n]||!controls[n])){
-              document.documentElement.dataset.stateQa='fail-missing'; return;
-            }
-            controls.name.value='Teste Credvix';
-            controls.cpf.value='123.456.789-00';
-            controls.phone.value='(27) 99999-9999';
-            controls.contract.value='123456';
-            if(controls.unit.id==='unit-trigger'){
-              controls.unit.value='HELP - COLATINA';
-              controls.unit.classList.add('has-value');
-            }
+            if(!art||!trigger||!list||!select||names.some(n=>!slots[n]||!controls[n])){document.documentElement.dataset.stateQa='fail-missing';return;}
+            controls.name.value='Teste Credvix'; controls.cpf.value='123.456.789-00'; controls.phone.value='(27) 99999-9999'; controls.contract.value='123456';
+            if(controls.unit.id==='unit-trigger'){controls.unit.value='HELP - COLATINA';controls.unit.classList.add('has-value');}
             for(const c of Object.values(controls)) c.dispatchEvent(new Event('input',{bubbles:true}));
-            const norm=(el)=>{const r=el.getBoundingClientRect(),a=art.getBoundingClientRect();return [r.left/a.width,r.top/a.height,r.width/a.width,r.height/a.height]};
-            const snap=()=>Object.fromEntries(names.flatMap(n=>[[`slot-${n}`,norm(slots[n])],[`ctrl-${n}`,norm(controls[n])]]));
-            const before=snap();
-            const diff=(a,b)=>a.some((v,i)=>Math.abs(v-b[i])>.0005);
-            const check=(label)=>{const now=snap();for(const k of Object.keys(before))if(diff(before[k],now[k]))fail.push(label+'-'+k);};
-            trigger.click();
-            list.querySelector('[data-value="parcela_especifica"]')?.click();
-            requestAnimationFrame(()=>{
-              check('specific');
-              trigger.click();
-              list.querySelector('[data-value="intervalo"]')?.click();
-              requestAnimationFrame(()=>{
-                check('range');
-                document.documentElement.dataset.stateQa=fail.length?'fail-'+fail.join('-'):'ok';
-              });
-            });
+            const rel=(el)=>{const r=el.getBoundingClientRect(),a=art.getBoundingClientRect();return[(r.left-a.left)/a.width,(r.top-a.top)/a.height,r.width/a.width,r.height/a.height]};
+            const artRect=()=>{const r=art.getBoundingClientRect();return[r.left,r.top,r.width,r.height,scrollX,scrollY]};
+            const snap=()=>Object.fromEntries(names.flatMap(n=>[[`slot-${n}`,rel(slots[n])],[`ctrl-${n}`,rel(controls[n])]]));
+            const before=snap(), artBefore=artRect();
+            const diff=(a,b,t=.0005)=>a.some((v,i)=>Math.abs(v-b[i])>t);
+            const check=(label)=>{const now=snap();for(const k of Object.keys(before))if(diff(before[k],now[k]))fail.push(label+'-'+k);if(diff(artBefore,artRect(),.5))fail.push(label+'-artboard-or-scroll');};
+            trigger.click(); list.querySelector('[data-value="parcela_especifica"]')?.click();
+            requestAnimationFrame(()=>{check('specific');trigger.click();list.querySelector('[data-value="intervalo"]')?.click();requestAnimationFrame(()=>{check('range');document.documentElement.dataset.stateQa=fail.length?'fail-'+fail.join('-'):'ok';});});
           },800));
           </script>
           '''
