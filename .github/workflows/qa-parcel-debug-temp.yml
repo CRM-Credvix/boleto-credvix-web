@@ -25,21 +25,19 @@ jobs:
           addEventListener('load',()=>setTimeout(()=>{
             const art=document.querySelector('.form-layer');
             const controls=[document.querySelector('#solicitante'),document.querySelector('#cpf'),document.querySelector('#telefone'),document.querySelector('#unit-trigger')||document.querySelector('#unidade'),document.querySelector('#contrato')];
+            const slots=[document.querySelector('.slot-name'),document.querySelector('.slot-cpf'),document.querySelector('.slot-phone'),document.querySelector('.slot-unit'),document.querySelector('.slot-contract')];
             const trigger=document.querySelector('#parcel-trigger-v12'), list=document.querySelector('#parcel-list-v12');
             controls[0].value='Teste';controls[1].value='123.456.789-00';controls[2].value='(27)99999-9999';controls[4].value='123456';
             if(controls[3].id==='unit-trigger'){controls[3].value='HELP - ARACRUZ';controls[3].classList.add('has-value');}
             controls.forEach(c=>c.dispatchEvent(new Event('input',{bubbles:true})));
             void document.documentElement.offsetHeight;
-            const rect=e=>{const r=e.getBoundingClientRect(),a=art.getBoundingClientRect();return [+(r.left-a.left).toFixed(3),+(r.top-a.top).toFixed(3),+r.width.toFixed(3),+r.height.toFixed(3)]};
-            const css=e=>{const s=getComputedStyle(e);return {left:s.left,right:s.right,top:s.top,bottom:s.bottom,width:s.width,height:s.height,padding:s.padding,display:s.display,position:s.position,fontSize:s.fontSize,lineHeight:s.lineHeight,transform:s.transform}};
-            const snap=()=>controls.map((e,i)=>({i,rect:rect(e),css:css(e),focus:document.activeElement===e}));
-            const debug={before:snap(),art:rect(art),activeBefore:document.activeElement?.id||document.activeElement?.className||''};
-            trigger.click();list.querySelector('[data-value="parcela_especifica"]')?.click();void document.documentElement.offsetHeight;
-            debug.specific=snap();debug.activeSpecific=document.activeElement?.id||document.activeElement?.className||'';
-            trigger.click();list.querySelector('[data-value="intervalo"]')?.click();void document.documentElement.offsetHeight;
-            debug.range=snap();debug.activeRange=document.activeElement?.id||document.activeElement?.className||'';
+            const abs=e=>{const r=e.getBoundingClientRect();return [r.left,r.top,r.width,r.height].map(v=>+v.toFixed(3))};
+            const state=()=>({inner:[innerWidth,innerHeight],client:[document.documentElement.clientWidth,document.documentElement.clientHeight],vv:visualViewport?[+visualViewport.width.toFixed(3),+visualViewport.height.toFixed(3)]:null,scroll:[scrollX,scrollY],art:abs(art),slots:slots.map(abs),controls:controls.map(abs)});
+            const debug={before:state()};
+            trigger.click();list.querySelector('[data-value="parcela_especifica"]')?.click();void document.documentElement.offsetHeight;debug.specific=state();
+            trigger.click();list.querySelector('[data-value="intervalo"]')?.click();void document.documentElement.offsetHeight;debug.range=state();
             document.querySelector('#parcel-debug').textContent=JSON.stringify(debug);
-          },1300));
+          },1400));
           </script><pre id="parcel-debug"></pre>
           '''
           html=html.replace('</body>',qa+'</body>')
