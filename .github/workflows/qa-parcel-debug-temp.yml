@@ -1,0 +1,55 @@
+name: TEMP debug parcelas
+on:
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Preparar debug
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          html=re.sub(r'<script[^>]+src="https://cdn\.jsdelivr\.net[^>]*></script>','',html,flags=re.I)
+          html=re.sub(r'<script[^>]+src="auth-v8\.4\.0\.js[^>]*></script>','',html,flags=re.I)
+          html=html.replace('<main id="inicio" class="visual-stage" hidden>','<main id="inicio" class="visual-stage">')
+          qa=r'''
+          <style>#auth-gate{display:none!important}</style>
+          <script>
+          addEventListener('load',()=>setTimeout(()=>{
+            const art=document.querySelector('.form-layer');
+            const controls=[document.querySelector('#solicitante'),document.querySelector('#cpf'),document.querySelector('#telefone'),document.querySelector('#unit-trigger')||document.querySelector('#unidade'),document.querySelector('#contrato')];
+            const trigger=document.querySelector('#parcel-trigger-v12'), list=document.querySelector('#parcel-list-v12');
+            controls[0].value='Teste';controls[1].value='123.456.789-00';controls[2].value='(27)99999-9999';controls[4].value='123456';
+            if(controls[3].id==='unit-trigger'){controls[3].value='HELP - ARACRUZ';controls[3].classList.add('has-value');}
+            controls.forEach(c=>c.dispatchEvent(new Event('input',{bubbles:true})));
+            void document.documentElement.offsetHeight;
+            const rect=e=>{const r=e.getBoundingClientRect(),a=art.getBoundingClientRect();return [+(r.left-a.left).toFixed(3),+(r.top-a.top).toFixed(3),+r.width.toFixed(3),+r.height.toFixed(3)]};
+            const css=e=>{const s=getComputedStyle(e);return {left:s.left,right:s.right,top:s.top,bottom:s.bottom,width:s.width,height:s.height,padding:s.padding,display:s.display,position:s.position,fontSize:s.fontSize,lineHeight:s.lineHeight,transform:s.transform}};
+            const snap=()=>controls.map((e,i)=>({i,rect:rect(e),css:css(e),focus:document.activeElement===e}));
+            const debug={before:snap(),art:rect(art),activeBefore:document.activeElement?.id||document.activeElement?.className||''};
+            trigger.click();list.querySelector('[data-value="parcela_especifica"]')?.click();void document.documentElement.offsetHeight;
+            debug.specific=snap();debug.activeSpecific=document.activeElement?.id||document.activeElement?.className||'';
+            trigger.click();list.querySelector('[data-value="intervalo"]')?.click();void document.documentElement.offsetHeight;
+            debug.range=snap();debug.activeRange=document.activeElement?.id||document.activeElement?.className||'';
+            document.querySelector('#parcel-debug').textContent=JSON.stringify(debug);
+          },1300));
+          </script><pre id="parcel-debug"></pre>
+          '''
+          html=html.replace('</body>',qa+'</body>')
+          Path('_qa-debug.html').write_text(html,encoding='utf-8')
+          PY
+      - name: Imprimir geometria
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          python -m http.server 8777 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          PID=$!; trap 'kill $PID 2>/dev/null || true' EXIT; sleep 2
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=5000 --window-size=1365,695 --dump-dom http://127.0.0.1:8777/_qa-debug.html#solicitar 2>/dev/null | grep -o '<pre id="parcel-debug">.*</pre>'
