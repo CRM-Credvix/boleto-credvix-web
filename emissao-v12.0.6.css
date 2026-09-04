@@ -1,7 +1,7 @@
-/* v12.1.0 - camada final autoritativa da emissao.
-   Mantida neste arquivo para prevalecer sobre os overrides historicos v12.
-   Mesma estrategia do login: a arte conserva molduras, icones e placeholders;
-   o HTML aparece apenas para interacao/valor e respeita os pixels da arte 1916x821. */
+/* v12.1.1 - camada final autoritativa da emissao.
+   A viewport 1916x821 e a fonte de verdade da geometria. Molduras, icones,
+   placeholders e setas pertencem a arte; o HTML entra apenas no miolo textual
+   quando ha foco ou valor. Desktop apenas. Login, regras e mobile intactos. */
 
 @media (min-width: 801px) {
   html,
@@ -26,7 +26,7 @@
     overflow: hidden !important;
     transform: none !important;
     isolation: isolate !important;
-    background: #030302 url("assets/emissao-viewport-v12-wide.webp?v=12.1.0") center center / cover no-repeat !important;
+    background: #030302 url("assets/emissao-viewport-v12-wide.webp?v=12.1.1") center center / cover no-repeat !important;
   }
 
   .visual-stage::before,
@@ -192,9 +192,33 @@
     opacity: 0 !important;
   }
 
-  .parcel-mode-select,
-  .parcel-mode-select:invalid {
+  /* Selects nativos conseguem pintar a caixa mesmo com fundo transparente.
+     Quando vazios, ficam totalmente invisiveis e deixam o placeholder original
+     da viewport aparecer. O hotspot continua clicavel. */
+  .parcel-mode-select:invalid:not(:focus) {
+    opacity: 0 !important;
     color: transparent !important;
+    background: transparent !important;
+  }
+
+  .parcel-mode-select:focus,
+  .parcel-mode-select:valid {
+    opacity: 1 !important;
+  }
+
+  /* No carregamento sem JS, o select de Unidade tambem deve deixar a arte visivel.
+     Quando o JS monta o combobox, ele recebe unit-native-select e a UI passa ao trigger. */
+  .slot-unit > select:not(.unit-native-select) {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    cursor: pointer !important;
   }
 
   .slot-name > input:focus,
