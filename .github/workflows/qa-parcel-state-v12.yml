@@ -1,0 +1,95 @@
+name: QA Parcelas Estado v12
+
+on:
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  state-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Preparar pagina real sem autenticação
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          html=re.sub(r'<script[^>]+src="https://cdn\.jsdelivr\.net[^>]*></script>', '', html, flags=re.I)
+          html=re.sub(r'<script[^>]+src="auth-v8\.4\.0\.js[^>]*></script>', '', html, flags=re.I)
+          html=html.replace('<main id="inicio" class="visual-stage" hidden>', '<main id="inicio" class="visual-stage">')
+          qa=r'''
+          <style>#auth-gate{display:none!important}</style>
+          <script>
+          addEventListener('load',()=>setTimeout(()=>{
+            const fail=[];
+            const art=document.querySelector('.form-layer');
+            const names=['name','cpf','phone','unit','contract'];
+            const slots={
+              name:document.querySelector('.slot-name'),
+              cpf:document.querySelector('.slot-cpf'),
+              phone:document.querySelector('.slot-phone'),
+              unit:document.querySelector('.slot-unit'),
+              contract:document.querySelector('.slot-contract')
+            };
+            const controls={
+              name:document.querySelector('#solicitante'),
+              cpf:document.querySelector('#cpf'),
+              phone:document.querySelector('#telefone'),
+              unit:document.querySelector('#unit-trigger') || document.querySelector('#unidade'),
+              contract:document.querySelector('#contrato')
+            };
+            const trigger=document.querySelector('#parcel-trigger-v12');
+            const list=document.querySelector('#parcel-list-v12');
+            const select=document.querySelector('#parcel-mode-select');
+            if(!art||!trigger||!list||!select||names.some(n=>!slots[n]||!controls[n])){
+              document.documentElement.dataset.stateQa='fail-missing'; return;
+            }
+            controls.name.value='Teste Credvix';
+            controls.cpf.value='123.456.789-00';
+            controls.phone.value='(27) 99999-9999';
+            controls.contract.value='123456';
+            if(controls.unit.id==='unit-trigger'){
+              controls.unit.value='HELP - COLATINA';
+              controls.unit.classList.add('has-value');
+            }
+            for(const c of Object.values(controls)) c.dispatchEvent(new Event('input',{bubbles:true}));
+            const norm=(el)=>{const r=el.getBoundingClientRect(),a=art.getBoundingClientRect();return [r.left/a.width,r.top/a.height,r.width/a.width,r.height/a.height]};
+            const snap=()=>Object.fromEntries(names.flatMap(n=>[[`slot-${n}`,norm(slots[n])],[`ctrl-${n}`,norm(controls[n])]]));
+            const before=snap();
+            const diff=(a,b)=>a.some((v,i)=>Math.abs(v-b[i])>.0005);
+            const check=(label)=>{const now=snap();for(const k of Object.keys(before))if(diff(before[k],now[k]))fail.push(label+'-'+k);};
+            trigger.click();
+            list.querySelector('[data-value="parcela_especifica"]')?.click();
+            requestAnimationFrame(()=>{
+              check('specific');
+              trigger.click();
+              list.querySelector('[data-value="intervalo"]')?.click();
+              requestAnimationFrame(()=>{
+                check('range');
+                document.documentElement.dataset.stateQa=fail.length?'fail-'+fail.join('-'):'ok';
+              });
+            });
+          },800));
+          </script>
+          '''
+          html=html.replace('</body>',qa+'</body>')
+          Path('_qa-parcel-state.html').write_text(html,encoding='utf-8')
+          PY
+      - name: Validar antes e depois da seleção
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          [ -n "$CHROME" ]
+          python -m http.server 8770 --bind 127.0.0.1 >/tmp/qa-state.log 2>&1 &
+          PID=$!; trap 'kill $PID 2>/dev/null || true' EXIT; sleep 2
+          for size in 1280,720 1365,695 1920,1080 2560,1080; do
+            dump="$("$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=4500 --window-size="$size" --dump-dom http://127.0.0.1:8770/_qa-parcel-state.html#solicitar 2>/dev/null)"
+            echo "$size $(grep -o 'data-state-qa="[^"]*"' <<<"$dump" || true)"
+            grep -q 'data-state-qa="ok"' <<<"$dump" || exit 1
+          done
