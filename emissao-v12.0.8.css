@@ -1,7 +1,7 @@
-/* v12.1.3 - correção definitiva da etapa de Parcelas baseada no vídeo real.
+/* v12.1.4 - correção definitiva da etapa de Parcelas baseada no vídeo real.
    O seletor nativo deixa de aparecer no Windows/Chrome e os dados de parcela
-   passam a permanecer dentro do mesmo trilho da viewport. Nenhum painel fixo
-   é aberto fora do card. Os campos anteriores permanecem intocados. */
+   permanecem dentro do mesmo trilho da viewport em todas as proporções.
+   Nenhum painel fixo é aberto fora do card. Campos anteriores intocados. */
 
 @media (min-width: 801px) {
   .parcel-choice {
@@ -9,8 +9,6 @@
     overflow: visible !important;
   }
 
-  /* O select nativo continua como fonte de estado para a regra de negócio,
-     porém deixa de receber clique visual e nunca mais abre o menu branco do SO. */
   .parcel-mode-select.parcel-native-select-v12 {
     position: absolute !important;
     left: -9999px !important;
@@ -59,16 +57,14 @@
     pointer-events: auto !important;
   }
 
-  /* Ao haver valor, apagamos somente o placeholder rasterizado da arte.
-     Moldura, ícone e seta dourada continuam sendo os pixels originais da viewport. */
   .parcel-trigger-v12.has-value::before {
     content: "" !important;
     position: absolute !important;
     z-index: 0 !important;
-    left: 1.62cqw !important;
-    right: 1.62cqw !important;
-    top: .16cqw !important;
-    height: 1.90cqw !important;
+    left: 8.9% !important;
+    right: 8.9% !important;
+    top: 8% !important;
+    bottom: 8% !important;
     border: 0 !important;
     background: #080904 !important;
     box-shadow: none !important;
@@ -78,15 +74,15 @@
   .parcel-trigger-text-v12 {
     position: absolute !important;
     z-index: 1 !important;
-    left: 1.878914cqw !important;
-    right: 1.774530cqw !important;
-    top: .208768cqw !important;
-    height: 1.774530cqw !important;
+    left: 10.3% !important;
+    right: 9.7% !important;
+    top: 10% !important;
+    height: 80% !important;
     display: flex !important;
     align-items: center !important;
     min-width: 0 !important;
     margin: 0 !important;
-    padding: 0 .24cqw !important;
+    padding: 0 1.3% !important;
     color: #ead8b7 !important;
     font-family: Arial, Helvetica, sans-serif !important;
     font-size: .835073cqw !important;
@@ -102,13 +98,12 @@
     pointer-events: none !important;
   }
 
-  /* Reserva espaço dentro do próprio trilho para o número escolhido. */
   .parcel-choice.parcel-mode-specific-v12 .parcel-trigger-text-v12 {
-    right: 7.10cqw !important;
+    right: 39% !important;
   }
 
   .parcel-choice.parcel-mode-range-v12 .parcel-trigger-text-v12 {
-    right: 10.25cqw !important;
+    right: 56% !important;
   }
 
   .parcel-trigger-v12:focus-visible {
@@ -116,20 +111,19 @@
     outline-offset: -2px !important;
   }
 
-  /* Menu próprio: preto/dourado e sobreposto, sem alterar altura nem empurrar o formulário. */
   .parcel-list-v12 {
     position: absolute !important;
     z-index: 360 !important;
     left: 0 !important;
-    top: calc(100% + .16cqw) !important;
+    top: calc(100% + 4px) !important;
     width: 100% !important;
     min-width: 100% !important;
     margin: 0 !important;
-    padding: .18cqw !important;
+    padding: 4px !important;
     border: 1px solid rgba(192,126,25,.94) !important;
-    border-radius: .28cqw !important;
+    border-radius: 5px !important;
     background: rgba(7,8,5,.995) !important;
-    box-shadow: 0 .34cqw .85cqw rgba(0,0,0,.58), inset 0 0 0 1px rgba(255,190,68,.045) !important;
+    box-shadow: 0 7px 18px rgba(0,0,0,.58), inset 0 0 0 1px rgba(255,190,68,.045) !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
     pointer-events: auto !important;
@@ -143,18 +137,18 @@
     display: flex !important;
     align-items: center !important;
     width: 100% !important;
-    height: 1.62cqw !important;
-    min-height: 1.62cqw !important;
+    height: clamp(28px, 3.7vh, 38px) !important;
+    min-height: 28px !important;
     margin: 0 !important;
-    padding: 0 .50cqw !important;
+    padding: 0 10px !important;
     border: 0 !important;
-    border-radius: .18cqw !important;
+    border-radius: 4px !important;
     outline: 0 !important;
     color: #ead8b7 !important;
     background: transparent !important;
     box-shadow: none !important;
     font-family: Arial, Helvetica, sans-serif !important;
-    font-size: .72cqw !important;
+    font-size: clamp(11px, .72cqw, 16px) !important;
     font-weight: 400 !important;
     line-height: 1 !important;
     text-align: left !important;
@@ -170,8 +164,6 @@
     box-shadow: inset 0 0 0 1px rgba(255,177,43,.40) !important;
   }
 
-  /* O painel auxiliar deixa de existir como card externo. O mesmo DOM é reaproveitado
-     por cima do trilho de Parcelas para não mexer em nenhuma outra posição da arte. */
   .parcel-fields {
     position: absolute !important;
     z-index: 280 !important;
@@ -232,29 +224,28 @@
     display: none !important;
   }
 
-  /* Parcela específica: um único número encaixado à direita do mesmo trilho. */
+  /* Geometria em porcentagem do próprio trilho: não depende da proporção da tela. */
   .parcel-fields .parcel-single:not([hidden]) {
     position: absolute !important;
     z-index: 2 !important;
-    right: 1.96cqw !important;
-    top: .34cqw !important;
-    width: 4.78cqw !important;
-    height: 1.50cqw !important;
+    right: 10.5% !important;
+    top: 18% !important;
+    width: 27% !important;
+    height: 64% !important;
     display: block !important;
     pointer-events: auto !important;
   }
 
-  /* Intervalo: dois números pequenos, ainda dentro da mesma caixa original. */
   .parcel-fields .parcel-range:not([hidden]) {
     position: absolute !important;
     z-index: 2 !important;
-    right: 1.96cqw !important;
-    top: .34cqw !important;
-    width: 8.05cqw !important;
-    height: 1.50cqw !important;
+    right: 10.5% !important;
+    top: 18% !important;
+    width: 46% !important;
+    height: 64% !important;
     display: grid !important;
     grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important;
-    gap: .28cqw !important;
+    gap: 3% !important;
     pointer-events: auto !important;
   }
 
@@ -274,9 +265,9 @@
     min-width: 0 !important;
     min-height: 0 !important;
     margin: 0 !important;
-    padding: 0 .38cqw !important;
+    padding: 0 8% !important;
     border: 1px solid rgba(181,116,22,.86) !important;
-    border-radius: .20cqw !important;
+    border-radius: 4px !important;
     outline: 0 !important;
     appearance: textfield !important;
     -moz-appearance: textfield !important;
@@ -285,7 +276,7 @@
     background: #080904 !important;
     box-shadow: inset 0 0 0 1px rgba(255,190,68,.028) !important;
     font-family: Arial, Helvetica, sans-serif !important;
-    font-size: .68cqw !important;
+    font-size: clamp(10px, .68cqw, 15px) !important;
     font-weight: 400 !important;
     line-height: 1 !important;
     box-sizing: border-box !important;
@@ -313,17 +304,17 @@
     position: absolute !important;
     z-index: 500 !important;
     right: 0 !important;
-    top: calc(100% + .16cqw) !important;
+    top: calc(100% + 4px) !important;
     width: max-content !important;
-    max-width: 8.2cqw !important;
+    max-width: 160px !important;
     margin: 0 !important;
-    padding: .18cqw .28cqw !important;
+    padding: 4px 6px !important;
     border: 1px solid rgba(167,104,24,.72) !important;
-    border-radius: .18cqw !important;
+    border-radius: 4px !important;
     color: #e7bf72 !important;
     background: rgba(7,8,5,.985) !important;
-    box-shadow: 0 .20cqw .48cqw rgba(0,0,0,.42) !important;
-    font-size: .40cqw !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,.42) !important;
+    font-size: 9px !important;
     font-weight: 600 !important;
     line-height: 1.15 !important;
     white-space: normal !important;
