@@ -46,6 +46,7 @@ jobs:
             const submit = document.querySelector('.primary-button');
 
             const fail = (name) => failures.push(name);
+            const d = (a,b) => Math.round((a-b)*100)/100;
             if (!choice || !trigger || !list || !select || !fields || !consent || !submit) {
               document.documentElement.dataset.parcelQa = 'fail-missing-core';
               return;
@@ -82,8 +83,10 @@ jobs:
 
             const consentAfter = consent.getBoundingClientRect();
             const submitAfter = submit.getBoundingClientRect();
-            if (Math.abs(consentAfter.top - consentBefore.top) > 1 || Math.abs(consentAfter.left - consentBefore.left) > 1) fail('consent-moved');
-            if (Math.abs(submitAfter.top - submitBefore.top) > 1 || Math.abs(submitAfter.left - submitBefore.left) > 1) fail('button-moved');
+            const cdx=d(consentAfter.left,consentBefore.left), cdy=d(consentAfter.top,consentBefore.top);
+            const bdx=d(submitAfter.left,submitBefore.left), bdy=d(submitAfter.top,submitBefore.top);
+            if (Math.abs(cdy) > 1 || Math.abs(cdx) > 1) fail(`consent-moved-${cdx}-${cdy}`);
+            if (Math.abs(bdy) > 1 || Math.abs(bdx) > 1) fail(`button-moved-${bdx}-${bdy}`);
 
             document.documentElement.dataset.parcelQa = failures.length ? 'fail-' + failures.join('-') : 'ok';
           }, 600));
