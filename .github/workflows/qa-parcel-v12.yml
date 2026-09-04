@@ -37,6 +37,7 @@ jobs:
           <script>
           addEventListener('load', () => setTimeout(() => {
             const failures = [];
+            const artboard = document.querySelector('.form-layer');
             const choice = document.querySelector('.parcel-choice');
             const trigger = document.querySelector('#parcel-trigger-v12');
             const list = document.querySelector('#parcel-list-v12');
@@ -47,7 +48,13 @@ jobs:
 
             const fail = (name) => failures.push(name);
             const d = (a,b) => Math.round((a-b)*100)/100;
-            if (!choice || !trigger || !list || !select || !fields || !consent || !submit) {
+            const relativeRect = (element) => {
+              const r = element.getBoundingClientRect();
+              const a = artboard.getBoundingClientRect();
+              return {left:r.left-a.left, top:r.top-a.top, width:r.width, height:r.height};
+            };
+
+            if (!artboard || !choice || !trigger || !list || !select || !fields || !consent || !submit) {
               document.documentElement.dataset.parcelQa = 'fail-missing-core';
               return;
             }
@@ -55,8 +62,8 @@ jobs:
             const nativeStyle = getComputedStyle(select);
             if (nativeStyle.pointerEvents !== 'none' || Number(nativeStyle.opacity) !== 0) fail('native-visible');
 
-            const consentBefore = consent.getBoundingClientRect();
-            const submitBefore = submit.getBoundingClientRect();
+            const consentBefore = relativeRect(consent);
+            const submitBefore = relativeRect(submit);
             const choiceRect = choice.getBoundingClientRect();
 
             trigger.click();
@@ -81,12 +88,12 @@ jobs:
               if (rect && (rect.left < choiceRect.left || rect.right > choiceRect.right || rect.top < choiceRect.top || rect.bottom > choiceRect.bottom)) fail(name+'-outside-row');
             }
 
-            const consentAfter = consent.getBoundingClientRect();
-            const submitAfter = submit.getBoundingClientRect();
+            const consentAfter = relativeRect(consent);
+            const submitAfter = relativeRect(submit);
             const cdx=d(consentAfter.left,consentBefore.left), cdy=d(consentAfter.top,consentBefore.top);
             const bdx=d(submitAfter.left,submitBefore.left), bdy=d(submitAfter.top,submitBefore.top);
-            if (Math.abs(cdy) > 1 || Math.abs(cdx) > 1) fail(`consent-moved-${cdx}-${cdy}`);
-            if (Math.abs(bdy) > 1 || Math.abs(bdx) > 1) fail(`button-moved-${bdx}-${bdy}`);
+            if (Math.abs(cdy) > .5 || Math.abs(cdx) > .5) fail(`consent-relative-moved-${cdx}-${cdy}`);
+            if (Math.abs(bdy) > .5 || Math.abs(bdx) > .5) fail(`button-relative-moved-${bdx}-${bdy}`);
 
             document.documentElement.dataset.parcelQa = failures.length ? 'fail-' + failures.join('-') : 'ok';
           }, 600));
