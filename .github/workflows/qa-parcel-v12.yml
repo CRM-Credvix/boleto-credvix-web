@@ -47,12 +47,18 @@ jobs:
             const submit = document.querySelector('.primary-button');
 
             const fail = (name) => failures.push(name);
-            const d = (a,b) => Math.round((a-b)*100)/100;
-            const relativeRect = (element) => {
+            const normalizedRect = (element) => {
               const r = element.getBoundingClientRect();
               const a = artboard.getBoundingClientRect();
-              return {left:r.left-a.left, top:r.top-a.top, width:r.width, height:r.height};
+              return {
+                left:(r.left-a.left)/a.width,
+                top:(r.top-a.top)/a.height,
+                width:r.width/a.width,
+                height:r.height/a.height
+              };
             };
+            const moved = (before, after) =>
+              Math.abs(after.left-before.left) > 0.0005 || Math.abs(after.top-before.top) > 0.0005;
 
             if (!artboard || !choice || !trigger || !list || !select || !fields || !consent || !submit) {
               document.documentElement.dataset.parcelQa = 'fail-missing-core';
@@ -62,9 +68,8 @@ jobs:
             const nativeStyle = getComputedStyle(select);
             if (nativeStyle.pointerEvents !== 'none' || Number(nativeStyle.opacity) !== 0) fail('native-visible');
 
-            const consentBefore = relativeRect(consent);
-            const submitBefore = relativeRect(submit);
-            const choiceRect = choice.getBoundingClientRect();
+            const consentBefore = normalizedRect(consent);
+            const submitBefore = normalizedRect(submit);
 
             trigger.click();
             if (list.hidden) fail('list-not-open');
@@ -74,8 +79,9 @@ jobs:
             if (fields.hidden) fail('specific-fields-hidden');
             const single = document.querySelector('#parcela');
             const singleRect = single?.getBoundingClientRect();
+            const specificChoiceRect = choice.getBoundingClientRect();
             if (!singleRect || singleRect.width < 20 || singleRect.height < 15) fail('specific-collapsed');
-            if (singleRect && (singleRect.left < choiceRect.left || singleRect.right > choiceRect.right || singleRect.top < choiceRect.top || singleRect.bottom > choiceRect.bottom)) fail('specific-outside-row');
+            if (singleRect && (singleRect.left < specificChoiceRect.left || singleRect.right > specificChoiceRect.right || singleRect.top < specificChoiceRect.top || singleRect.bottom > specificChoiceRect.bottom)) fail('specific-outside-row');
 
             trigger.click();
             const interval = list.querySelector('[data-value="intervalo"]');
@@ -83,17 +89,16 @@ jobs:
             if (select.value !== 'intervalo') fail('range-state');
             const start = document.querySelector('#parcelaInicial')?.getBoundingClientRect();
             const end = document.querySelector('#parcelaFinal')?.getBoundingClientRect();
+            const rangeChoiceRect = choice.getBoundingClientRect();
             if (!start || !end || start.width < 20 || end.width < 20) fail('range-collapsed');
             for (const [name, rect] of [['start',start],['end',end]]) {
-              if (rect && (rect.left < choiceRect.left || rect.right > choiceRect.right || rect.top < choiceRect.top || rect.bottom > choiceRect.bottom)) fail(name+'-outside-row');
+              if (rect && (rect.left < rangeChoiceRect.left || rect.right > rangeChoiceRect.right || rect.top < rangeChoiceRect.top || rect.bottom > rangeChoiceRect.bottom)) fail(name+'-outside-row');
             }
 
-            const consentAfter = relativeRect(consent);
-            const submitAfter = relativeRect(submit);
-            const cdx=d(consentAfter.left,consentBefore.left), cdy=d(consentAfter.top,consentBefore.top);
-            const bdx=d(submitAfter.left,submitBefore.left), bdy=d(submitAfter.top,submitBefore.top);
-            if (Math.abs(cdy) > .5 || Math.abs(cdx) > .5) fail(`consent-relative-moved-${cdx}-${cdy}`);
-            if (Math.abs(bdy) > .5 || Math.abs(bdx) > .5) fail(`button-relative-moved-${bdx}-${bdy}`);
+            const consentAfter = normalizedRect(consent);
+            const submitAfter = normalizedRect(submit);
+            if (moved(consentBefore, consentAfter)) fail('consent-relative-moved');
+            if (moved(submitBefore, submitAfter)) fail('button-relative-moved');
 
             document.documentElement.dataset.parcelQa = failures.length ? 'fail-' + failures.join('-') : 'ok';
           }, 600));
