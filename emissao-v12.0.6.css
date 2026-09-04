@@ -1,12 +1,129 @@
-/* v12.0.6 - tipografia dos campos igual ao sistema visual do login.
-   O tamanho passa a acompanhar o artboard 1916x821, em vez de ficar limitado
-   a 15px. Isso mantem a proporcao correta da fonte em qualquer resolucao desktop. */
+/* v12.1.1 - camada final autoritativa da emissao.
+   A viewport 1916x821 e a fonte de verdade da geometria. Molduras, icones,
+   placeholders e setas pertencem a arte; o HTML entra apenas no miolo textual
+   quando ha foco ou valor. Desktop apenas. Login, regras e mobile intactos. */
 
 @media (min-width: 801px) {
-  /* Mesma referencia responsiva usada pela tela de login. */
+  html,
+  body {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    background: #030302 !important;
+  }
+
+  .visual-stage {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    transform: none !important;
+    isolation: isolate !important;
+    background: #030302 url("assets/emissao-viewport-v12-wide.webp?v=12.1.1") center center / cover no-repeat !important;
+  }
+
+  .visual-stage::before,
+  .visual-stage::after,
+  .desktop-mock,
+  .emissao-bg-fill,
+  .emissao-edge-fill,
+  .desktop-hotspot,
+  .auth-session-badge,
+  body > .auth-logout,
+  .mobile-intro {
+    display: none !important;
+    content: none !important;
+  }
+
   .form-layer {
+    position: absolute !important;
+    z-index: 20 !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: max(100vw, 233.373934vh) !important;
+    height: max(100vh, 42.849687vw) !important;
+    width: max(100vw, 233.373934dvh) !important;
+    height: max(100dvh, 42.849687vw) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: translate(-50%, -50%) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
     container-type: inline-size !important;
   }
+
+  .form-layer::before,
+  .form-layer::after,
+  .mobile-form-title {
+    display: none !important;
+    content: none !important;
+  }
+
+  #request-form {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    pointer-events: none !important;
+  }
+
+  .honeypot,
+  .slot-name > .field-label,
+  .slot-cpf > .field-label,
+  .slot-phone > .field-label,
+  .slot-unit > .field-label,
+  .slot-contract > .field-label,
+  .mobile-only-label,
+  .parcel-choice > .parcel-option {
+    display: none !important;
+  }
+
+  .slot-name,
+  .slot-cpf,
+  .slot-phone,
+  .slot-unit,
+  .slot-contract,
+  .parcel-choice {
+    position: absolute !important;
+    left: 40.814196% !important;
+    width: 18.267223% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    pointer-events: auto !important;
+    isolation: isolate !important;
+  }
+
+  .slot-name     { top: 27.161998% !important; height: 5.115713% !important; }
+  .slot-cpf      { top: 33.373934% !important; height: 5.115713% !important; }
+  .slot-phone    { top: 39.585871% !important; height: 4.993910% !important; }
+  .slot-unit     { top: 45.676005% !important; height: 5.115713% !important; z-index: 90 !important; }
+  .slot-contract { top: 51.887942% !important; height: 4.993910% !important; }
+  .parcel-choice { top: 57.978076% !important; height: 5.115713% !important; min-inline-size: 0 !important; overflow: visible !important; }
 
   .slot-name > input,
   .slot-cpf > input,
@@ -14,78 +131,354 @@
   .slot-contract > input,
   .slot-unit .unit-trigger,
   .parcel-mode-select {
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 1.02cqw !important;
-    font-weight: 400 !important;
-    font-style: normal !important;
-    line-height: 1 !important;
-    letter-spacing: 0 !important;
+    position: absolute !important;
+    z-index: 14 !important;
+    left: 1.878914cqw !important;
+    right: .260960cqw !important;
+    top: .208768cqw !important;
+    width: auto !important;
+    height: 1.774530cqw !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: 1.774530cqw !important;
+    margin: 0 !important;
+    padding: 0 .260960cqw 0 .521921cqw !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
     color: #ead8b7 !important;
     caret-color: #ffc14a !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .835073cqw !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    line-height: normal !important;
+    letter-spacing: 0 !important;
     text-align: left !important;
     text-transform: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     text-shadow: none !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+    filter: none !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
-    text-rendering: geometricPrecision !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    padding-left: .32cqw !important;
-    box-sizing: border-box !important;
-  }
-
-  .slot-name > input,
-  .slot-cpf > input,
-  .slot-phone > input,
-  .slot-contract > input {
-    padding-right: .32cqw !important;
   }
 
   .slot-unit .unit-trigger,
   .parcel-mode-select {
-    padding-right: .32cqw !important;
+    right: 1.774530cqw !important;
   }
 
-  /* O trigger da unidade precisa de alinhamento vertical explicito por ser botao. */
   .slot-unit .unit-trigger {
     display: flex !important;
     align-items: center !important;
+    cursor: text !important;
   }
 
-  /* Mantem placeholder e valor na mesma familia/peso, mudando apenas a intensidade. */
   .slot-name > input::placeholder,
   .slot-cpf > input::placeholder,
   .slot-phone > input::placeholder,
   .slot-contract > input::placeholder,
   .slot-unit .unit-trigger::placeholder {
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 1.02cqw !important;
-    font-weight: 400 !important;
-    letter-spacing: 0 !important;
-    color: rgba(234, 216, 183, .78) !important;
+    color: transparent !important;
+    opacity: 0 !important;
+  }
+
+  /* Selects nativos conseguem pintar a caixa mesmo com fundo transparente.
+     Quando vazios, ficam totalmente invisiveis e deixam o placeholder original
+     da viewport aparecer. O hotspot continua clicavel. */
+  .parcel-mode-select:invalid:not(:focus) {
+    opacity: 0 !important;
+    color: transparent !important;
+    background: transparent !important;
+  }
+
+  .parcel-mode-select:focus,
+  .parcel-mode-select:valid {
     opacity: 1 !important;
   }
 
-  .parcel-mode-select,
-  .parcel-mode-select:invalid {
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 1.02cqw !important;
-    font-weight: 400 !important;
-    color: rgba(234, 216, 183, .82) !important;
+  /* No carregamento sem JS, o select de Unidade tambem deve deixar a arte visivel.
+     Quando o JS monta o combobox, ele recebe unit-native-select e a UI passa ao trigger. */
+  .slot-unit > select:not(.unit-native-select) {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    cursor: pointer !important;
   }
 
+  .slot-name > input:focus,
+  .slot-cpf > input:focus,
+  .slot-phone > input:focus,
+  .slot-contract > input:focus,
+  .slot-name > input:not(:placeholder-shown),
+  .slot-cpf > input:not(:placeholder-shown),
+  .slot-phone > input:not(:placeholder-shown),
+  .slot-contract > input:not(:placeholder-shown),
+  .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger.has-value,
+  .slot-unit .unit-trigger[aria-expanded="true"],
+  .parcel-mode-select:focus,
   .parcel-mode-select:valid {
     color: #ead8b7 !important;
+    background: #080904 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
   }
 
-  /* Autofill nao pode trocar a fonte nem engrossar os numeros. */
+  .parcel-mode-select option {
+    color: #ead8b7 !important;
+    background: #090a05 !important;
+  }
+
   .slot-name > input:-webkit-autofill,
   .slot-cpf > input:-webkit-autofill,
   .slot-phone > input:-webkit-autofill,
   .slot-contract > input:-webkit-autofill {
     -webkit-text-fill-color: #ead8b7 !important;
+    -webkit-box-shadow: 0 0 0 1000px #080904 inset !important;
+    caret-color: #ffc14a !important;
     font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 1.02cqw !important;
+    font-size: .835073cqw !important;
     font-weight: 400 !important;
+  }
+
+  .slot-name::before,
+  .slot-cpf::before,
+  .slot-phone::before,
+  .slot-unit::before,
+  .slot-contract::before,
+  .parcel-choice::before,
+  .slot-unit::after,
+  .slot-unit .unit-combobox::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .slot-unit > select.unit-native-select {
+    position: absolute !important;
+    left: -9999px !important;
+    top: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .slot-unit .unit-combobox {
+    position: absolute !important;
+    z-index: 8 !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  .unit-list {
+    z-index: 360 !important;
+    left: 1.878914cqw !important;
+    top: calc(100% + 4px) !important;
+    width: calc(100% - 2.139874cqw) !important;
+    max-width: calc(100% - 2.139874cqw) !important;
+    overflow-x: hidden !important;
+  }
+
+  .unit-option {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .slot-name > .field-error,
+  .slot-cpf > .field-error,
+  .slot-phone > .field-error,
+  .slot-unit > .field-error,
+  .slot-contract > .field-error {
+    position: absolute !important;
+    z-index: 340 !important;
+    left: calc(100% + 7px) !important;
+    right: auto !important;
+    top: 50% !important;
+    width: max-content !important;
+    max-width: min(210px, 14vw) !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 4px 6px !important;
+    transform: translateY(-50%) !important;
+    border: 1px solid rgba(167,104,24,.72) !important;
+    border-radius: 4px !important;
+    color: #e7bf72 !important;
+    background: rgba(7,8,5,.985) !important;
+    box-shadow: 0 5px 14px rgba(0,0,0,.38) !important;
+    font-size: clamp(8px, .50vw, 11px) !important;
+    font-weight: 600 !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    pointer-events: none !important;
+  }
+
+  .slot-name > .field-error:empty,
+  .slot-cpf > .field-error:empty,
+  .slot-phone > .field-error:empty,
+  .slot-unit > .field-error:empty,
+  .slot-contract > .field-error:empty {
+    display: none !important;
+  }
+
+  .consent {
+    position: absolute !important;
+    z-index: 8 !important;
+    left: 40.814196% !important;
+    top: 64.068210% !important;
+    width: 18.267223% !important;
+    height: 4.019488% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: transparent !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+  }
+
+  .consent-copy { visibility: hidden !important; }
+
+  .consent input {
+    position: absolute !important;
+    z-index: 2 !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    opacity: 0 !important;
+    cursor: pointer !important;
+  }
+
+  .checkbox-ui {
+    position: absolute !important;
+    z-index: 3 !important;
+    left: 1.1429% !important;
+    top: 27.2727% !important;
+    width: 5.7143% !important;
+    height: 60.6061% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+  }
+
+  .consent input:checked + .checkbox-ui::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  .consent input:checked + .checkbox-ui::after {
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    left: 34% !important;
+    top: 8% !important;
+    width: 30% !important;
+    height: 56% !important;
+    border: 0 !important;
+    border-right: 1.8px solid #ffb328 !important;
+    border-bottom: 1.8px solid #ffb328 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: rotate(45deg) !important;
+    transform-origin: center !important;
+  }
+
+  .consent:hover .checkbox-ui,
+  .consent:focus-within .checkbox-ui,
+  .consent:active .checkbox-ui {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  .primary-button {
+    position: absolute !important;
+    z-index: 8 !important;
+    left: 41.231733% !important;
+    top: 70.158343% !important;
+    width: 17.379958% !important;
+    height: 5.359318% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    outline: 0 !important;
+    box-sizing: border-box !important;
+    pointer-events: auto !important;
+  }
+
+  .primary-button:hover:not(:disabled),
+  .primary-button:active:not(:disabled) {
+    color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .primary-button .button-label,
+  .primary-button .spinner { visibility: hidden !important; }
+
+  .primary-button:focus-visible {
+    outline: 1px solid rgba(255,245,210,.58) !important;
+    outline-offset: -3px !important;
+  }
+
+  #consent-error {
+    position: absolute !important;
+    left: 40.814196% !important;
+    top: 68.25% !important;
+    width: 18.267223% !important;
+  }
+
+  #form-alert {
+    left: 40.814196% !important;
+    top: 75.0% !important;
+    width: 18.267223% !important;
+  }
+
+  .parcel-fields,
+  .access-code-field:not([hidden]) {
+    left: 60.25% !important;
+    top: 49.3% !important;
+    width: 16.1% !important;
   }
 }

@@ -1,88 +1,187 @@
-/* v12.0.0 - nova viewport de emissao aprovada (1916x821).
-   Desktop apenas: substitui a arte v11 e realinha a camada funcional.
-   Login, autenticacao e mobile permanecem inalterados. */
+/* v12.1.0 - camada canonica da emissao.
+   Corrige o encaixe dos controles HTML sobre a viewport 1916x821 usando a
+   mesma estrategia da tela de login: arte = moldura/icone/placeholder; HTML =
+   hotspot transparente e texto funcional somente quando ha interacao/valor.
+   Desktop apenas. Login, regras do formulario e mobile permanecem intactos. */
 
 @media (min-width: 801px) {
   html,
   body {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    overflow: hidden !important;
     background: #030302 !important;
   }
 
   .visual-stage {
-    background: #030302 url("assets/emissao-viewport-v12-wide.webp?v=12.0.0") center center / cover no-repeat !important;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    transform: none !important;
+    isolation: isolate !important;
+    background: #030302 url("assets/emissao-viewport-v12-wide.webp?v=12.1.0") center center / cover no-repeat !important;
   }
 
-  /* Artboard virtual na proporcao exata da nova imagem: 1916 x 821. */
+  .visual-stage::before,
+  .visual-stage::after,
+  .desktop-mock,
+  .emissao-bg-fill,
+  .emissao-edge-fill,
+  .desktop-hotspot,
+  .auth-session-badge,
+  body > .auth-logout,
+  .mobile-intro {
+    display: none !important;
+    content: none !important;
+  }
+
   .form-layer {
-    width: max(100vw, 233.374vh) !important;
-    height: max(100vh, 42.8497vw) !important;
+    position: absolute !important;
+    z-index: 20 !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: max(100vw, 233.373934vh) !important;
+    height: max(100vh, 42.849687vw) !important;
+    width: max(100vw, 233.373934dvh) !important;
+    height: max(100dvh, 42.849687vw) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: translate(-50%, -50%) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+    container-type: inline-size !important;
   }
 
-  /* Trilhos medidos diretamente na nova arte. */
+  .form-layer::before,
+  .form-layer::after,
+  .mobile-form-title {
+    display: none !important;
+    content: none !important;
+  }
+
+  #request-form {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    pointer-events: none !important;
+  }
+
+  .honeypot,
+  .slot-name > .field-label,
+  .slot-cpf > .field-label,
+  .slot-phone > .field-label,
+  .slot-unit > .field-label,
+  .slot-contract > .field-label,
+  .mobile-only-label,
+  .parcel-choice > .parcel-option {
+    display: none !important;
+  }
+
   .slot-name,
   .slot-cpf,
   .slot-phone,
   .slot-unit,
   .slot-contract,
-  .parcel-choice,
-  .consent,
-  .primary-button {
-    left: 40.19% !important;
-    width: 19.02% !important;
+  .parcel-choice {
+    position: absolute !important;
+    left: 40.814196% !important;
+    width: 18.267223% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    pointer-events: auto !important;
+    isolation: isolate !important;
   }
 
-  .slot-name { top: 26.35% !important; height: 5.12% !important; }
-  .slot-cpf { top: 32.40% !important; height: 5.12% !important; }
-  .slot-phone { top: 38.49% !important; height: 5.12% !important; }
-  .slot-unit { top: 44.46% !important; height: 5.12% !important; }
-  .slot-contract { top: 50.43% !important; height: 5.12% !important; }
-  .parcel-choice { top: 56.39% !important; height: 5.12% !important; }
-  .consent { top: 62.55% !important; height: 4.35% !important; }
-  .primary-button { top: 68.24% !important; height: 5.60% !important; }
+  .slot-name     { top: 27.161998% !important; height: 5.115713% !important; }
+  .slot-cpf      { top: 33.373934% !important; height: 5.115713% !important; }
+  .slot-phone    { top: 39.585871% !important; height: 4.993910% !important; }
+  .slot-unit     { top: 45.676005% !important; height: 5.115713% !important; z-index: 90 !important; }
+  .slot-contract { top: 51.887942% !important; height: 4.993910% !important; }
+  .parcel-choice { top: 57.978076% !important; height: 5.115713% !important; min-inline-size: 0 !important; overflow: visible !important; }
 
-  /* Inputs cobrem o texto gravado na arte sem encobrir os icones e molduras. */
   .slot-name > input,
   .slot-cpf > input,
   .slot-phone > input,
   .slot-contract > input,
-  .slot-unit > select,
   .slot-unit .unit-trigger,
   .parcel-mode-select {
     position: absolute !important;
-    left: 10.9% !important;
-    right: 3.7% !important;
-    top: 7% !important;
-    bottom: 7% !important;
+    z-index: 14 !important;
+    left: 1.878914cqw !important;
+    right: .260960cqw !important;
+    top: .208768cqw !important;
     width: auto !important;
-    height: auto !important;
+    height: 1.774530cqw !important;
+    min-width: 0 !important;
     min-height: 0 !important;
+    max-width: none !important;
+    max-height: 1.774530cqw !important;
     margin: 0 !important;
-    padding: 0 2.4% !important;
+    padding: 0 .260960cqw 0 .521921cqw !important;
     border: 0 !important;
     border-radius: 0 !important;
     outline: 0 !important;
-    background: #070805 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: transparent !important;
     box-shadow: none !important;
-    color: #e6d1ab !important;
-    font-size: clamp(10px, .70vw, 15px) !important;
-    line-height: 1 !important;
+    color: #ead8b7 !important;
+    caret-color: #ffc14a !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .835073cqw !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    line-height: normal !important;
+    letter-spacing: 0 !important;
+    text-align: left !important;
+    text-transform: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-shadow: none !important;
+    box-sizing: border-box !important;
     transform: none !important;
+    filter: none !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
   }
 
   .slot-unit .unit-trigger,
   .parcel-mode-select {
-    right: 8.5% !important;
-    padding-right: 1.5% !important;
+    right: 1.774530cqw !important;
   }
 
-  /* Select nativo e um elemento substituido: altura explicita impede o texto da
-     viewport de reaparecer por baixo do controle em alguns tamanhos de tela. */
-  .parcel-mode-select {
-    top: 7% !important;
-    bottom: auto !important;
-    height: 86% !important;
-    display: block !important;
-    background-color: #070805 !important;
+  .slot-unit .unit-trigger {
+    display: flex !important;
+    align-items: center !important;
+    cursor: text !important;
   }
 
   .slot-name > input::placeholder,
@@ -90,62 +189,182 @@
   .slot-phone > input::placeholder,
   .slot-contract > input::placeholder,
   .slot-unit .unit-trigger::placeholder {
-    color: #d9c7a8 !important;
-    opacity: .86 !important;
+    color: transparent !important;
+    opacity: 0 !important;
   }
 
+  .parcel-mode-select,
   .parcel-mode-select:invalid {
-    color: #d9c7a8 !important;
-    background: #070805 !important;
-  }
-
-  .parcel-mode-select:valid {
-    color: #ead7b5 !important;
-    background: #070805 !important;
+    color: transparent !important;
   }
 
   .slot-name > input:focus,
   .slot-cpf > input:focus,
   .slot-phone > input:focus,
   .slot-contract > input:focus,
+  .slot-name > input:not(:placeholder-shown),
+  .slot-cpf > input:not(:placeholder-shown),
+  .slot-phone > input:not(:placeholder-shown),
+  .slot-contract > input:not(:placeholder-shown),
   .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger.has-value,
   .slot-unit .unit-trigger[aria-expanded="true"],
-  .parcel-mode-select:focus {
-    background: #090a06 !important;
-    box-shadow: inset 0 0 0 1px rgba(255, 177, 38, .22) !important;
+  .parcel-mode-select:focus,
+  .parcel-mode-select:valid {
+    color: #ead8b7 !important;
+    background: #080904 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
   }
 
-  /* WhatsApp: usa a caixa desenhada na arte e adiciona somente o check dourado. */
+  .parcel-mode-select option {
+    color: #ead8b7 !important;
+    background: #090a05 !important;
+  }
+
+  .slot-name > input:-webkit-autofill,
+  .slot-cpf > input:-webkit-autofill,
+  .slot-phone > input:-webkit-autofill,
+  .slot-contract > input:-webkit-autofill {
+    -webkit-text-fill-color: #ead8b7 !important;
+    -webkit-box-shadow: 0 0 0 1000px #080904 inset !important;
+    caret-color: #ffc14a !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .835073cqw !important;
+    font-weight: 400 !important;
+  }
+
+  .slot-name::before,
+  .slot-cpf::before,
+  .slot-phone::before,
+  .slot-unit::before,
+  .slot-contract::before,
+  .parcel-choice::before,
+  .slot-unit::after,
+  .slot-unit .unit-combobox::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .slot-unit > select.unit-native-select {
+    position: absolute !important;
+    left: -9999px !important;
+    top: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .slot-unit .unit-combobox {
+    position: absolute !important;
+    z-index: 8 !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  .unit-list {
+    z-index: 360 !important;
+    left: 1.878914cqw !important;
+    top: calc(100% + 4px) !important;
+    width: calc(100% - 2.139874cqw) !important;
+    max-width: calc(100% - 2.139874cqw) !important;
+    overflow-x: hidden !important;
+  }
+
+  .unit-option {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .slot-name > .field-error,
+  .slot-cpf > .field-error,
+  .slot-phone > .field-error,
+  .slot-unit > .field-error,
+  .slot-contract > .field-error {
+    position: absolute !important;
+    z-index: 340 !important;
+    left: calc(100% + 7px) !important;
+    right: auto !important;
+    top: 50% !important;
+    width: max-content !important;
+    max-width: min(210px, 14vw) !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 4px 6px !important;
+    transform: translateY(-50%) !important;
+    border: 1px solid rgba(167,104,24,.72) !important;
+    border-radius: 4px !important;
+    color: #e7bf72 !important;
+    background: rgba(7,8,5,.985) !important;
+    box-shadow: 0 5px 14px rgba(0,0,0,.38) !important;
+    font-size: clamp(8px, .50vw, 11px) !important;
+    font-weight: 600 !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    pointer-events: none !important;
+  }
+
+  .slot-name > .field-error:empty,
+  .slot-cpf > .field-error:empty,
+  .slot-phone > .field-error:empty,
+  .slot-unit > .field-error:empty,
+  .slot-contract > .field-error:empty {
+    display: none !important;
+  }
+
   .consent {
+    position: absolute !important;
+    z-index: 8 !important;
+    left: 40.814196% !important;
+    top: 64.068210% !important;
+    width: 18.267223% !important;
+    height: 4.019488% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
     border: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
     color: transparent !important;
     overflow: visible !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
   }
 
-  .consent-copy {
-    visibility: hidden !important;
-  }
+  .consent-copy { visibility: hidden !important; }
 
   .consent input {
     position: absolute !important;
+    z-index: 2 !important;
     inset: 0 !important;
     width: 100% !important;
     height: 100% !important;
+    margin: 0 !important;
     opacity: 0 !important;
     cursor: pointer !important;
   }
 
   .checkbox-ui {
     position: absolute !important;
-    left: 1.05% !important;
-    top: 50% !important;
-    width: 5.3% !important;
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important;
-    transform: translateY(-50%) !important;
+    z-index: 3 !important;
+    left: 1.1429% !important;
+    top: 27.2727% !important;
+    width: 5.7143% !important;
+    height: 60.6061% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
     border: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;
@@ -155,21 +374,24 @@
 
   .consent input:checked + .checkbox-ui::before {
     content: none !important;
+    display: none !important;
   }
 
   .consent input:checked + .checkbox-ui::after {
-    content: "✓" !important;
+    content: "" !important;
+    display: block !important;
     position: absolute !important;
-    inset: 0 !important;
-    display: grid !important;
-    place-items: center !important;
-    color: #ffb328 !important;
+    left: 34% !important;
+    top: 8% !important;
+    width: 30% !important;
+    height: 56% !important;
+    border: 0 !important;
+    border-right: 1.8px solid #ffb328 !important;
+    border-bottom: 1.8px solid #ffb328 !important;
     background: transparent !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: clamp(9px, .56vw, 13px) !important;
-    font-weight: 900 !important;
-    line-height: 1 !important;
-    text-shadow: 0 0 4px rgba(255,179,40,.38) !important;
+    box-shadow: none !important;
+    transform: rotate(45deg) !important;
+    transform-origin: center !important;
   }
 
   .consent:hover .checkbox-ui,
@@ -181,10 +403,15 @@
     outline: 0 !important;
   }
 
-  /* Botao funcional invisivel sobre o botao da arte. */
-  .primary-button,
-  .primary-button:hover:not(:disabled),
-  .primary-button:active:not(:disabled) {
+  .primary-button {
+    position: absolute !important;
+    z-index: 8 !important;
+    left: 41.231733% !important;
+    top: 70.158343% !important;
+    width: 17.379958% !important;
+    height: 5.359318% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
     border: 0 !important;
     border-radius: 0 !important;
@@ -193,30 +420,38 @@
     box-shadow: none !important;
     text-shadow: none !important;
     outline: 0 !important;
+    box-sizing: border-box !important;
+    pointer-events: auto !important;
+  }
+
+  .primary-button:hover:not(:disabled),
+  .primary-button:active:not(:disabled) {
+    color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
   }
 
   .primary-button .button-label,
-  .primary-button .spinner {
-    visibility: hidden !important;
-  }
+  .primary-button .spinner { visibility: hidden !important; }
 
   .primary-button:focus-visible {
-    box-shadow: inset 0 0 0 1px rgba(255,190,68,.28), 0 0 12px rgba(255,145,18,.12) !important;
+    outline: 1px solid rgba(255,245,210,.58) !important;
+    outline-offset: -3px !important;
   }
 
   #consent-error {
-    left: 40.30% !important;
-    top: 66.82% !important;
-    width: 18.7% !important;
+    position: absolute !important;
+    left: 40.814196% !important;
+    top: 68.25% !important;
+    width: 18.267223% !important;
   }
 
   #form-alert {
-    left: 40.19% !important;
-    top: 74.15% !important;
-    width: 19.02% !important;
+    left: 40.814196% !important;
+    top: 75.0% !important;
+    width: 18.267223% !important;
   }
 
-  /* Painel de parcela lateral sem deslocar a viewport. */
   .parcel-fields,
   .access-code-field:not([hidden]) {
     left: 60.25% !important;
