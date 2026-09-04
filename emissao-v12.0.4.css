@@ -1,0 +1,148 @@
+/* v12.0.4 - elimina ghosting da arte e finaliza o encaixe visual desktop.
+   A viewport continua desenhando molduras, icones e setas. O texto rasterizado
+   e coberto diretamente pelos controles funcionais para impedir qualquer duplicacao. */
+
+@media (min-width: 801px) {
+  /* Nao dependemos mais de pseudo-elemento para apagar o texto da imagem. */
+  .slot-name::before,
+  .slot-cpf::before,
+  .slot-phone::before,
+  .slot-unit::before,
+  .slot-contract::before,
+  .parcel-choice::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* Cada controle ocupa somente o miolo textual do trilho. O fundo solido cobre
+     o placeholder rasterizado; moldura, icone e seta continuam sendo da arte. */
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    position: absolute !important;
+    z-index: 12 !important;
+    left: 10.7% !important;
+    right: 1.7% !important;
+    top: 9% !important;
+    bottom: 9% !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 1.8% !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: #080904 !important;
+    box-shadow: none !important;
+    color: #ead8b7 !important;
+    caret-color: #ffc14a !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(9px, .68vw, 13px) !important;
+    font-weight: 400 !important;
+    line-height: normal !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-shadow: none !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+
+  .slot-unit .unit-trigger,
+  .parcel-mode-select {
+    right: 11.2% !important;
+    padding-right: 1.8% !important;
+  }
+
+  .slot-name > input::placeholder,
+  .slot-cpf > input::placeholder,
+  .slot-phone > input::placeholder,
+  .slot-contract > input::placeholder,
+  .slot-unit .unit-trigger::placeholder {
+    color: rgba(231, 212, 179, .78) !important;
+    opacity: 1 !important;
+  }
+
+  .parcel-mode-select,
+  .parcel-mode-select:invalid {
+    color: rgba(231, 212, 179, .82) !important;
+  }
+
+  .parcel-mode-select:valid {
+    color: #ead8b7 !important;
+  }
+
+  .slot-name > input:focus,
+  .slot-cpf > input:focus,
+  .slot-phone > input:focus,
+  .slot-contract > input:focus,
+  .slot-unit .unit-trigger:focus,
+  .slot-unit .unit-trigger[aria-expanded="true"],
+  .parcel-mode-select:focus,
+  .parcel-mode-select:focus-visible {
+    background: #090a05 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  .slot-name > input:-webkit-autofill,
+  .slot-cpf > input:-webkit-autofill,
+  .slot-phone > input:-webkit-autofill,
+  .slot-contract > input:-webkit-autofill {
+    -webkit-text-fill-color: #ead8b7 !important;
+    -webkit-box-shadow: 0 0 0 1000px #080904 inset !important;
+    caret-color: #ffc14a !important;
+  }
+
+  /* Mantem o select nativo da Unidade completamente fora da composicao. */
+  .slot-unit > select.unit-native-select {
+    position: absolute !important;
+    left: -9999px !important;
+    top: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* Checkbox: usa o quadrado original da arte e desenha somente um check optico. */
+  .checkbox-ui {
+    left: 1.1429% !important;
+    top: 27.2727% !important;
+    width: 5.7143% !important;
+    height: 60.6061% !important;
+    transform: none !important;
+  }
+
+  .consent input:checked + .checkbox-ui::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  .consent input:checked + .checkbox-ui::after {
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    left: 34% !important;
+    top: 8% !important;
+    width: 30% !important;
+    height: 56% !important;
+    border: 0 !important;
+    border-right: 1.8px solid #ffb328 !important;
+    border-bottom: 1.8px solid #ffb328 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transform: rotate(45deg) !important;
+    transform-origin: center !important;
+  }
+}
