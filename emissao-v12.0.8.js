@@ -78,7 +78,6 @@
     select.dispatchEvent(new Event("change", { bubbles: true }));
     syncVisualState();
     close();
-    trigger.focus({ preventScroll: true });
   }
 
   trigger.addEventListener("click", () => {
