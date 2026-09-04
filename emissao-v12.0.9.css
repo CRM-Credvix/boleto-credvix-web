@@ -1,9 +1,6 @@
-/* v12.1.6 - parcela isolada do formulario principal.
-   Nome, CPF, Telefone, Unidade e Contrato ficam 100% sob a geometria
-   autoritativa da v12.0.6. Esta camada altera somente a etapa de Parcelas. */
-
+/* v12.1.7 - camada autoritativa EXCLUSIVA de Parcelas.
+   Nenhuma regra deste arquivo altera Nome, CPF, Telefone, Unidade ou Contrato. */
 @media (min-width: 801px) {
-  /* Nunca reaplicar geometria/tipografia aos campos já aprovados. */
   .parcel-choice {
     contain: layout style !important;
     overflow: visible !important;
@@ -15,14 +12,10 @@
   }
 
   .parcel-trigger-text-v12 {
-    font-size: clamp(10px, 1.949vh, 22px) !important;
     font-size: clamp(10px, 1.949dvh, 22px) !important;
   }
 
-  /* O dado complementar da parcela sai do trilho principal e vira um painel
-     absoluto independente. Assim, selecionar Parcela especifica/Intervalo
-     nao muda largura, altura, foco ou posicionamento de nenhum campo anterior. */
-  .parcel-fields {
+  #request-form > #parcel-fields.parcel-fields {
     position: absolute !important;
     z-index: 320 !important;
     left: 60.25% !important;
@@ -32,6 +25,7 @@
     min-width: 0 !important;
     max-width: 16.10% !important;
     min-height: 0 !important;
+    max-height: none !important;
     margin: 0 !important;
     padding: .58cqw .62cqw .62cqw !important;
     border: 1px solid rgba(181,116,22,.92) !important;
@@ -46,11 +40,11 @@
     pointer-events: auto !important;
   }
 
-  .parcel-fields[hidden] {
+  #request-form > #parcel-fields.parcel-fields[hidden] {
     display: none !important;
   }
 
-  .parcel-fields::before {
+  #request-form > #parcel-fields.parcel-fields::before {
     content: "INFORME A PARCELA" !important;
     display: block !important;
     margin: 0 0 .46cqw !important;
@@ -63,15 +57,21 @@
     white-space: nowrap !important;
   }
 
-  .parcel-fields .parcel-single,
-  .parcel-fields .parcel-range,
-  .parcel-fields .field {
+  #request-form > #parcel-fields.parcel-fields .parcel-single:not([hidden]),
+  #request-form > #parcel-fields.parcel-fields .parcel-range:not([hidden]),
+  #request-form > #parcel-fields.parcel-fields .field {
     position: static !important;
     inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
     width: 100% !important;
     min-width: 0 !important;
+    max-width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
+    max-height: none !important;
     margin: 0 !important;
     padding: 0 !important;
     border: 0 !important;
@@ -81,18 +81,18 @@
     transform: none !important;
   }
 
-  .parcel-fields .parcel-single[hidden],
-  .parcel-fields .parcel-range[hidden] {
+  #request-form > #parcel-fields.parcel-fields .parcel-single[hidden],
+  #request-form > #parcel-fields.parcel-fields .parcel-range[hidden] {
     display: none !important;
   }
 
-  .parcel-fields .parcel-range {
+  #request-form > #parcel-fields.parcel-fields .parcel-range:not([hidden]) {
     display: grid !important;
     grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important;
     gap: .42cqw !important;
   }
 
-  .parcel-fields .field-label {
+  #request-form > #parcel-fields.parcel-fields .field-label {
     position: static !important;
     display: block !important;
     width: auto !important;
@@ -110,14 +110,20 @@
     line-height: 1.1 !important;
   }
 
-  .parcel-fields input {
+  #request-form > #parcel-fields.parcel-fields input {
     position: static !important;
     inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
     display: block !important;
     width: 100% !important;
     min-width: 0 !important;
+    max-width: 100% !important;
     height: 1.66cqw !important;
     min-height: 0 !important;
+    max-height: none !important;
     margin: 0 !important;
     padding: 0 .46cqw !important;
     border: 1px solid rgba(181,116,22,.86) !important;
@@ -138,25 +144,25 @@
     pointer-events: auto !important;
   }
 
-  .parcel-fields input::-webkit-inner-spin-button,
-  .parcel-fields input::-webkit-outer-spin-button {
+  #request-form > #parcel-fields.parcel-fields input::-webkit-inner-spin-button,
+  #request-form > #parcel-fields.parcel-fields input::-webkit-outer-spin-button {
     margin: 0 !important;
     -webkit-appearance: none !important;
   }
 
-  .parcel-fields input::placeholder {
+  #request-form > #parcel-fields.parcel-fields input::placeholder {
     color: rgba(234,216,183,.70) !important;
     opacity: 1 !important;
   }
 
-  .parcel-fields input:focus {
+  #request-form > #parcel-fields.parcel-fields input:focus {
     border-color: rgba(232,158,38,.98) !important;
     background: #090a05 !important;
     box-shadow: inset 0 0 0 1px rgba(255,190,68,.06) !important;
     outline: 0 !important;
   }
 
-  .parcel-fields .field-error {
+  #request-form > #parcel-fields.parcel-fields .field-error {
     position: static !important;
     display: block !important;
     width: 100% !important;
@@ -176,7 +182,7 @@
     transform: none !important;
   }
 
-  .parcel-fields .field-error:empty {
+  #request-form > #parcel-fields.parcel-fields .field-error:empty {
     display: none !important;
   }
 }
