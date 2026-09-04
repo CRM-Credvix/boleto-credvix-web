@@ -1,0 +1,124 @@
+name: QA Parcelas v12
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  parcel-interaction:
+    name: Validar seleção e encaixe das parcelas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v6
+
+      - name: Validar JavaScript da correção
+        run: node --check emissao-v12.0.8.js
+
+      - name: Preparar pagina de interação
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          html = Path('index.html').read_text(encoding='utf-8')
+          html = re.sub(r'<script[^>]+src="https://cdn\.jsdelivr\.net[^>]*></script>', '', html, flags=re.I)
+          html = re.sub(r'<script[^>]+src="auth-v8\.4\.0\.js[^>]*></script>', '', html, flags=re.I)
+          html = html.replace('<main id="inicio" class="visual-stage" hidden>', '<main id="inicio" class="visual-stage">')
+
+          qa = r'''
+          <style>#auth-gate{display:none!important}</style>
+          <script>
+          addEventListener('load', () => setTimeout(() => {
+            const failures = [];
+            const choice = document.querySelector('.parcel-choice');
+            const trigger = document.querySelector('#parcel-trigger-v12');
+            const list = document.querySelector('#parcel-list-v12');
+            const select = document.querySelector('#parcel-mode-select');
+            const fields = document.querySelector('#parcel-fields');
+            const consent = document.querySelector('.consent');
+            const submit = document.querySelector('.primary-button');
+
+            const fail = (name) => failures.push(name);
+            if (!choice || !trigger || !list || !select || !fields || !consent || !submit) {
+              document.documentElement.dataset.parcelQa = 'fail-missing-core';
+              return;
+            }
+
+            const nativeStyle = getComputedStyle(select);
+            if (nativeStyle.pointerEvents !== 'none' || Number(nativeStyle.opacity) !== 0) fail('native-visible');
+
+            const consentBefore = consent.getBoundingClientRect();
+            const submitBefore = submit.getBoundingClientRect();
+            const choiceRect = choice.getBoundingClientRect();
+
+            trigger.click();
+            if (list.hidden) fail('list-not-open');
+            const specific = list.querySelector('[data-value="parcela_especifica"]');
+            specific?.click();
+            if (select.value !== 'parcela_especifica') fail('specific-state');
+            if (fields.hidden) fail('specific-fields-hidden');
+            const single = document.querySelector('#parcela');
+            const singleRect = single?.getBoundingClientRect();
+            if (!singleRect || singleRect.width < 20 || singleRect.height < 15) fail('specific-collapsed');
+            if (singleRect && (singleRect.left < choiceRect.left || singleRect.right > choiceRect.right || singleRect.top < choiceRect.top || singleRect.bottom > choiceRect.bottom)) fail('specific-outside-row');
+
+            trigger.click();
+            const interval = list.querySelector('[data-value="intervalo"]');
+            interval?.click();
+            if (select.value !== 'intervalo') fail('range-state');
+            const start = document.querySelector('#parcelaInicial')?.getBoundingClientRect();
+            const end = document.querySelector('#parcelaFinal')?.getBoundingClientRect();
+            if (!start || !end || start.width < 20 || end.width < 20) fail('range-collapsed');
+            for (const [name, rect] of [['start',start],['end',end]]) {
+              if (rect && (rect.left < choiceRect.left || rect.right > choiceRect.right || rect.top < choiceRect.top || rect.bottom > choiceRect.bottom)) fail(name+'-outside-row');
+            }
+
+            const consentAfter = consent.getBoundingClientRect();
+            const submitAfter = submit.getBoundingClientRect();
+            if (Math.abs(consentAfter.top - consentBefore.top) > 1 || Math.abs(consentAfter.left - consentBefore.left) > 1) fail('consent-moved');
+            if (Math.abs(submitAfter.top - submitBefore.top) > 1 || Math.abs(submitAfter.left - submitBefore.left) > 1) fail('button-moved');
+
+            document.documentElement.dataset.parcelQa = failures.length ? 'fail-' + failures.join('-') : 'ok';
+          }, 600));
+          </script>
+          '''
+          html = html.replace('</body>', qa + '</body>')
+          Path('_qa-parcel-interaction.html').write_text(html, encoding='utf-8')
+          PY
+
+      - name: Testar interação no Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          [ -n "$CHROME" ] || { echo "Chrome ausente"; exit 1; }
+          mkdir -p qa-parcel-v12
+          python -m http.server 8766 --bind 127.0.0.1 >/tmp/parcel-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          sleep 2
+
+          for size in 1365,695 1920,1080 2560,1080; do
+            dump="$("$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=3000 --window-size="$size" --dump-dom http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar 2>/dev/null)"
+            grep -q 'data-parcel-qa="ok"' <<<"$dump" || {
+              echo "Falha de parcelas em $size"
+              grep -o 'data-parcel-qa="[^"]*"' <<<"$dump" || true
+              exit 1
+            }
+          done
+
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=3000 --window-size=1365,695 --screenshot=qa-parcel-v12/parcelas-1365x695.png http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=3000 --window-size=1920,1080 --screenshot=qa-parcel-v12/parcelas-1920x1080.png http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar
+
+      - name: Guardar QA de parcelas
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-parcel-v12
+          path: qa-parcel-v12
