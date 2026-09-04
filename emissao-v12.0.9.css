@@ -1,75 +1,14 @@
-/* v12.1.5 - estabilidade da camada funcional durante a seleção de parcelas.
-   A geometria aprovada antes da interação fica ancorada em porcentagens dos
-   próprios trilhos da viewport. Remove dependência de cqw nos controles que
-   estavam mudando de posição quando o estado de Parcelas era alterado. */
+/* v12.1.6 - parcela isolada do formulario principal.
+   Nome, CPF, Telefone, Unidade e Contrato ficam 100% sob a geometria
+   autoritativa da v12.0.6. Esta camada altera somente a etapa de Parcelas. */
 
 @media (min-width: 801px) {
-  /* Os trilhos já estão corretamente ancorados pela v12.0.6. Aqui congelamos
-     apenas os controles funcionais internos, preservando a arte, ícones e bordas. */
-  .slot-name > input,
-  .slot-cpf > input,
-  .slot-phone > input,
-  .slot-contract > input,
-  .slot-unit .unit-trigger {
-    position: absolute !important;
-    z-index: 14 !important;
-    left: 10.285712% !important;
-    right: 1.428570% !important;
-    width: auto !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-    padding: 0 1.428570% 0 2.857142% !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    outline: 0 !important;
-    box-shadow: none !important;
-    box-sizing: border-box !important;
-    transform: none !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: clamp(10px, 1.949vh, 22px) !important;
-    font-size: clamp(10px, 1.949dvh, 22px) !important;
-    font-weight: 400 !important;
-    font-style: normal !important;
-    line-height: 1 !important;
-    letter-spacing: 0 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+  /* Nunca reaplicar geometria/tipografia aos campos já aprovados. */
+  .parcel-choice {
+    contain: layout style !important;
+    overflow: visible !important;
   }
 
-  .slot-name > input,
-  .slot-cpf > input,
-  .slot-unit .unit-trigger {
-    top: 9.523796% !important;
-    height: 80.952361% !important;
-    max-height: 80.952361% !important;
-  }
-
-  .slot-phone > input,
-  .slot-contract > input {
-    top: 9.756085% !important;
-    height: 82.926814% !important;
-    max-height: 82.926814% !important;
-  }
-
-  /* Reserva a área da seta original da viewport na Unidade. */
-  .slot-unit .unit-trigger {
-    right: 9.714284% !important;
-  }
-
-  /* A camada do combobox da Unidade também permanece rigidamente presa ao slot. */
-  .slot-unit .unit-combobox {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    transform: none !important;
-  }
-
-  /* Parcelas: mantém o seletor visual no trilho e impede qualquer reflow. */
-  .parcel-choice,
   .parcel-combobox-v12,
   .parcel-trigger-v12 {
     contain: layout style !important;
@@ -80,22 +19,164 @@
     font-size: clamp(10px, 1.949dvh, 22px) !important;
   }
 
-  /* Os campos específicos permanecem sobre o mesmo trilho e nunca participam
-     do fluxo que posiciona Nome, CPF, Telefone, Unidade e Contrato. */
+  /* O dado complementar da parcela sai do trilho principal e vira um painel
+     absoluto independente. Assim, selecionar Parcela especifica/Intervalo
+     nao muda largura, altura, foco ou posicionamento de nenhum campo anterior. */
   .parcel-fields {
     position: absolute !important;
-    left: 40.814196% !important;
-    top: 57.978076% !important;
-    width: 18.267223% !important;
-    height: 5.115713% !important;
+    z-index: 320 !important;
+    left: 60.25% !important;
+    top: 55.65% !important;
+    width: 16.10% !important;
+    height: auto !important;
+    min-width: 0 !important;
+    max-width: 16.10% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: .58cqw .62cqw .62cqw !important;
+    border: 1px solid rgba(181,116,22,.92) !important;
+    border-radius: .34cqw !important;
+    color: #ead8b7 !important;
+    background: rgba(8,9,5,.985) !important;
+    box-shadow: 0 .28cqw .75cqw rgba(0,0,0,.46), inset 0 0 0 1px rgba(255,190,68,.035) !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    transform: none !important;
+    contain: layout style paint !important;
+    pointer-events: auto !important;
+  }
+
+  .parcel-fields[hidden] {
+    display: none !important;
+  }
+
+  .parcel-fields::before {
+    content: "INFORME A PARCELA" !important;
+    display: block !important;
+    margin: 0 0 .46cqw !important;
+    color: #f2b33b !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .63cqw !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: .015em !important;
+    white-space: nowrap !important;
+  }
+
+  .parcel-fields .parcel-single,
+  .parcel-fields .parcel-range,
+  .parcel-fields .field {
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
     transform: none !important;
-    contain: layout style !important;
+  }
+
+  .parcel-fields .parcel-single[hidden],
+  .parcel-fields .parcel-range[hidden] {
+    display: none !important;
+  }
+
+  .parcel-fields .parcel-range {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important;
+    gap: .42cqw !important;
+  }
+
+  .parcel-fields .field-label {
+    position: static !important;
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 0 .24cqw !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    color: #d9bd82 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .47cqw !important;
+    font-weight: 400 !important;
+    line-height: 1.1 !important;
   }
 
   .parcel-fields input {
-    font-size: clamp(10px, 1.58vh, 16px) !important;
-    font-size: clamp(10px, 1.58dvh, 16px) !important;
+    position: static !important;
+    inset: auto !important;
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 1.66cqw !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 .46cqw !important;
+    border: 1px solid rgba(181,116,22,.86) !important;
+    border-radius: .23cqw !important;
+    outline: 0 !important;
+    appearance: textfield !important;
+    -moz-appearance: textfield !important;
+    color: #ead8b7 !important;
+    caret-color: #ffc14a !important;
+    background: #080904 !important;
+    box-shadow: none !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .70cqw !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+    pointer-events: auto !important;
+  }
+
+  .parcel-fields input::-webkit-inner-spin-button,
+  .parcel-fields input::-webkit-outer-spin-button {
+    margin: 0 !important;
+    -webkit-appearance: none !important;
+  }
+
+  .parcel-fields input::placeholder {
+    color: rgba(234,216,183,.70) !important;
+    opacity: 1 !important;
+  }
+
+  .parcel-fields input:focus {
+    border-color: rgba(232,158,38,.98) !important;
+    background: #090a05 !important;
+    box-shadow: inset 0 0 0 1px rgba(255,190,68,.06) !important;
+    outline: 0 !important;
+  }
+
+  .parcel-fields .field-error {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: .20cqw 0 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    color: #e7bf72 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: .43cqw !important;
+    font-weight: 600 !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    transform: none !important;
+  }
+
+  .parcel-fields .field-error:empty {
+    display: none !important;
   }
 }
