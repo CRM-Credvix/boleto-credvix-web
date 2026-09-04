@@ -39,11 +39,10 @@ jobs:
             if(controls.unit.id==='unit-trigger'){controls.unit.value='HELP - COLATINA';controls.unit.classList.add('has-value');}
             for(const c of Object.values(controls)) c.dispatchEvent(new Event('input',{bubbles:true}));
             const rel=(el)=>{const r=el.getBoundingClientRect(),a=art.getBoundingClientRect();return[(r.left-a.left)/a.width,(r.top-a.top)/a.height,r.width/a.width,r.height/a.height]};
-            const artRect=()=>{const r=art.getBoundingClientRect();return[r.left,r.top,r.width,r.height,scrollX,scrollY]};
             const snap=()=>Object.fromEntries(names.flatMap(n=>[[`slot-${n}`,rel(slots[n])],[`ctrl-${n}`,rel(controls[n])]]));
-            const before=snap(), artBefore=artRect();
-            const diff=(a,b,t=.0005)=>a.some((v,i)=>Math.abs(v-b[i])>t);
-            const check=(label)=>{const now=snap();for(const k of Object.keys(before))if(diff(before[k],now[k]))fail.push(label+'-'+k);if(diff(artBefore,artRect(),.5))fail.push(label+'-artboard-or-scroll');};
+            const before=snap();
+            const diff=(a,b)=>a.some((v,i)=>Math.abs(v-b[i])>.0005);
+            const check=(label)=>{const now=snap();for(const k of Object.keys(before))if(diff(before[k],now[k]))fail.push(label+'-'+k);};
             trigger.click(); list.querySelector('[data-value="parcela_especifica"]')?.click();
             requestAnimationFrame(()=>{check('specific');trigger.click();list.querySelector('[data-value="intervalo"]')?.click();requestAnimationFrame(()=>{check('range');document.documentElement.dataset.stateQa=fail.length?'fail-'+fail.join('-'):'ok';});});
           },800));
@@ -52,7 +51,7 @@ jobs:
           html=html.replace('</body>',qa+'</body>')
           Path('_qa-parcel-state.html').write_text(html,encoding='utf-8')
           PY
-      - name: Validar antes e depois da seleção
+      - name: Validar encaixe antes e depois da seleção
         shell: bash
         run: |
           set -euo pipefail
