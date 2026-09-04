@@ -1,61 +1,68 @@
 /* v12.0.4 - elimina ghosting da arte e finaliza o encaixe visual desktop.
-   A viewport continua desenhando molduras, icones e setas. O miolo textual
-   e mascarado permanentemente e todo placeholder/valor passa a ser HTML real. */
+   A viewport continua desenhando molduras, icones e setas. O texto rasterizado
+   e coberto diretamente pelos controles funcionais para impedir qualquer duplicacao. */
 
 @media (min-width: 801px) {
-  /* Mascara permanente: remove de forma deterministica os textos rasterizados
-     da viewport, evitando sobreposicao com valores digitados em qualquer estado. */
+  /* Nao dependemos mais de pseudo-elemento para apagar o texto da imagem. */
   .slot-name::before,
   .slot-cpf::before,
   .slot-phone::before,
   .slot-unit::before,
   .slot-contract::before,
   .parcel-choice::before {
-    display: block !important;
-    top: 9% !important;
-    bottom: 9% !important;
-    background: #080904 !important;
+    content: none !important;
+    display: none !important;
   }
 
-  .slot-name::before,
-  .slot-cpf::before,
-  .slot-phone::before,
-  .slot-contract::before {
-    left: 10.7% !important;
-    right: 1.7% !important;
-  }
-
-  .slot-unit::before,
-  .parcel-choice::before {
-    left: 10.7% !important;
-    right: 11.2% !important;
-  }
-
-  /* Um unico texto funcional, centralizado verticalmente no trilho. */
+  /* Cada controle ocupa somente o miolo textual do trilho. O fundo solido cobre
+     o placeholder rasterizado; moldura, icone e seta continuam sendo da arte. */
   .slot-name > input,
   .slot-cpf > input,
   .slot-phone > input,
   .slot-contract > input,
   .slot-unit .unit-trigger,
   .parcel-mode-select {
-    top: 0 !important;
-    height: 100% !important;
-    max-height: 100% !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    padding-left: 12.3% !important;
-    background: transparent !important;
+    position: absolute !important;
+    z-index: 12 !important;
+    left: 10.7% !important;
+    right: 1.7% !important;
+    top: 9% !important;
+    bottom: 9% !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 1.8% !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: #080904 !important;
+    box-shadow: none !important;
+    color: #ead8b7 !important;
+    caret-color: #ffc14a !important;
+    font-family: Arial, Helvetica, sans-serif !important;
     font-size: clamp(9px, .68vw, 13px) !important;
+    font-weight: 400 !important;
     line-height: normal !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     text-shadow: none !important;
+    box-sizing: border-box !important;
+    transform: none !important;
   }
 
   .slot-unit .unit-trigger,
   .parcel-mode-select {
-    padding-right: 12.6% !important;
+    right: 11.2% !important;
+    padding-right: 1.8% !important;
   }
 
-  /* Os placeholders agora pertencem ao HTML, nao a imagem. */
   .slot-name > input::placeholder,
   .slot-cpf > input::placeholder,
   .slot-phone > input::placeholder,
@@ -82,12 +89,11 @@
   .slot-unit .unit-trigger[aria-expanded="true"],
   .parcel-mode-select:focus,
   .parcel-mode-select:focus-visible {
-    background: transparent !important;
+    background: #090a05 !important;
     box-shadow: none !important;
     outline: 0 !important;
   }
 
-  /* Impede autofill do navegador de criar um segundo bloco visual. */
   .slot-name > input:-webkit-autofill,
   .slot-cpf > input:-webkit-autofill,
   .slot-phone > input:-webkit-autofill,
@@ -97,13 +103,29 @@
     caret-color: #ffc14a !important;
   }
 
-  /* Checkbox: usa exatamente o quadrado rasterizado e desenha somente o check. */
+  /* Mantem o select nativo da Unidade completamente fora da composicao. */
+  .slot-unit > select.unit-native-select {
+    position: absolute !important;
+    left: -9999px !important;
+    top: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* Checkbox: usa o quadrado original da arte e desenha somente um check optico. */
   .checkbox-ui {
     left: 1.1429% !important;
     top: 27.2727% !important;
     width: 5.7143% !important;
     height: 60.6061% !important;
     transform: none !important;
+  }
+
+  .consent input:checked + .checkbox-ui::before {
+    content: none !important;
+    display: none !important;
   }
 
   .consent input:checked + .checkbox-ui::after {
