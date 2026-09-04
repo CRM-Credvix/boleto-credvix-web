@@ -1,165 +1,195 @@
 (() => {
   "use strict";
 
-  /* A camada de estabilidade é carregada por último para que a geometria dos
-     campos já aprovada não seja recalculada quando o estado de Parcelas muda. */
-  if (!document.querySelector('link[data-emissao-stability-v12="true"]')) {
-    const stabilityCss = document.createElement("link");
-    stabilityCss.rel = "stylesheet";
-    stabilityCss.href = "emissao-v12.0.9.css?v=12.1.5";
-    stabilityCss.dataset.emissaoStabilityV12 = "true";
-    document.head.appendChild(stabilityCss);
-  }
-
   const desktop = window.matchMedia("(min-width: 801px)");
-  const select = document.querySelector("#parcel-mode-select");
-  const fieldset = document.querySelector(".parcel-choice");
-  const form = document.querySelector("#request-form");
+  if (!desktop.matches) return;
 
-  if (!desktop.matches || !select || !fieldset || !form) return;
-  if (fieldset.querySelector(".parcel-combobox-v12")) return;
+  function setupParcelas() {
+    const select = document.querySelector("#parcel-mode-select");
+    const fieldset = document.querySelector(".parcel-choice");
+    const form = document.querySelector("#request-form");
+    const parcelFields = document.querySelector("#parcel-fields");
+    const parcelSingle = document.querySelector(".parcel-single");
+    const parcelRange = document.querySelector(".parcel-range");
+    const singleInput = document.querySelector("#parcela");
+    const startInput = document.querySelector("#parcelaInicial");
+    const endInput = document.querySelector("#parcelaFinal");
 
-  select.classList.add("parcel-native-select-v12");
-  select.tabIndex = -1;
-  select.setAttribute("aria-hidden", "true");
+    if (!select || !fieldset || !form || !parcelFields || !parcelSingle || !parcelRange) return;
+    if (fieldset.querySelector(".parcel-combobox-v12")) return;
 
-  const combobox = document.createElement("div");
-  combobox.className = "parcel-combobox-v12";
-  combobox.innerHTML = `
-    <button id="parcel-trigger-v12" class="parcel-trigger-v12" type="button"
-      role="combobox" aria-haspopup="listbox" aria-expanded="false"
-      aria-controls="parcel-list-v12" aria-label="Selecionar parcelas">
-      <span class="parcel-trigger-text-v12" aria-hidden="true"></span>
-    </button>
-    <div id="parcel-list-v12" class="parcel-list-v12" role="listbox"
-      aria-label="Opções de parcelas" hidden></div>
-  `;
-  fieldset.appendChild(combobox);
+    select.classList.add("parcel-native-select-v12");
+    select.tabIndex = -1;
+    select.setAttribute("aria-hidden", "true");
 
-  const trigger = combobox.querySelector("#parcel-trigger-v12");
-  const triggerText = combobox.querySelector(".parcel-trigger-text-v12");
-  const list = combobox.querySelector("#parcel-list-v12");
+    const combobox = document.createElement("div");
+    combobox.className = "parcel-combobox-v12";
+    combobox.innerHTML = `
+      <button id="parcel-trigger-v12" class="parcel-trigger-v12" type="button"
+        role="combobox" aria-haspopup="listbox" aria-expanded="false"
+        aria-controls="parcel-list-v12" aria-label="Selecionar parcelas">
+        <span class="parcel-trigger-text-v12" aria-hidden="true"></span>
+      </button>
+      <div id="parcel-list-v12" class="parcel-list-v12" role="listbox"
+        aria-label="Opções de parcelas" hidden></div>
+    `;
+    fieldset.appendChild(combobox);
 
-  [...select.options].filter((option) => option.value).forEach((option) => {
-    const item = document.createElement("button");
-    item.type = "button";
-    item.className = "parcel-list-option-v12";
-    item.setAttribute("role", "option");
-    item.dataset.value = option.value;
-    item.textContent = option.textContent;
-    /* Evita que o botão da lista roube o foco e provoque scroll/recalculo da
-       camada antes do click. O click continua sendo disparado normalmente. */
-    item.addEventListener("mousedown", (event) => event.preventDefault());
-    item.addEventListener("click", () => choose(option.value));
-    list.appendChild(item);
-  });
+    const trigger = combobox.querySelector("#parcel-trigger-v12");
+    const triggerText = combobox.querySelector(".parcel-trigger-text-v12");
+    const list = combobox.querySelector("#parcel-list-v12");
 
-  function selectedLabel() {
-    return select.selectedOptions?.[0]?.textContent?.trim() || "";
-  }
-
-  function syncVisualState() {
-    const value = select.value || "";
-    fieldset.classList.toggle("parcel-mode-specific-v12", value === "parcela_especifica");
-    fieldset.classList.toggle("parcel-mode-range-v12", value === "intervalo");
-    fieldset.classList.toggle("parcel-mode-selected-v12", Boolean(value));
-
-    trigger.classList.toggle("has-value", Boolean(value));
-    triggerText.textContent = value ? selectedLabel() : "";
-
-    list.querySelectorAll(".parcel-list-option-v12").forEach((item) => {
-      const selected = item.dataset.value === value;
-      item.classList.toggle("is-selected", selected);
-      item.setAttribute("aria-selected", String(selected));
+    [...select.options].filter((option) => option.value).forEach((option) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "parcel-list-option-v12";
+      item.setAttribute("role", "option");
+      item.dataset.value = option.value;
+      item.textContent = option.textContent;
+      item.addEventListener("mousedown", (event) => event.preventDefault());
+      item.addEventListener("click", () => choose(option.value));
+      list.appendChild(item);
     });
-  }
 
-  function open() {
-    list.hidden = false;
-    trigger.setAttribute("aria-expanded", "true");
-  }
+    function selectedLabel() {
+      return select.selectedOptions?.[0]?.textContent?.trim() || "";
+    }
 
-  function close() {
-    list.hidden = true;
-    trigger.setAttribute("aria-expanded", "false");
-  }
+    function syncVisualState() {
+      const value = select.value || "";
+      fieldset.classList.toggle("parcel-mode-specific-v12", value === "parcela_especifica");
+      fieldset.classList.toggle("parcel-mode-range-v12", value === "intervalo");
+      fieldset.classList.toggle("parcel-mode-selected-v12", Boolean(value));
+      trigger.classList.toggle("has-value", Boolean(value));
+      triggerText.textContent = value ? selectedLabel() : "";
 
-  function choose(value) {
-    if (!value) return;
+      list.querySelectorAll(".parcel-list-option-v12").forEach((item) => {
+        const selected = item.dataset.value === value;
+        item.classList.toggle("is-selected", selected);
+        item.setAttribute("aria-selected", String(selected));
+      });
+    }
 
-    const scrollXBefore = window.scrollX;
-    const scrollYBefore = window.scrollY;
+    function applyMode(value, { clearInactive = true } = {}) {
+      const isSingle = value === "parcela_especifica";
+      const isRange = value === "intervalo";
+      const active = isSingle || isRange;
 
-    select.value = value;
-    select.dispatchEvent(new Event("input", { bubbles: true }));
-    select.dispatchEvent(new Event("change", { bubbles: true }));
-    syncVisualState();
-    close();
-
-    /* Mantém o foco no mesmo trilho sem permitir que o navegador reposicione
-       a página ao esconder a opção que acabou de ser clicada. */
-    trigger.focus({ preventScroll: true });
-    requestAnimationFrame(() => {
-      if (window.scrollX !== scrollXBefore || window.scrollY !== scrollYBefore) {
-        window.scrollTo(scrollXBefore, scrollYBefore);
+      if (active) {
+        const radio = form.querySelector(`input[name="tipoSolicitacao"][value="${CSS.escape(value)}"]`);
+        if (radio) radio.checked = true;
       }
-    });
-  }
 
-  trigger.addEventListener("click", () => {
-    if (list.hidden) open();
-    else close();
-  });
+      parcelFields.hidden = !active;
+      parcelSingle.hidden = !isSingle;
+      parcelRange.hidden = !isRange;
 
-  trigger.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      close();
-      return;
+      if (singleInput) singleInput.required = isSingle;
+      if (startInput) startInput.required = isRange;
+      if (endInput) endInput.required = isRange;
+
+      if (clearInactive && !isSingle && singleInput) singleInput.value = "";
+      if (clearInactive && !isRange) {
+        if (startInput) startInput.value = "";
+        if (endInput) endInput.value = "";
+      }
     }
 
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      event.preventDefault();
-      open();
-      const options = [...list.querySelectorAll(".parcel-list-option-v12")];
-      const selectedIndex = options.findIndex((item) => item.classList.contains("is-selected"));
-      const nextIndex = event.key === "ArrowUp"
-        ? (selectedIndex > 0 ? selectedIndex - 1 : options.length - 1)
-        : (selectedIndex >= 0 && selectedIndex < options.length - 1 ? selectedIndex + 1 : 0);
-      options[nextIndex]?.focus({ preventScroll: true });
-    }
-  });
-
-  list.addEventListener("keydown", (event) => {
-    const options = [...list.querySelectorAll(".parcel-list-option-v12")];
-    const current = options.indexOf(document.activeElement);
-
-    if (event.key === "Escape") {
-      event.preventDefault();
-      close();
-      trigger.focus({ preventScroll: true });
-      return;
+    function open() {
+      list.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
     }
 
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      event.preventDefault();
-      const delta = event.key === "ArrowDown" ? 1 : -1;
-      const next = (current + delta + options.length) % options.length;
-      options[next]?.focus({ preventScroll: true });
+    function close() {
+      list.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
     }
-  });
 
-  document.addEventListener("click", (event) => {
-    if (!combobox.contains(event.target)) close();
-  });
-
-  select.addEventListener("change", syncVisualState);
-  form.addEventListener("reset", () => {
-    requestAnimationFrame(() => {
+    function choose(value) {
+      if (!value) return;
+      select.value = value;
+      applyMode(value);
       syncVisualState();
       close();
-    });
-  });
+      trigger.focus({ preventScroll: true });
+    }
 
-  syncVisualState();
+    /* Bloqueia a ponte legada select -> radio.click(). O estado funcional é
+       sincronizado diretamente acima, sem reexecutar o layout antigo. */
+    select.addEventListener("change", (event) => {
+      event.stopImmediatePropagation();
+      applyMode(select.value || "");
+      syncVisualState();
+    }, true);
+
+    trigger.addEventListener("click", () => {
+      if (list.hidden) open();
+      else close();
+    });
+
+    trigger.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        open();
+        const options = [...list.querySelectorAll(".parcel-list-option-v12")];
+        const selectedIndex = options.findIndex((item) => item.classList.contains("is-selected"));
+        const nextIndex = event.key === "ArrowUp"
+          ? (selectedIndex > 0 ? selectedIndex - 1 : options.length - 1)
+          : (selectedIndex >= 0 && selectedIndex < options.length - 1 ? selectedIndex + 1 : 0);
+        options[nextIndex]?.focus({ preventScroll: true });
+      }
+    });
+
+    list.addEventListener("keydown", (event) => {
+      const options = [...list.querySelectorAll(".parcel-list-option-v12")];
+      const current = options.indexOf(document.activeElement);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        trigger.focus({ preventScroll: true });
+        return;
+      }
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        const delta = event.key === "ArrowDown" ? 1 : -1;
+        const next = (current + delta + options.length) % options.length;
+        options[next]?.focus({ preventScroll: true });
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!combobox.contains(event.target)) close();
+    });
+
+    form.addEventListener("reset", () => {
+      requestAnimationFrame(() => {
+        select.value = "";
+        applyMode("", { clearInactive: true });
+        syncVisualState();
+        close();
+      });
+    });
+
+    applyMode(select.value || "", { clearInactive: false });
+    syncVisualState();
+  }
+
+  const existing = document.querySelector('link[data-emissao-parcel-v12="true"]');
+  if (existing) {
+    if (existing.sheet) setupParcelas();
+    else existing.addEventListener("load", setupParcelas, { once: true });
+    return;
+  }
+
+  const css = document.createElement("link");
+  css.rel = "stylesheet";
+  css.href = "emissao-v12.0.9.css?v=12.1.7";
+  css.dataset.emissaoParcelV12 = "true";
+  css.addEventListener("load", setupParcelas, { once: true });
+  document.head.appendChild(css);
 })();
