@@ -1,0 +1,337 @@
+/* v12.1.3 - correção definitiva da etapa de Parcelas baseada no vídeo real.
+   O seletor nativo deixa de aparecer no Windows/Chrome e os dados de parcela
+   passam a permanecer dentro do mesmo trilho da viewport. Nenhum painel fixo
+   é aberto fora do card. Os campos anteriores permanecem intocados. */
+
+@media (min-width: 801px) {
+  .parcel-choice {
+    z-index: 150 !important;
+    overflow: visible !important;
+  }
+
+  /* O select nativo continua como fonte de estado para a regra de negócio,
+     porém deixa de receber clique visual e nunca mais abre o menu branco do SO. */
+  .parcel-mode-select.parcel-native-select-v12 {
+    position: absolute !important;
+    left: -9999px !important;
+    top: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 1px !important;
+    max-height: 1px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+  }
+
+  .parcel-combobox-v12 {
+    position: absolute !important;
+    z-index: 220 !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .parcel-trigger-v12 {
+    position: absolute !important;
+    z-index: 222 !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: transparent !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+  }
+
+  /* Ao haver valor, apagamos somente o placeholder rasterizado da arte.
+     Moldura, ícone e seta dourada continuam sendo os pixels originais da viewport. */
+  .parcel-trigger-v12.has-value::before {
+    content: "" !important;
+    position: absolute !important;
+    z-index: 0 !important;
+    left: 1.62cqw !important;
+    right: 1.62cqw !important;
+    top: .16cqw !important;
+    height: 1.90cqw !important;
+    border: 0 !important;
+    background: #080904 !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+  }
+
+  .parcel-trigger-text-v12 {
+    position: absolute !important;
+    z-index: 1 !important;
+    left: 1.878914cqw !important;
+    right: 1.774530cqw !important;
+    top: .208768cqw !important;
+    height: 1.774530cqw !important;
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 .24cqw !important;
+    color: #ead8b7 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .835073cqw !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+    pointer-events: none !important;
+  }
+
+  /* Reserva espaço dentro do próprio trilho para o número escolhido. */
+  .parcel-choice.parcel-mode-specific-v12 .parcel-trigger-text-v12 {
+    right: 7.10cqw !important;
+  }
+
+  .parcel-choice.parcel-mode-range-v12 .parcel-trigger-text-v12 {
+    right: 10.25cqw !important;
+  }
+
+  .parcel-trigger-v12:focus-visible {
+    outline: 1px solid rgba(255,188,68,.66) !important;
+    outline-offset: -2px !important;
+  }
+
+  /* Menu próprio: preto/dourado e sobreposto, sem alterar altura nem empurrar o formulário. */
+  .parcel-list-v12 {
+    position: absolute !important;
+    z-index: 360 !important;
+    left: 0 !important;
+    top: calc(100% + .16cqw) !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    margin: 0 !important;
+    padding: .18cqw !important;
+    border: 1px solid rgba(192,126,25,.94) !important;
+    border-radius: .28cqw !important;
+    background: rgba(7,8,5,.995) !important;
+    box-shadow: 0 .34cqw .85cqw rgba(0,0,0,.58), inset 0 0 0 1px rgba(255,190,68,.045) !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    pointer-events: auto !important;
+  }
+
+  .parcel-list-v12[hidden] {
+    display: none !important;
+  }
+
+  .parcel-list-option-v12 {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 1.62cqw !important;
+    min-height: 1.62cqw !important;
+    margin: 0 !important;
+    padding: 0 .50cqw !important;
+    border: 0 !important;
+    border-radius: .18cqw !important;
+    outline: 0 !important;
+    color: #ead8b7 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .72cqw !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    text-align: left !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+  }
+
+  .parcel-list-option-v12:hover,
+  .parcel-list-option-v12:focus-visible,
+  .parcel-list-option-v12.is-selected {
+    color: #fff0cf !important;
+    background: rgba(118,70,9,.84) !important;
+    box-shadow: inset 0 0 0 1px rgba(255,177,43,.40) !important;
+  }
+
+  /* O painel auxiliar deixa de existir como card externo. O mesmo DOM é reaproveitado
+     por cima do trilho de Parcelas para não mexer em nenhuma outra posição da arte. */
+  .parcel-fields {
+    position: absolute !important;
+    z-index: 280 !important;
+    left: 40.814196% !important;
+    top: 57.978076% !important;
+    width: 18.267223% !important;
+    height: 5.115713% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: #ead8b7 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+    pointer-events: none !important;
+  }
+
+  .parcel-fields[hidden] {
+    display: none !important;
+  }
+
+  .parcel-fields::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  .parcel-fields .field-label {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+
+  .parcel-fields .parcel-single,
+  .parcel-fields .parcel-range,
+  .parcel-fields .field {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .parcel-fields .parcel-single[hidden],
+  .parcel-fields .parcel-range[hidden] {
+    display: none !important;
+  }
+
+  /* Parcela específica: um único número encaixado à direita do mesmo trilho. */
+  .parcel-fields .parcel-single:not([hidden]) {
+    position: absolute !important;
+    z-index: 2 !important;
+    right: 1.96cqw !important;
+    top: .34cqw !important;
+    width: 4.78cqw !important;
+    height: 1.50cqw !important;
+    display: block !important;
+    pointer-events: auto !important;
+  }
+
+  /* Intervalo: dois números pequenos, ainda dentro da mesma caixa original. */
+  .parcel-fields .parcel-range:not([hidden]) {
+    position: absolute !important;
+    z-index: 2 !important;
+    right: 1.96cqw !important;
+    top: .34cqw !important;
+    width: 8.05cqw !important;
+    height: 1.50cqw !important;
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important;
+    gap: .28cqw !important;
+    pointer-events: auto !important;
+  }
+
+  .parcel-fields .parcel-range:not([hidden]) > .field {
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    pointer-events: auto !important;
+  }
+
+  .parcel-fields input {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 .38cqw !important;
+    border: 1px solid rgba(181,116,22,.86) !important;
+    border-radius: .20cqw !important;
+    outline: 0 !important;
+    appearance: textfield !important;
+    -moz-appearance: textfield !important;
+    color: #f2dfbd !important;
+    caret-color: #ffc14a !important;
+    background: #080904 !important;
+    box-shadow: inset 0 0 0 1px rgba(255,190,68,.028) !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: .68cqw !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    pointer-events: auto !important;
+  }
+
+  .parcel-fields input::-webkit-inner-spin-button,
+  .parcel-fields input::-webkit-outer-spin-button {
+    margin: 0 !important;
+    -webkit-appearance: none !important;
+  }
+
+  .parcel-fields input::placeholder {
+    color: rgba(234,216,183,.64) !important;
+    opacity: 1 !important;
+  }
+
+  .parcel-fields input:focus {
+    border-color: rgba(240,163,38,.98) !important;
+    background: #090a05 !important;
+    box-shadow: 0 0 0 1px rgba(255,164,28,.12) !important;
+  }
+
+  .parcel-fields .field-error {
+    position: absolute !important;
+    z-index: 500 !important;
+    right: 0 !important;
+    top: calc(100% + .16cqw) !important;
+    width: max-content !important;
+    max-width: 8.2cqw !important;
+    margin: 0 !important;
+    padding: .18cqw .28cqw !important;
+    border: 1px solid rgba(167,104,24,.72) !important;
+    border-radius: .18cqw !important;
+    color: #e7bf72 !important;
+    background: rgba(7,8,5,.985) !important;
+    box-shadow: 0 .20cqw .48cqw rgba(0,0,0,.42) !important;
+    font-size: .40cqw !important;
+    font-weight: 600 !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    pointer-events: none !important;
+  }
+
+  .parcel-fields .field-error:empty {
+    display: none !important;
+  }
+}
