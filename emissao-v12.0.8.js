@@ -1,6 +1,16 @@
 (() => {
   "use strict";
 
+  /* A camada de estabilidade é carregada por último para que a geometria dos
+     campos já aprovada não seja recalculada quando o estado de Parcelas muda. */
+  if (!document.querySelector('link[data-emissao-stability-v12="true"]')) {
+    const stabilityCss = document.createElement("link");
+    stabilityCss.rel = "stylesheet";
+    stabilityCss.href = "emissao-v12.0.9.css?v=12.1.5";
+    stabilityCss.dataset.emissaoStabilityV12 = "true";
+    document.head.appendChild(stabilityCss);
+  }
+
   const desktop = window.matchMedia("(min-width: 801px)");
   const select = document.querySelector("#parcel-mode-select");
   const fieldset = document.querySelector(".parcel-choice");
@@ -37,6 +47,9 @@
     item.setAttribute("role", "option");
     item.dataset.value = option.value;
     item.textContent = option.textContent;
+    /* Evita que o botão da lista roube o foco e provoque scroll/recalculo da
+       camada antes do click. O click continua sendo disparado normalmente. */
+    item.addEventListener("mousedown", (event) => event.preventDefault());
     item.addEventListener("click", () => choose(option.value));
     list.appendChild(item);
   });
@@ -73,11 +86,24 @@
 
   function choose(value) {
     if (!value) return;
+
+    const scrollXBefore = window.scrollX;
+    const scrollYBefore = window.scrollY;
+
     select.value = value;
     select.dispatchEvent(new Event("input", { bubbles: true }));
     select.dispatchEvent(new Event("change", { bubbles: true }));
     syncVisualState();
     close();
+
+    /* Mantém o foco no mesmo trilho sem permitir que o navegador reposicione
+       a página ao esconder a opção que acabou de ser clicada. */
+    trigger.focus({ preventScroll: true });
+    requestAnimationFrame(() => {
+      if (window.scrollX !== scrollXBefore || window.scrollY !== scrollYBefore) {
+        window.scrollTo(scrollXBefore, scrollYBefore);
+      }
+    });
   }
 
   trigger.addEventListener("click", () => {

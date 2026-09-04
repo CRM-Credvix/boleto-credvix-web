@@ -1,0 +1,101 @@
+/* v12.1.5 - estabilidade da camada funcional durante a seleção de parcelas.
+   A geometria aprovada antes da interação fica ancorada em porcentagens dos
+   próprios trilhos da viewport. Remove dependência de cqw nos controles que
+   estavam mudando de posição quando o estado de Parcelas era alterado. */
+
+@media (min-width: 801px) {
+  /* Os trilhos já estão corretamente ancorados pela v12.0.6. Aqui congelamos
+     apenas os controles funcionais internos, preservando a arte, ícones e bordas. */
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-phone > input,
+  .slot-contract > input,
+  .slot-unit .unit-trigger {
+    position: absolute !important;
+    z-index: 14 !important;
+    left: 10.285712% !important;
+    right: 1.428570% !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 1.428570% 0 2.857142% !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: clamp(10px, 1.949vh, 22px) !important;
+    font-size: clamp(10px, 1.949dvh, 22px) !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .slot-name > input,
+  .slot-cpf > input,
+  .slot-unit .unit-trigger {
+    top: 9.523796% !important;
+    height: 80.952361% !important;
+    max-height: 80.952361% !important;
+  }
+
+  .slot-phone > input,
+  .slot-contract > input {
+    top: 9.756085% !important;
+    height: 82.926814% !important;
+    max-height: 82.926814% !important;
+  }
+
+  /* Reserva a área da seta original da viewport na Unidade. */
+  .slot-unit .unit-trigger {
+    right: 9.714284% !important;
+  }
+
+  /* A camada do combobox da Unidade também permanece rigidamente presa ao slot. */
+  .slot-unit .unit-combobox {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+
+  /* Parcelas: mantém o seletor visual no trilho e impede qualquer reflow. */
+  .parcel-choice,
+  .parcel-combobox-v12,
+  .parcel-trigger-v12 {
+    contain: layout style !important;
+  }
+
+  .parcel-trigger-text-v12 {
+    font-size: clamp(10px, 1.949vh, 22px) !important;
+    font-size: clamp(10px, 1.949dvh, 22px) !important;
+  }
+
+  /* Os campos específicos permanecem sobre o mesmo trilho e nunca participam
+     do fluxo que posiciona Nome, CPF, Telefone, Unidade e Contrato. */
+  .parcel-fields {
+    position: absolute !important;
+    left: 40.814196% !important;
+    top: 57.978076% !important;
+    width: 18.267223% !important;
+    height: 5.115713% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    contain: layout style !important;
+  }
+
+  .parcel-fields input {
+    font-size: clamp(10px, 1.58vh, 16px) !important;
+    font-size: clamp(10px, 1.58dvh, 16px) !important;
+  }
+}
