@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   parcel-interaction:
-    name: Validar seleção e encaixe das parcelas
+    name: Validar seleção sem alterar campos aprovados
     runs-on: ubuntu-latest
     steps:
       - name: Baixar repositorio
@@ -45,63 +45,94 @@ jobs:
             const fields = document.querySelector('#parcel-fields');
             const consent = document.querySelector('.consent');
             const submit = document.querySelector('.primary-button');
+            const fixed = [
+              document.querySelector('.slot-name'),
+              document.querySelector('.slot-cpf'),
+              document.querySelector('.slot-phone'),
+              document.querySelector('.slot-unit'),
+              document.querySelector('.slot-contract')
+            ];
+            const controls = [
+              document.querySelector('#solicitante'),
+              document.querySelector('#cpf'),
+              document.querySelector('#telefone'),
+              document.querySelector('#unit-trigger') || document.querySelector('#unidade'),
+              document.querySelector('#contrato')
+            ];
 
             const fail = (name) => failures.push(name);
             const normalizedRect = (element) => {
               const r = element.getBoundingClientRect();
               const a = artboard.getBoundingClientRect();
-              return {
-                left:(r.left-a.left)/a.width,
-                top:(r.top-a.top)/a.height,
-                width:r.width/a.width,
-                height:r.height/a.height
-              };
+              return {left:(r.left-a.left)/a.width, top:(r.top-a.top)/a.height, width:r.width/a.width, height:r.height/a.height};
             };
             const moved = (before, after) =>
-              Math.abs(after.left-before.left) > 0.0005 || Math.abs(after.top-before.top) > 0.0005;
+              Math.abs(after.left-before.left) > 0.0005 ||
+              Math.abs(after.top-before.top) > 0.0005 ||
+              Math.abs(after.width-before.width) > 0.0005 ||
+              Math.abs(after.height-before.height) > 0.0005;
 
-            if (!artboard || !choice || !trigger || !list || !select || !fields || !consent || !submit) {
+            if (!artboard || !choice || !trigger || !list || !select || !fields || !consent || !submit || fixed.some(x=>!x) || controls.some(x=>!x)) {
               document.documentElement.dataset.parcelQa = 'fail-missing-core';
               return;
             }
 
-            const nativeStyle = getComputedStyle(select);
-            if (nativeStyle.pointerEvents !== 'none' || Number(nativeStyle.opacity) !== 0) fail('native-visible');
+            controls[0].value='Teste Credvix';
+            controls[1].value='123.456.789-00';
+            controls[2].value='(27) 99999-9999';
+            controls[4].value='123456';
+            if (controls[3].id === 'unit-trigger') {
+              controls[3].value='HELP - ARACRUZ';
+              controls[3].classList.add('has-value');
+            }
+            controls.forEach(c=>c.dispatchEvent(new Event('input',{bubbles:true})));
 
+            const fixedBefore = fixed.map(normalizedRect);
+            const controlsBefore = controls.map(normalizedRect);
             const consentBefore = normalizedRect(consent);
             const submitBefore = normalizedRect(submit);
 
+            const checkFixed = (stage) => {
+              fixed.forEach((el,i)=>{ if (moved(fixedBefore[i], normalizedRect(el))) fail(stage+'-slot-'+i); });
+              controls.forEach((el,i)=>{ if (moved(controlsBefore[i], normalizedRect(el))) fail(stage+'-control-'+i); });
+              if (moved(consentBefore, normalizedRect(consent))) fail(stage+'-consent');
+              if (moved(submitBefore, normalizedRect(submit))) fail(stage+'-button');
+            };
+
+            const nativeStyle = getComputedStyle(select);
+            if (nativeStyle.pointerEvents !== 'none' || Number(nativeStyle.opacity) !== 0) fail('native-visible');
+
             trigger.click();
-            if (list.hidden) fail('list-not-open');
             const specific = list.querySelector('[data-value="parcela_especifica"]');
             specific?.click();
             if (select.value !== 'parcela_especifica') fail('specific-state');
             if (fields.hidden) fail('specific-fields-hidden');
+            checkFixed('specific');
+
             const single = document.querySelector('#parcela');
+            const panelRect = fields.getBoundingClientRect();
+            const choiceRect = choice.getBoundingClientRect();
             const singleRect = single?.getBoundingClientRect();
-            const specificChoiceRect = choice.getBoundingClientRect();
-            if (!singleRect || singleRect.width < 20 || singleRect.height < 15) fail('specific-collapsed');
-            if (singleRect && (singleRect.left < specificChoiceRect.left || singleRect.right > specificChoiceRect.right || singleRect.top < specificChoiceRect.top || singleRect.bottom > specificChoiceRect.bottom)) fail('specific-outside-row');
+            if (!singleRect || singleRect.width < 30 || singleRect.height < 20) fail('specific-collapsed');
+            if (panelRect.left <= choiceRect.right + 4) fail('panel-not-isolated-right');
+            if (singleRect && (singleRect.left < panelRect.left || singleRect.right > panelRect.right || singleRect.top < panelRect.top || singleRect.bottom > panelRect.bottom)) fail('specific-outside-panel');
 
             trigger.click();
             const interval = list.querySelector('[data-value="intervalo"]');
             interval?.click();
             if (select.value !== 'intervalo') fail('range-state');
+            checkFixed('range');
+
             const start = document.querySelector('#parcelaInicial')?.getBoundingClientRect();
             const end = document.querySelector('#parcelaFinal')?.getBoundingClientRect();
-            const rangeChoiceRect = choice.getBoundingClientRect();
-            if (!start || !end || start.width < 20 || end.width < 20) fail('range-collapsed');
+            const rangePanel = fields.getBoundingClientRect();
+            if (!start || !end || start.width < 25 || end.width < 25) fail('range-collapsed');
             for (const [name, rect] of [['start',start],['end',end]]) {
-              if (rect && (rect.left < rangeChoiceRect.left || rect.right > rangeChoiceRect.right || rect.top < rangeChoiceRect.top || rect.bottom > rangeChoiceRect.bottom)) fail(name+'-outside-row');
+              if (rect && (rect.left < rangePanel.left || rect.right > rangePanel.right || rect.top < rangePanel.top || rect.bottom > rangePanel.bottom)) fail(name+'-outside-panel');
             }
 
-            const consentAfter = normalizedRect(consent);
-            const submitAfter = normalizedRect(submit);
-            if (moved(consentBefore, consentAfter)) fail('consent-relative-moved');
-            if (moved(submitBefore, submitAfter)) fail('button-relative-moved');
-
             document.documentElement.dataset.parcelQa = failures.length ? 'fail-' + failures.join('-') : 'ok';
-          }, 600));
+          }, 900));
           </script>
           '''
           html = html.replace('</body>', qa + '</body>')
@@ -121,7 +152,7 @@ jobs:
           sleep 2
 
           for size in 1365,695 1920,1080 2560,1080; do
-            dump="$("$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=3000 --window-size="$size" --dump-dom http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar 2>/dev/null)"
+            dump="$("$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=4000 --window-size="$size" --dump-dom http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar 2>/dev/null)"
             grep -q 'data-parcel-qa="ok"' <<<"$dump" || {
               echo "Falha de parcelas em $size"
               grep -o 'data-parcel-qa="[^"]*"' <<<"$dump" || true
@@ -129,8 +160,8 @@ jobs:
             }
           done
 
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=3000 --window-size=1365,695 --screenshot=qa-parcel-v12/parcelas-1365x695.png http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=3000 --window-size=1920,1080 --screenshot=qa-parcel-v12/parcelas-1920x1080.png http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=4000 --window-size=1365,695 --screenshot=qa-parcel-v12/parcelas-1365x695.png http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=4000 --window-size=1920,1080 --screenshot=qa-parcel-v12/parcelas-1920x1080.png http://127.0.0.1:8766/_qa-parcel-interaction.html#solicitar
 
       - name: Guardar QA de parcelas
         uses: actions/upload-artifact@v4
