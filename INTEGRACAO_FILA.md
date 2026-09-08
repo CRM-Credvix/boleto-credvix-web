@@ -8,7 +8,7 @@ Esta branch prepara a integração produtiva sem alterar o visual aprovado do po
 2. `integracao-submit-v1.js` chama a Edge Function Supabase `submit-boleto`.
 3. A Edge Function valida novamente os dados e a autorização do usuário.
 4. A solicitação é persistida em `public.boleto_requests` com `request_id` único.
-5. A Edge Function envia a solicitação para um Web App do Google Apps Script.
+5. A Edge Function lê a configuração da ponte em `public.boleto_integration_config` e envia a solicitação para o Web App do Google Apps Script.
 6. O Apps Script grava a linha na aba `EMISSÃO BOLETOS` da planilha `CENTRAL CREDVIX — GESTÃO 360 AUTOMÁTICA`.
 7. Só quando o Apps Script confirma a gravação a Edge Function retorna `status = ENVIADO_FILA`.
 8. O site então exibe a tela de sucesso.
@@ -17,6 +17,7 @@ Esta branch prepara a integração produtiva sem alterar o visual aprovado do po
 ## Componentes já preparados
 
 - Supabase table: `public.boleto_requests`
+- Supabase config table: `public.boleto_integration_config`
 - Supabase Edge Function: `submit-boleto`
 - Frontend: `integracao-submit-v1.js`
 - Apps Script: `integrations/apps-script/Code.gs`
@@ -26,20 +27,20 @@ Esta branch prepara a integração produtiva sem alterar o visual aprovado do po
 
 1. Crie um projeto em script.google.com.
 2. Cole o conteúdo de `integrations/apps-script/Code.gs` em `Code.gs`.
-3. Em **Configurações do projeto > Propriedades do script**, crie `BRIDGE_KEY` com um valor aleatório longo.
+3. Em **Configurações do projeto > Propriedades do script**, crie `BRIDGE_KEY` com o mesmo valor configurado no Supabase.
 4. Faça **Implantar > Nova implantação > Aplicativo da Web**.
 5. Execute como o usuário proprietário da planilha.
 6. Permita acesso ao Web App conforme necessário para chamadas do backend.
 7. Copie a URL final terminada em `/exec`.
 
-## Variáveis que faltam no Supabase
+## Configuração da ponte no Supabase
 
-Configure no projeto Supabase:
+A tabela `public.boleto_integration_config` possui duas chaves:
 
-- `BOLETO_APPS_SCRIPT_URL` = URL `/exec` da implantação do Apps Script.
-- `BOLETO_APPS_SCRIPT_KEY` = o mesmo valor salvo em `BRIDGE_KEY`.
+- `apps_script_url`: URL `/exec` da implantação do Apps Script.
+- `bridge_key`: mesmo valor salvo em `BRIDGE_KEY` nas Propriedades do script.
 
-Não coloque esses valores no GitHub nem no `config.js`.
+Esses valores não devem ser colocados no GitHub nem no `config.js`.
 
 ## Comportamento de segurança
 
@@ -52,4 +53,4 @@ Não coloque esses valores no GitHub nem no `config.js`.
 
 ## Estado de homologação
 
-Esta branch não deve ser mesclada na `main` antes que as duas variáveis do Supabase estejam configuradas e um teste real resulte em uma nova linha `PENDENTE` na aba `EMISSÃO BOLETOS`.
+Esta branch não deve ser mesclada na `main` antes que `apps_script_url` e `bridge_key` estejam preenchidos no Supabase e um teste real resulte em uma nova linha `PENDENTE` na aba `EMISSÃO BOLETOS`.
