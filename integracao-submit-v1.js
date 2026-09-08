@@ -57,6 +57,8 @@
     const contract = document.querySelector("#contrato");
     const consent = document.querySelector("#consentimento");
     const type = selectedRequestType();
+    const phoneDigits = digitsOnly(phone?.value);
+    const cpfDigits = digitsOnly(cpf?.value);
 
     if (!name || name.value.trim().length < 3) {
       setError(name, "Informe o nome completo.");
@@ -66,8 +68,11 @@
       setError(unitsSelect, "Selecione ou digite a unidade.");
       valid = false;
     }
-    if (!phone || ![10, 11].includes(digitsOnly(phone.value).length)) {
+    if (!phone || ![10, 11].includes(phoneDigits.length)) {
       setError(phone, "Informe um telefone com DDD.");
+      valid = false;
+    } else if (phoneDigits === cpfDigits) {
+      setError(phone, "O telefone não pode ser igual ao CPF. Confira o preenchimento automático.");
       valid = false;
     }
     if (!cpf || !isValidCpf(cpf.value)) {
