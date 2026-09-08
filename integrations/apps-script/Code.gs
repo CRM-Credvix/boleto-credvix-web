@@ -60,10 +60,10 @@ function doPost(e) {
     const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
     if (!sheet) return json_({ ok: false, error: 'SHEET_NOT_FOUND' }, 500);
 
-    const lastRow = Math.max(sheet.getLastRow(), HEADER_ROW);
     const requestIdColumn = 28; // AB
-    if (lastRow > HEADER_ROW) {
-      const existingIds = sheet.getRange(HEADER_ROW + 1, requestIdColumn, lastRow - HEADER_ROW, 1).getDisplayValues().flat();
+    const scanLastRow = Math.max(sheet.getLastRow(), HEADER_ROW + 1);
+    if (scanLastRow > HEADER_ROW) {
+      const existingIds = sheet.getRange(HEADER_ROW + 1, requestIdColumn, scanLastRow - HEADER_ROW, 1).getDisplayValues().flat();
       const existingIndex = existingIds.findIndex((value) => String(value).trim() === requestId);
       if (existingIndex >= 0) {
         const row = HEADER_ROW + 1 + existingIndex;
@@ -72,50 +72,46 @@ function doPost(e) {
       }
     }
 
-    const queueId = nextQueueId_(sheet);
-    const intervalo = parcelaInicial + '-' + parcelaFinal;
-    const quantidade = parcelaFinal - parcelaInicial + 1;
-    const dedupeKey = [cpf, contrato, intervalo].join('|');
+    const targetRow = firstEmptyRequestRow_(sheet);
     const now = new Date();
 
-    const rowValues = [
-      queueId,                  // A ID
-      submittedAt,              // B DATA / HORA SOLICITAÇÃO
-      solicitante,              // C SOLICITANTE
-      unidade,                  // D UNIDADE
-      cpf,                      // E CPF
-      '',                       // F CLIENTE
-      contrato,                 // G CONTRATO
-      parcelaInicial,           // H PARCELA INICIAL
-      parcelaFinal,             // I PARCELA FINAL
-      intervalo,                // J INTERVALO
-      quantidade,               // K QTD. PARCELAS
-      'NORMAL',                 // L PRIORIDADE
-      'PENDENTE',               // M STATUS
-      0,                        // N TENTATIVAS
-      '',                       // O INÍCIO PROCESSAMENTO
-      '',                       // P FIM PROCESSAMENTO
-      '',                       // Q TEMPO PROCESSAMENTO
-      '',                       // R ARQUIVO / LINK
-      dedupeKey,                // S CHAVE DEDUPLICAÇÃO
-      '',                       // T LOG / ERRO
-      now,                      // U ÚLTIMA ATUALIZAÇÃO
-      'AGUARDANDO BOT',         // V VALIDAÇÃO
-      '',                       // W DATA VENCIMENTO
-      '',                       // X DATA MÁXIMA VENCIMENTO DNA
-      '',                       // Y DATA VENCIMENTO APLICADA
-      'PENDENTE',               // Z ETAPA PROCESSAMENTO
-      telefone,                 // AA TELEFONE
-      requestId,                // AB REQUEST_ID
-      origem                    // AC ORIGEM
-    ];
+    // Colunas com ARRAYFORMULA na planilha (A, J, K, S e V) não são escritas aqui.
+    // Isso preserva as fórmulas e evita #REF! quando novas solicitações entram.
+    sheet.getRange(targetRow, 2, 1, 8).setValues([[
+      submittedAt,       // B DATA / HORA SOLICITAÇÃO
+      solicitante,       // C SOLICITANTE
+      unidade,           // D UNIDADE
+      cpf,               // E CPF
+      '',                // F CLIENTE
+      contrato,          // G CONTRATO
+      parcelaInicial,    // H PARCELA INICIAL
+      parcelaFinal       // I PARCELA FINAL
+    ]]);
 
-    const targetRow = lastRow + 1;
-    sheet.getRange(targetRow, 1, 1, rowValues.length).setValues([rowValues]);
+    sheet.getRange(targetRow, 12, 1, 6).setValues([[
+      'NORMAL',          // L PRIORIDADE
+      'PENDENTE',        // M STATUS
+      0,                 // N TENTATIVAS
+      '',                // O INÍCIO PROCESSAMENTO
+      '',                // P FIM PROCESSAMENTO
+      ''                 // Q TEMPO PROCESSAMENTO
+    ]]);
+
+    sheet.getRange(targetRow, 18, 1, 1).setValue('');       // R ARQUIVO / LINK
+    sheet.getRange(targetRow, 20, 1, 2).setValues([['', now]]); // T LOG / ERRO, U ÚLTIMA ATUALIZAÇÃO
+    sheet.getRange(targetRow, 23, 1, 3).setValues([['', '', '']]); // W:X:Y
+    sheet.getRange(targetRow, 26, 1, 4).setValues([[
+      'PENDENTE',        // Z ETAPA PROCESSAMENTO
+      telefone,          // AA TELEFONE
+      requestId,         // AB REQUEST_ID
+      origem             // AC ORIGEM
+    ]]);
+
     sheet.getRange(targetRow, 2).setNumberFormat('dd/MM/yyyy HH:mm:ss');
     sheet.getRange(targetRow, 21).setNumberFormat('dd/MM/yyyy HH:mm:ss');
     SpreadsheetApp.flush();
 
+    const queueId = String(sheet.getRange(targetRow, 1).getDisplayValue() || '').trim();
     return json_({ ok: true, duplicate: false, row: targetRow, queueId: queueId, requestId: requestId }, 200);
   } catch (error) {
     console.error(error);
@@ -129,16 +125,13 @@ function digits_(value) {
   return String(value == null ? '' : value).replace(/\D/g, '');
 }
 
-function nextQueueId_(sheet) {
-  const lastRow = Math.max(sheet.getLastRow(), HEADER_ROW);
-  if (lastRow <= HEADER_ROW) return 'BOL-00001';
+function firstEmptyRequestRow_(sheet) {
+  const firstDataRow = HEADER_ROW + 1;
+  const maxRows = sheet.getMaxRows();
+  const values = sheet.getRange(firstDataRow, 2, maxRows - HEADER_ROW, 1).getDisplayValues(); // coluna B
+  const emptyIndex = values.findIndex((row) => !String(row[0] || '').trim());
+  if (emptyIndex >= 0) return firstDataRow + emptyIndex;
 
-  const ids = sheet.getRange(HEADER_ROW + 1, 1, lastRow - HEADER_ROW, 1).getDisplayValues().flat();
-  let maxNumber = 0;
-  ids.forEach((value) => {
-    const match = String(value || '').trim().match(/^BOL-(\d+)$/i);
-    if (!match) return;
-    maxNumber = Math.max(maxNumber, Number(match[1]));
-  });
-  return 'BOL-' + String(maxNumber + 1).padStart(5, '0');
+  sheet.insertRowsAfter(maxRows, 100);
+  return maxRows + 1;
 }
