@@ -53,4 +53,4 @@ Esses valores não devem ser colocados no GitHub nem no `config.js`.
 
 ## Estado de homologação
 
-Esta branch não deve ser mesclada na `main` antes que `apps_script_url` e `bridge_key` estejam preenchidos no Supabase e um teste real resulte em uma nova linha `PENDENTE` na aba `EMISSÃO BOLETOS`.
+A configuração da ponte foi concluída no Supabase. O teste final deve ser feito com uma solicitação autenticada no site para confirmar a criação de uma nova linha `PENDENTE` na aba `EMISSÃO BOLETOS` e o processamento pelo Kwid4x4.
