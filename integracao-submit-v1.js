@@ -59,6 +59,7 @@
     const type = selectedRequestType();
     const phoneDigits = digitsOnly(phone?.value);
     const cpfDigits = digitsOnly(cpf?.value);
+    const contractDigits = digitsOnly(contract?.value);
 
     if (!name || name.value.trim().length < 3) {
       setError(name, "Informe o nome completo.");
@@ -79,8 +80,11 @@
       setError(cpf, "CPF inválido. Confira os números.");
       valid = false;
     }
-    if (contract?.value && !/^\d{4,20}$/.test(digitsOnly(contract.value))) {
-      setError(contract, "Contrato deve conter apenas números.");
+    if (!contractDigits) {
+      setError(contract, "Informe o número do contrato.");
+      valid = false;
+    } else if (!/^\d{4,20}$/.test(contractDigits)) {
+      setError(contract, "Contrato deve conter de 4 a 20 números.");
       valid = false;
     }
 
