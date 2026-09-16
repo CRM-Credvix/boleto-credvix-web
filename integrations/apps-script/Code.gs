@@ -85,6 +85,7 @@ function doPost(e) {
     if (cpf.length !== 11) return json_({ ok: false, error: 'INVALID_CPF' }, 400);
     if (![10, 11].includes(telefone.length)) return json_({ ok: false, error: 'INVALID_TELEFONE' }, 400);
     if (telefone === cpf) return json_({ ok: false, error: 'TELEFONE_EQUALS_CPF' }, 400);
+    if (!/^\d{4,20}$/.test(contrato)) return json_({ ok: false, error: 'INVALID_CONTRATO' }, 400);
     if (!['parcela_especifica', 'intervalo'].includes(tipoSolicitacao)) return json_({ ok: false, error: 'INVALID_TIPO_SOLICITACAO' }, 400);
     if (!Number.isInteger(parcelaInicial) || !Number.isInteger(parcelaFinal) || parcelaInicial < 1 || parcelaFinal < parcelaInicial || parcelaFinal > 999) {
       return json_({ ok: false, error: 'INVALID_PARCELAS' }, 400);
@@ -107,6 +108,11 @@ function doPost(e) {
 
     const targetRow = firstEmptyRequestRow_(sheet);
     const now = new Date();
+
+    // Identificadores devem entrar como texto para preservar zeros à esquerda.
+    sheet.getRange(targetRow, 5).setNumberFormat('@');       // E CPF
+    sheet.getRange(targetRow, 7).setNumberFormat('@');       // G CONTRATO
+    sheet.getRange(targetRow, 27, 1, 3).setNumberFormat('@'); // AA:AC TELEFONE, REQUEST_ID, ORIGEM
 
     // Colunas com ARRAYFORMULA na planilha (A, J, K, Q, S e V) não são escritas aqui.
     // Isso preserva as fórmulas e evita #REF! quando novas solicitações entram.
