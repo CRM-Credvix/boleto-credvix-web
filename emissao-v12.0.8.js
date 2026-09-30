@@ -188,7 +188,7 @@
 
   const css = document.createElement("link");
   css.rel = "stylesheet";
-  css.href = "emissao-v12.0.9.css?v=12.1.7";
+  css.href = "emissao-v12.0.9.css?v=12.1.9";
   css.dataset.emissaoParcelV12 = "true";
   css.addEventListener("load", setupParcelas, { once: true });
   document.head.appendChild(css);
