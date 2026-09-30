@@ -110,18 +110,15 @@
     }
 
     if (!contractDigits) {
-      if (type !== "primeira_disponivel") {
-        formAlert.textContent = "Sem contrato, a solicitação usará a primeira parcela disponível do primeiro contrato.";
-        formAlert.hidden = false;
-        valid = false;
-      }
+      // Sem contrato, o modo é automático por regra de negócio.
+      // O estado visual do seletor não pode impedir a solicitação.
     } else if (type === "parcela_especifica") {
       const parcel = document.querySelector("#parcela");
       if (!parcel?.value || Number(parcel.value) < 1 || Number(parcel.value) > 999) {
         setError(parcel, "Informe a parcela.");
         valid = false;
       }
-    } else if (type === "intervalo") {
+    } else if (!automatic && type === "intervalo") {
       const start = document.querySelector("#parcelaInicial");
       const end = document.querySelector("#parcelaFinal");
       if (!start?.value || Number(start.value) < 1 || Number(start.value) > 999) {
@@ -158,11 +155,13 @@
   }
 
   function buildPayload() {
-    const type = selectedRequestType();
+    const contractDigits = digitsOnly(document.querySelector("#contrato")?.value);
+    const automatic = !contractDigits;
+    const type = automatic ? "primeira_disponivel" : selectedRequestType();
     let initial = "";
     let final = "";
 
-    if (type === "parcela_especifica") {
+    if (!automatic && type === "parcela_especifica") {
       initial = document.querySelector("#parcela")?.value || "";
       final = initial;
     } else if (type === "intervalo") {
@@ -177,11 +176,11 @@
       unidade: unitsSelect.value,
       telefone: digitsOnly(document.querySelector("#telefone")?.value),
       cpf: digitsOnly(document.querySelector("#cpf")?.value),
-      contrato: digitsOnly(document.querySelector("#contrato")?.value),
+      contrato: contractDigits,
       tipoSolicitacao: type,
-      parcelaInicial: initial ? Number(initial) : "",
-      parcelaFinal: final ? Number(final) : "",
-      modoAutomatico: type === "primeira_disponivel",
+      parcelaInicial: automatic ? "" : (initial ? Number(initial) : ""),
+      parcelaFinal: automatic ? "" : (final ? Number(final) : ""),
+      modoAutomatico: automatic,
       consentimento: true,
       website: document.querySelector("#website")?.value || "",
       origem: "GITHUB_PAGES"
@@ -229,10 +228,15 @@
     requestAnimationFrame(syncAutomaticContractMode);
   }, { once: true });
   setTimeout(syncAutomaticContractMode, 0);
+  window.addEventListener("load", () => setTimeout(syncAutomaticContractMode, 0), { once: true });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     event.stopImmediatePropagation();
+
+    // Reaplica a política no instante do envio para neutralizar qualquer
+    // estado visual antigo/cacheado do seletor.
+    syncAutomaticContractMode();
 
     if (!validateForm()) {
       const firstInvalid = form.querySelector('[aria-invalid="true"]');
