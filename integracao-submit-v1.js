@@ -52,21 +52,25 @@
     const select = document.querySelector("#parcel-mode-select");
     if (!contract || !select) return;
 
-    const automatic = !digitsOnly(contract.value);
-    if (automatic && select.value !== "primeira_disponivel") {
+    const hasContract = Boolean(digitsOnly(contract.value));
+
+    // Sem contrato, "Primeira parcela disponível" é apenas o padrão.
+    // O seletor continua clicável para que o usuário possa preparar
+    // "Parcela específica" ou "Intervalo" antes de informar o contrato.
+    if (!hasContract && !select.value) {
       select.value = "primeira_disponivel";
       select.dispatchEvent(new Event("change", { bubbles: true }));
-    } else if (!automatic && select.value === "primeira_disponivel") {
+    } else if (hasContract && select.value === "primeira_disponivel") {
       select.value = "";
       select.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
     const trigger = document.querySelector("#parcel-trigger-v12");
     if (trigger) {
-      trigger.disabled = automatic;
-      trigger.setAttribute("aria-disabled", String(automatic));
-      trigger.title = automatic
-        ? "Sem contrato informado: será usada a primeira parcela disponível do primeiro contrato."
+      trigger.disabled = false;
+      trigger.setAttribute("aria-disabled", "false");
+      trigger.title = !hasContract
+        ? "Sem contrato, Primeira parcela disponível é o padrão. Para usar Parcela específica ou Intervalo, informe o contrato."
         : "";
     }
   }
@@ -110,8 +114,14 @@
     }
 
     if (!contractDigits) {
-      // Sem contrato, o modo é automático por regra de negócio.
-      // O estado visual do seletor não pode impedir a solicitação.
+      if (type === "parcela_especifica" || type === "intervalo") {
+        setError(contract, "Informe o número do contrato para usar parcela específica ou intervalo.");
+        valid = false;
+      } else if (type !== "primeira_disponivel") {
+        formAlert.textContent = "Selecione o tipo de parcela.";
+        formAlert.hidden = false;
+        valid = false;
+      }
     } else if (type === "parcela_especifica") {
       const parcel = document.querySelector("#parcela");
       if (!parcel?.value || Number(parcel.value) < 1 || Number(parcel.value) > 999) {
@@ -134,7 +144,7 @@
         valid = false;
       }
     } else {
-      formAlert.textContent = "Selecione o tipo de parcela.";
+      formAlert.textContent = "Com contrato informado, escolha Parcela específica ou Intervalo.";
       formAlert.hidden = false;
       valid = false;
     }
@@ -156,8 +166,8 @@
 
   function buildPayload() {
     const contractDigits = digitsOnly(document.querySelector("#contrato")?.value);
-    const automatic = !contractDigits;
-    const type = automatic ? "primeira_disponivel" : selectedRequestType();
+    const type = selectedRequestType();
+    const automatic = !contractDigits && type === "primeira_disponivel";
     let initial = "";
     let final = "";
 
