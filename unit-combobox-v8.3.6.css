@@ -26,3 +26,21 @@
     border-bottom: 2px solid #c8d8ff;
   }
 }
+
+
+/* v8.3.7 - prioridade do dropdown de unidade.
+   Quando a lista de lojas estiver aberta, ela deve ficar acima das camadas
+   de contrato/parcelas sem alterar a geometria ou o comportamento do formulário. */
+@media (min-width: 801px) {
+  .slot-unit:has(.unit-trigger[aria-expanded="true"]) {
+    z-index: 500 !important;
+  }
+
+  .slot-unit:has(.unit-trigger[aria-expanded="true"]) .unit-combobox {
+    z-index: 501 !important;
+  }
+
+  .slot-unit:has(.unit-trigger[aria-expanded="true"]) .unit-list {
+    z-index: 502 !important;
+  }
+}
