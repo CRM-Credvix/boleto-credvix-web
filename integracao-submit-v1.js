@@ -80,10 +80,7 @@
       setError(cpf, "CPF inválido. Confira os números.");
       valid = false;
     }
-    if (!contractDigits) {
-      setError(contract, "Informe o número do contrato.");
-      valid = false;
-    } else if (!/^\d{4,20}$/.test(contractDigits)) {
+    if (contractDigits && !/^\d{4,20}$/.test(contractDigits)) {
       setError(contract, "Contrato deve conter de 4 a 20 números.");
       valid = false;
     }
