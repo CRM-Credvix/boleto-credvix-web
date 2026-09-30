@@ -44,7 +44,31 @@
   }
 
   function selectedRequestType() {
-    return form.querySelector('input[name="tipoSolicitacao"]:checked')?.value || "";
+    return document.querySelector("#parcel-mode-select")?.value || "";
+  }
+
+  function syncAutomaticContractMode() {
+    const contract = document.querySelector("#contrato");
+    const select = document.querySelector("#parcel-mode-select");
+    if (!contract || !select) return;
+
+    const automatic = !digitsOnly(contract.value);
+    if (automatic && select.value !== "primeira_disponivel") {
+      select.value = "primeira_disponivel";
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    } else if (!automatic && select.value === "primeira_disponivel") {
+      select.value = "";
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    const trigger = document.querySelector("#parcel-trigger-v12");
+    if (trigger) {
+      trigger.disabled = automatic;
+      trigger.setAttribute("aria-disabled", String(automatic));
+      trigger.title = automatic
+        ? "Sem contrato informado: será usada a primeira parcela disponível do primeiro contrato."
+        : "";
+    }
   }
 
   function validateForm() {
@@ -85,7 +109,13 @@
       valid = false;
     }
 
-    if (type === "parcela_especifica") {
+    if (!contractDigits) {
+      if (type !== "primeira_disponivel") {
+        formAlert.textContent = "Sem contrato, a solicitação usará a primeira parcela disponível do primeiro contrato.";
+        formAlert.hidden = false;
+        valid = false;
+      }
+    } else if (type === "parcela_especifica") {
       const parcel = document.querySelector("#parcela");
       if (!parcel?.value || Number(parcel.value) < 1 || Number(parcel.value) > 999) {
         setError(parcel, "Informe a parcela.");
@@ -151,6 +181,7 @@
       tipoSolicitacao: type,
       parcelaInicial: initial ? Number(initial) : "",
       parcelaFinal: final ? Number(final) : "",
+      modoAutomatico: type === "primeira_disponivel",
       consentimento: true,
       website: document.querySelector("#website")?.value || "",
       origem: "GITHUB_PAGES"
@@ -191,6 +222,13 @@
     }
     return data;
   }
+
+  document.querySelector("#contrato")?.addEventListener("input", syncAutomaticContractMode);
+  window.addEventListener("DOMContentLoaded", () => {
+    syncAutomaticContractMode();
+    requestAnimationFrame(syncAutomaticContractMode);
+  }, { once: true });
+  setTimeout(syncAutomaticContractMode, 0);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
