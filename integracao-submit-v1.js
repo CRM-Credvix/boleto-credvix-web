@@ -70,7 +70,7 @@
       trigger.disabled = false;
       trigger.setAttribute("aria-disabled", "false");
       trigger.title = !hasContract
-        ? "Sem contrato, Primeira parcela disponível é o padrão. Para usar Parcela específica ou Intervalo, informe o contrato."
+        ? "Sem contrato, o primeiro contrato do DNA será usado. Escolha Primeira parcela disponível, Parcela específica ou Intervalo."
         : "";
     }
   }
@@ -113,12 +113,9 @@
       valid = false;
     }
 
-    if (!contractDigits) {
-      if (type === "parcela_especifica" || type === "intervalo") {
-        setError(contract, "Informe o número do contrato para usar parcela específica ou intervalo.");
-        valid = false;
-      } else if (type !== "primeira_disponivel") {
-        formAlert.textContent = "Selecione o tipo de parcela.";
+    if (type === "primeira_disponivel") {
+      if (contractDigits) {
+        formAlert.textContent = "Para usar Primeira parcela disponível, deixe o contrato em branco.";
         formAlert.hidden = false;
         valid = false;
       }
@@ -144,7 +141,7 @@
         valid = false;
       }
     } else {
-      formAlert.textContent = "Com contrato informado, escolha Parcela específica ou Intervalo.";
+      formAlert.textContent = "Selecione o tipo de parcela.";
       formAlert.hidden = false;
       valid = false;
     }
