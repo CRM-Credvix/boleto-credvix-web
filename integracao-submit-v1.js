@@ -118,7 +118,7 @@
         setError(parcel, "Informe a parcela.");
         valid = false;
       }
-    } else if (!automatic && type === "intervalo") {
+    } else if (type === "intervalo") {
       const start = document.querySelector("#parcelaInicial");
       const end = document.querySelector("#parcelaFinal");
       if (!start?.value || Number(start.value) < 1 || Number(start.value) > 999) {
@@ -164,7 +164,7 @@
     if (!automatic && type === "parcela_especifica") {
       initial = document.querySelector("#parcela")?.value || "";
       final = initial;
-    } else if (type === "intervalo") {
+    } else if (!automatic && type === "intervalo") {
       initial = document.querySelector("#parcelaInicial")?.value || "";
       final = document.querySelector("#parcelaFinal")?.value || "";
     }
@@ -227,7 +227,7 @@
     syncAutomaticContractMode();
     requestAnimationFrame(syncAutomaticContractMode);
   }, { once: true });
-  setTimeout(syncAutomaticContractMode, 0);
+  [0, 100, 500, 1500].forEach((delay) => setTimeout(syncAutomaticContractMode, delay));
   window.addEventListener("load", () => setTimeout(syncAutomaticContractMode, 0), { once: true });
 
   form.addEventListener("submit", async (event) => {
